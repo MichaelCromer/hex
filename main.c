@@ -3,10 +3,33 @@
 
 #include "cell.h"
 
-int CONTINUE = 1;
-int SPLASH = 1;
+int CONTINUE, SPLASH;
 
-int lastchar = 0;
+int _lastchar, _scale;
+struct HexCoordinate *_c;
+
+
+int init_vars()
+{
+    CONTINUE=1;
+    SPLASH=1;
+
+    _lastchar=0;
+    _scale=10;
+
+    _c = malloc( sizeof(struct HexCoordinate *) );
+    _c->x = 0;
+    _c->y = 0;
+    _c->z = 0;
+
+    return 0;
+}
+
+
+int cleanup()
+{
+    free(_c);
+}
 
 
 int init_screen()
@@ -88,15 +111,16 @@ int handle_input()
             CONTINUE = 0;
             break;
         default:
-            lastchar = ch;
+            _lastchar = ch;
     }
 
     return 0;
 }
-    
-    
+
+
 int main()
 {
+    init_vars();
     init_screen();
 
     while (CONTINUE) {
@@ -105,5 +129,6 @@ int main()
     }
 
     endwin();
+    cleanup();
     return 0;
 }
