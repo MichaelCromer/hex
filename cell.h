@@ -3,6 +3,7 @@
 
 
 enum TERRAIN {
+    NONE,
     WATER,
     MOUNTAIN,
     PLAINS,
