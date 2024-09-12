@@ -23,9 +23,32 @@ struct HexCoordinate {
 
 
 struct Hex {
-    struct HexCoordinate coordinate;
-    enum TERRAIN terrain;
+    struct HexCoordinate p;
+    enum TERRAIN t;
 };
+
+
+struct Hex *create_hex(void)
+{
+    struct Hex *h = (struct Hex *)malloc(sizeof(struct Hex));
+    if (h == NULL) {
+        return NULL;
+    }
+
+    h->p.x = 0;
+    h->p.y = 0;
+    h->p.z = 0;
+    h->t = NONE;
+
+    return h;
+}
+
+
+void destroy_hex(struct Hex *h)
+{
+    free(h);
+}
+
 
 
 #endif
