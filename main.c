@@ -29,6 +29,8 @@ int init_vars()
 int cleanup()
 {
     free(_c);
+
+    return 0;
 }
 
 
@@ -74,11 +76,11 @@ int draw_splash()
 
     draw_border(midrow-1, midcol-1, 6, 42);
     attron(A_BOLD);
-    mvprintw(midrow, midcol, title);
+    mvprintw(midrow, midcol, "%s", title);
     attroff(A_BOLD);
-    mvprintw(midrow+1, midcol, line1);
-    mvprintw(midrow+2, midcol, line2);
-    mvprintw(midrow+3, midcol, line3);
+    mvprintw(midrow+1, midcol, "%s", line1);
+    mvprintw(midrow+2, midcol, "%s", line2);
+    mvprintw(midrow+3, midcol, "%s", line3);
 
     return 0;
 }
