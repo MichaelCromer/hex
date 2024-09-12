@@ -9,7 +9,7 @@ int _lastchar, _scale;
 struct HexCoordinate *_c;
 
 
-int init_vars()
+int init_vars(void)
 {
     CONTINUE=1;
     SPLASH=1;
@@ -34,7 +34,7 @@ int cleanup()
 }
 
 
-int init_screen()
+int init_screen(void)
 {
     initscr();              /* init the lib */
     raw();                  /* disable line buffering */
@@ -61,7 +61,7 @@ int draw_border(int x0, int y0, int rows, int cols)
 }
 
 
-int draw_splash()
+int draw_splash(void)
 {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
@@ -86,7 +86,7 @@ int draw_splash()
 }
 
 
-int draw_screen()
+int draw_screen(void)
 {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
@@ -102,7 +102,7 @@ int draw_screen()
 }
 
 
-int handle_input()
+int handle_input(void)
 {
     int ch = getch();
 
@@ -120,7 +120,7 @@ int handle_input()
 }
 
 
-int main()
+int main(void)
 {
     init_vars();
     init_screen();
