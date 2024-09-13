@@ -43,11 +43,11 @@ int initialise(void)
     CONTINUE=1;
     SPLASH=1;
 
-    _splash = create_panel(5);
-    add_panel_line(_splash, "Welcome to hex",                           0);
-    add_panel_line(_splash, "Use u,i,h,l,n,m to navigate tiles",        2);
-    add_panel_line(_splash, "Use j to interact with the current tile",  3);
-    add_panel_line(_splash, "Shift-q to exit.",                         4);
+    _splash = panel_create(5);
+    panel_add_line(_splash, "Welcome to hex",                           0);
+    panel_add_line(_splash, "Use u,i,h,l,n,m to navigate tiles",        2);
+    panel_add_line(_splash, "Use j to interact with the current tile",  3);
+    panel_add_line(_splash, "Shift-q to exit.",                         4);
 
     getmaxyx(stdscr, _rows, _cols);
     _rmid = _rows / 2;
@@ -55,7 +55,7 @@ int initialise(void)
     _lastchar=0;
     _radius=10;
 
-    _h = create_hex();
+    _h = hex_create();
 
     update_vars();
 
@@ -66,7 +66,7 @@ int initialise(void)
 void cleanup(void)
 {
     endwin();
-    destroy_hex(_h);
+    hex_destroy(_h);
 }
 
 

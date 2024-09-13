@@ -9,7 +9,7 @@ struct Panel {
 };
 
 
-struct Panel *create_panel(int len)
+struct Panel *panel_create(int len)
 {
     struct Panel *p = malloc(sizeof(struct Panel));
     if (!p) return NULL;
@@ -28,12 +28,11 @@ struct Panel *create_panel(int len)
 
     p->w = 0;
     p->h = 0;
-
-    return p;
+return p;
 }
 
 
-void destroy_panel(struct Panel *p)
+void panel_destroy(struct Panel *p)
 {
     if (p) {
         for (int i=0; i<p->len; i++) {
@@ -45,7 +44,7 @@ void destroy_panel(struct Panel *p)
 }
 
 
-int add_panel_line(struct Panel *p, const char *line, int index)
+int panel_add_line(struct Panel *p, const char *line, int index)
 {
     if (index < 0 || index >= p->len) { return -1; }
     if (p->lines[index]) { free(p->lines[index]); }
@@ -61,7 +60,7 @@ int add_panel_line(struct Panel *p, const char *line, int index)
 }
 
 
-int remove_panel_line(struct Panel *p, int index)
+int panel_remove_line(struct Panel *p, int index)
 {
     if (index < 0 || index >= p->len) { return -1; }
     if (!p->lines[index]) { return 0; }

@@ -37,7 +37,7 @@ struct Hex {
 };
 
 
-struct Hex *create_hex(void)
+struct Hex *hex_create(void)
 {
     struct Hex *h = (struct Hex *)malloc(sizeof(struct Hex));
     if (h == NULL) {
@@ -56,7 +56,7 @@ struct Hex *create_hex(void)
 }
 
 
-void destroy_hex(struct Hex *h)
+void hex_destroy(struct Hex *h)
 {
     free(h);
 }
