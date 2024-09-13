@@ -58,17 +58,39 @@ void cleanup(void)
 }
 
 
-int draw_border(int x0, int y0, int rows, int cols)
+int draw_border(int r0, int c0, int w, int h)
 {
-    mvaddch(x0,             y0,             ACS_PLUS);
-    mvaddch(x0,             y0 + cols-1,    ACS_PLUS);
-    mvaddch(x0 + rows-1,    y0,             ACS_PLUS);
-    mvaddch(x0 + rows-1,    y0 + cols-1,    ACS_PLUS);
+    mvhline(r0,     c0,     ACS_HLINE, w-1);
+    mvvline(r0,     c0,     ACS_VLINE, h-1);
+    mvvline(r0,     c0+w-1, ACS_VLINE, h-1);
+    mvhline(r0+h-1, c0,     ACS_HLINE, w-1);
 
-    mvhline(x0,             y0 + 1,         ACS_HLINE, cols-2);
-    mvvline(x0 + 1,         y0,             ACS_VLINE, rows-2);
-    mvvline(x0 + 1,         y0 + cols-1,    ACS_VLINE, rows-2);
-    mvhline(x0 + rows-1,    y0 + 1,         ACS_HLINE, cols-2);
+    mvaddch(r0,     c0,     ACS_PLUS);
+    mvaddch(r0,     c0+w-1, ACS_PLUS);
+    mvaddch(r0+h-1, c0,     ACS_PLUS);
+    mvaddch(r0+h-1, c0+w-1, ACS_PLUS);
+
+    return 0;
+}
+
+
+int draw_rectangle(int r0, int c0, int w, int h, char bg)
+{
+    for (int r=0; r<h; r++) {
+        mvhline(r0+r, c0, bg, w);
+    }
+
+    return 0;
+}
+
+
+int draw_box(int r0, int c0, int w, int h, char bg)
+{
+    draw_rectangle(r0, c0, w, h, bg);
+    draw_border(r0, c0, w, h);
+
+    return 0;
+}
 
     return 0;
 }
