@@ -103,6 +103,32 @@ int draw_splash(void)
 }
 
 
+char get_terrainchr(enum TERRAIN t)
+{
+    switch (t) {
+        case WATER:
+            return '~';
+        case MOUNTAIN:
+            return '^';
+        case PLAINS:
+            return ';';
+        case HILL:
+            return 'n';
+        case FOREST:
+            return 'T';
+        case DESERT:
+            return '*';
+        case JUNGLE:
+            return '#';
+        case SWAMP:
+            return 'j';
+        default:
+            break;
+    }
+    return '?';
+}
+
+
 int draw_screen(void)
 {
     int rows, cols;
