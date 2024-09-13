@@ -129,6 +129,21 @@ char get_terrainchr(enum TERRAIN t)
 }
 
 
+int draw_hex(int row0, int col0, struct Hex *hex)
+{
+    char ch = get_terrainchr(hex->t);
+    int dh = 0;
+
+    for (int col = -_hex_w; col <= _hex_w; col++) {
+        dh = (col < 0) ? round((_hex_w+col)*_DH_DW) : round((_hex_w-col)*_DH_DW);
+        for (int row = -(_hex_h + dh); row <= (_hex_h + dh); row++) {
+            mvaddch(row0 + row, col0 + col, ch);
+        }
+    }
+    return 0;
+}
+
+
 int draw_screen(void)
 {
     int rows, cols;
