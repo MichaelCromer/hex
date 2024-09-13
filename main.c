@@ -18,24 +18,6 @@ struct Hex *_h;
 struct HexCoordinate *_c;
 
 
-int init_vars(void)
-{
-    CONTINUE=1;
-    SPLASH=1;
-
-    _lastchar=0;
-    _radius=10;
-
-    _hex_w = round(_radius * ROOT3 / 2);
-    _hex_h = round(_radius * CURSOR_ASPECT_RATIO / 2);
-
-    _h = create_hex();
-    _c = &(_h->p);
-
-    return 0;
-}
-
-
 void update_vars(void)
 {
     _hex_w = round(_radius * ROOT3 / 2);
@@ -45,13 +27,7 @@ void update_vars(void)
 }
 
 
-void cleanup(void)
-{
-    free(_h);
-}
-
-
-int init_screen(void)
+int initialise(void)
 {
     initscr();              /* init the lib */
     raw();                  /* disable line buffering */
@@ -59,8 +35,27 @@ int init_screen(void)
     noecho();               /* don't echo user input */
     curs_set(0);            /* disable cursor */
 
+    CONTINUE=1;
+    SPLASH=1;
+
+    getmaxyx(stdscr, _rows, _cols);
+    _lastchar=0;
+    _radius=10;
+
+    _h = create_hex();
+
+    update_vars();
+
     return 0;
 }
+
+
+void cleanup(void)
+{
+    endwin();
+    destroy_hex(_h);
+}
+
 
 int draw_border(int x0, int y0, int rows, int cols)
 {
@@ -184,15 +179,13 @@ int handle_input(void)
 
 int main(void)
 {
-    init_vars();
-    init_screen();
+    initialise();
 
     while (CONTINUE) {
         draw_screen();
         handle_input();
     }
 
-    endwin();
     cleanup();
     return 0;
 }
