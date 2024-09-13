@@ -11,6 +11,7 @@ const float CURSOR_ASPECT_RATIO = 0.66f;
 const float _DH_DW = ROOT3_INV * CURSOR_ASPECT_RATIO;
 
 int _lastchar;
+int _rows, _cols;
 float _radius;
 int _hex_w, _hex_h;
 
@@ -75,11 +76,8 @@ int draw_border(int x0, int y0, int rows, int cols)
 
 int draw_splash(void)
 {
-    int rows, cols;
-    getmaxyx(stdscr, rows, cols);
-
-    int midrow = (rows / 2) - 3;
-    int midcol = (cols / 2) - 22;
+    int midrow = (_rows / 2) - 3;
+    int midcol = (_cols / 2) - 22;
 
     char *title = "Welcome to hex";
     char *line1 = "Use u,i,h,l,n,m to navigate tiles";
@@ -141,12 +139,10 @@ int draw_hex(int row0, int col0, struct Hex *hex)
 
 int draw_screen(void)
 {
-    int rows, cols;
-    getmaxyx(stdscr, rows, cols);
-    int midr = rows / 2;
-    int midc = cols / 2;
+    int midr = _rows / 2;
+    int midc = _cols / 2;
 
-    draw_border(0, 0, rows, cols);
+    draw_border(0, 0, _rows, _cols);
     draw_hex(midr, midc, _h);
 
     if (SPLASH) {
