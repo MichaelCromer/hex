@@ -1,11 +1,20 @@
+#include <math.h>
 #include <ncurses.h>
 #include <stdlib.h>
 
 #include "cell.h"
 
 int CONTINUE, SPLASH;
+const float ROOT3 = 1.732050807f;
+const float ROOT3_INV = 0.57735026919f;
+const float CURSOR_ASPECT_RATIO = 0.66f;
+const float _DH_DW = ROOT3_INV * CURSOR_ASPECT_RATIO;
 
-int _lastchar, _scale;
+int _lastchar;
+float _radius;
+int _hex_w, _hex_h;
+
+struct Hex *_h;
 struct HexCoordinate *_c;
 
 
@@ -15,22 +24,30 @@ int init_vars(void)
     SPLASH=1;
 
     _lastchar=0;
-    _scale=10;
+    _radius=10;
 
-    _c = malloc( sizeof(struct HexCoordinate *) );
-    _c->x = 0;
-    _c->y = 0;
-    _c->z = 0;
+    _hex_w = round(_radius * ROOT3 / 2);
+    _hex_h = round(_radius * CURSOR_ASPECT_RATIO / 2);
+
+    _h = create_hex();
+    _c = &(_h->p);
 
     return 0;
 }
 
 
-int cleanup()
+void update_vars(void)
 {
-    free(_c);
+    _hex_w = round(_radius * ROOT3 / 2);
+    _hex_h = round(_radius * CURSOR_ASPECT_RATIO / 2);
 
-    return 0;
+    _c = &(_h->p);
+}
+
+
+void cleanup(void)
+{
+    free(_h);
 }
 
 
