@@ -12,6 +12,7 @@ const float _DH_DW = ROOT3_INV * CURSOR_ASPECT_RATIO;
 
 int _lastchar;
 int _rows, _cols;
+int _rmid, _cmid;
 float _radius;
 int _hex_w, _hex_h;
 
@@ -40,6 +41,8 @@ int initialise(void)
     SPLASH=1;
 
     getmaxyx(stdscr, _rows, _cols);
+    _rmid = _rows / 2;
+    _cmid = _cols / 2;
     _lastchar=0;
     _radius=10;
 
@@ -161,11 +164,8 @@ int draw_hex(int row0, int col0, struct Hex *hex)
 
 int draw_screen(void)
 {
-    int midr = _rows / 2;
-    int midc = _cols / 2;
-
-    draw_border(0, 0, _rows, _cols);
-    draw_hex(midr, midc, _h);
+    draw_border(0, 0, _cols, _rows);
+    draw_hex(_rmid, _cmid, _h);
 
     if (SPLASH) {
         draw_splash();
