@@ -148,8 +148,11 @@ int draw_screen(void)
 {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
+    int midr = rows / 2;
+    int midc = cols / 2;
 
     draw_border(0, 0, rows, cols);
+    draw_hex(midr, midc, _h);
 
     if (SPLASH) {
         draw_splash();
@@ -174,6 +177,7 @@ int handle_input(void)
             _lastchar = ch;
     }
 
+    update_vars();
     return 0;
 }
 
