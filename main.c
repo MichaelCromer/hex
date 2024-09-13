@@ -1,8 +1,10 @@
 #include <math.h>
 #include <ncurses.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "cell.h"
+#include "panel.h"
 
 int CONTINUE, SPLASH;
 const float ROOT3 = 1.732050807f;
@@ -95,6 +97,15 @@ int draw_box(int r0, int c0, int w, int h, char bg)
     return 0;
 }
 
+
+int draw_panel(struct Panel *p, int r0, int c0)
+{
+    draw_box(r0, c0, p->w, p->h, ' ');
+
+    for (int i=0; i<p->len; i++) {
+        if (!p->lines[i]) { continue; }
+        mvprintw(r0+2+i, c0+2, "%s", p->lines[i]);
+    }
     return 0;
 }
 
