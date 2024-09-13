@@ -1,5 +1,5 @@
-#ifndef CELL_H
-#define CELL_H
+#ifndef GRID_H
+#define GRID_H
 
 
 enum TERRAIN {
@@ -15,16 +15,25 @@ enum TERRAIN {
 };
 
 
+enum HexDirection {
+    EAST,
+    NORTHEAST,
+    NORTHWEST,
+    WEST,
+    SOUTHWEST,
+    SOUTHEAST
+};
+
+
 struct HexCoordinate {
-    int x;
-    int y;
-    int z;
+    int x, y, z;
 };
 
 
 struct Hex {
     struct HexCoordinate p;
     enum TERRAIN t;
+    struct Hex *n[6];
 };
 
 
@@ -39,6 +48,9 @@ struct Hex *create_hex(void)
     h->p.y = 0;
     h->p.z = 0;
     h->t = NONE;
+    for (int i=0; i<6; i++) {
+        h->n[i] = NULL;
+    }
 
     return h;
 }
@@ -48,7 +60,6 @@ void destroy_hex(struct Hex *h)
 {
     free(h);
 }
-
 
 
 #endif

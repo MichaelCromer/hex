@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cell.h"
+#include "grid.h"
 #include "panel.h"
 
 int CONTINUE, SPLASH;
