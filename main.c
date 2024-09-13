@@ -156,16 +156,16 @@ int draw_screen(void)
 
 int handle_input(void)
 {
-    int ch = getch();
+    _lastchar = getch();
 
     SPLASH = 0;
 
-    switch (ch) {
+    switch (_lastchar) {
         case 'Q':
             CONTINUE = 0;
             break;
         default:
-            _lastchar = ch;
+            break;
     }
 
     update_vars();
