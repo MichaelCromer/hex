@@ -21,6 +21,7 @@ int _hex_w, _hex_h;
 struct Hex *_h;
 struct HexCoordinate *_c;
 
+struct Panel *_splash;
 
 void update_vars(void)
 {
@@ -41,6 +42,12 @@ int initialise(void)
 
     CONTINUE=1;
     SPLASH=1;
+
+    _splash = create_panel(5);
+    add_panel_line(_splash, "Welcome to hex",                           0);
+    add_panel_line(_splash, "Use u,i,h,l,n,m to navigate tiles",        2);
+    add_panel_line(_splash, "Use j to interact with the current tile",  3);
+    add_panel_line(_splash, "Shift-q to exit.",                         4);
 
     getmaxyx(stdscr, _rows, _cols);
     _rmid = _rows / 2;
@@ -110,23 +117,9 @@ int draw_panel(struct Panel *p, int r0, int c0)
 }
 
 
-int draw_splash(void)
+int clear_panel(struct Panel *p, int r0, int c0)
 {
-    int midrow = (_rows / 2) - 3;
-    int midcol = (_cols / 2) - 22;
-
-    char *title = "Welcome to hex";
-    char *line1 = "Use u,i,h,l,n,m to navigate tiles";
-    char *line2 = "Use j to interact with the current tile";
-    char *line3 = "Shift-q to exit.";
-
-    draw_border(midrow-1, midcol-1, 6, 42);
-    attron(A_BOLD);
-    mvprintw(midrow, midcol, "%s", title);
-    attroff(A_BOLD);
-    mvprintw(midrow+1, midcol, "%s", line1);
-    mvprintw(midrow+2, midcol, "%s", line2);
-    mvprintw(midrow+3, midcol, "%s", line3);
+    draw_rectangle(r0, c0, p->w, p->h, ' ');
 
     return 0;
 }
@@ -179,7 +172,9 @@ int draw_screen(void)
     draw_hex(_rmid, _cmid, _h);
 
     if (SPLASH) {
-        draw_splash();
+        int r0 = _rmid - (_splash->h / 2);
+        int c0 = _cmid - (_splash->w / 2);
+        draw_panel(_splash, r0, c0);
     }
 
     refresh();
@@ -191,7 +186,12 @@ int handle_input(void)
 {
     _lastchar = getch();
 
-    SPLASH = 0;
+    if (SPLASH) {
+        int r0 = _rmid - (_splash->h / 2);
+        int c0 = _cmid - (_splash->w / 2);
+        clear_panel(_splash, r0, c0);
+        SPLASH = 0;
+    }
 
     switch (_lastchar) {
         case 'Q':
