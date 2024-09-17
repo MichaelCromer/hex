@@ -19,7 +19,6 @@ float _radius;
 int _hex_w, _hex_h;
 
 struct Hex *_h;
-struct HexCoordinate *_c;
 
 struct Panel *_splash;
 
@@ -27,8 +26,6 @@ void update_vars(void)
 {
     _hex_w = round(_radius * ROOT3 / 2);
     _hex_h = round(_radius * CURSOR_ASPECT_RATIO / 2);
-
-    _c = &(_h->p);
 }
 
 

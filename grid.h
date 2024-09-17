@@ -25,13 +25,8 @@ enum HexDirection {
 };
 
 
-struct HexCoordinate {
-    int x, y, z;
-};
-
-
 struct Hex {
-    struct HexCoordinate p;
+    int x, y, z;
     enum TERRAIN t;
     struct Hex *n[6];
 };
@@ -44,9 +39,9 @@ struct Hex *hex_create(void)
         return NULL;
     }
 
-    h->p.x = 0;
-    h->p.y = 0;
-    h->p.z = 0;
+    h->x = 0;
+    h->y = 0;
+    h->z = 0;
     h->t = NONE;
     for (int i=0; i<6; i++) {
         h->n[i] = NULL;
