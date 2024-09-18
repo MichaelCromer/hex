@@ -2,16 +2,25 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "grid.h"
 #include "panel.h"
 
-int CONTINUE, SPLASH;
+enum INPUTMODE {
+    CAPTURE,
+    NAVIGATE,
+    TERRAIN_SELECT
+};
+
+bool CONTINUE;
+bool SPLASH, TERRAIN_SELECTOR;
 const float ROOT3 = 1.732050807f;
 const float ROOT3_INV = 0.57735026919f;
 const float CURSOR_ASPECT_RATIO = 0.66f;
 const float _DH_DW = ROOT3_INV * CURSOR_ASPECT_RATIO;
 
+enum INPUTMODE _input_mode;
 int _lastchar;
 int _rows, _cols;
 int _rmid, _cmid;
@@ -21,6 +30,7 @@ int _hex_w, _hex_h;
 struct Hex *_h;
 
 struct Panel *_splash;
+struct Panel *_terrain_selector;
 
 void update_vars(void)
 {
@@ -37,20 +47,36 @@ int initialise(void)
     noecho();               /* don't echo user input */
     curs_set(0);            /* disable cursor */
 
-    CONTINUE=1;
-    SPLASH=1;
+    CONTINUE = true;
+    SPLASH = true;
+    TERRAIN_SELECTOR = false;
 
-    _splash = panel_create(5);
-    panel_add_line(_splash, "Welcome to hex",                           0);
-    panel_add_line(_splash, "Use u,i,h,l,n,m to navigate tiles",        2);
-    panel_add_line(_splash, "Use j to interact with the current tile",  3);
-    panel_add_line(_splash, "Shift-q to exit.",                         4);
+    _input_mode = CAPTURE;
 
     getmaxyx(stdscr, _rows, _cols);
     _rmid = _rows / 2;
     _cmid = _cols / 2;
     _lastchar=0;
     _radius=10;
+
+    int r0, c0;
+    _splash = panel_create(0, 0, 5);
+    panel_add_line(_splash, "Welcome to hex",                           0);
+    panel_add_line(_splash, "Use u,i,h,l,n,m to navigate tiles",        2);
+    panel_add_line(_splash, "Use j to interact with the current tile",  3);
+    panel_add_line(_splash, "Shift-q to exit.",                         4);
+    r0 = _rmid - (_splash->h / 2);
+    c0 = _cmid - (_splash->w / 2);
+    panel_set_rc(_splash, r0, c0);
+
+    _terrain_selector = panel_create(0, 0, 5);
+    panel_add_line(_terrain_selector, "Select Terrain:", 0);
+    panel_add_line(_terrain_selector, "1. Ocean     2. Mountain 3. Plains", 2);
+    panel_add_line(_terrain_selector, "4. Hills     5. Forest   6. Desert", 3);
+    panel_add_line(_terrain_selector, "7. Jungle    8. Swamp    q. Close ", 4);
+    r0 = _rmid - (_terrain_selector->h / 2);
+    c0 = _cmid - (_terrain_selector->w / 2);
+    panel_set_rc(_terrain_selector, r0, c0);
 
     _h = hex_create();
 
@@ -63,6 +89,8 @@ int initialise(void)
 void cleanup(void)
 {
     endwin();
+    panel_destroy(_splash);
+    panel_destroy(_terrain_selector);
     hex_destroy(_h);
 }
 
@@ -102,21 +130,21 @@ int draw_box(int r0, int c0, int w, int h, char bg)
 }
 
 
-int draw_panel(struct Panel *p, int r0, int c0)
+int draw_panel(struct Panel *p)
 {
-    draw_box(r0, c0, p->w, p->h, ' ');
+    draw_box(p->r0, p->c0, p->w, p->h, ' ');
 
     for (int i=0; i<p->len; i++) {
         if (!p->lines[i]) { continue; }
-        mvprintw(r0+2+i, c0+2, "%s", p->lines[i]);
+        mvprintw(p->r0+2+i, p->c0+2, "%s", p->lines[i]);
     }
     return 0;
 }
 
 
-int clear_panel(struct Panel *p, int r0, int c0)
+int clear_panel(struct Panel *p)
 {
-    draw_rectangle(r0, c0, p->w, p->h, ' ');
+    draw_rectangle(p->r0, p->c0, p->w, p->h, ' ');
 
     return 0;
 }
@@ -169,9 +197,10 @@ int draw_screen(void)
     draw_hex(_rmid, _cmid, _h);
 
     if (SPLASH) {
-        int r0 = _rmid - (_splash->h / 2);
-        int c0 = _cmid - (_splash->w / 2);
-        draw_panel(_splash, r0, c0);
+        draw_panel(_splash);
+    }
+    if (TERRAIN_SELECTOR) {
+        draw_panel(_terrain_selector);
     }
 
     refresh();
@@ -179,27 +208,78 @@ int draw_screen(void)
 }
 
 
-int handle_input(void)
+void fill_empty_hex(void)
+{
+
+}
+
+
+int input_capture(void)
+{
+    if (SPLASH) {
+        clear_panel(_splash);
+        SPLASH = false;
+    }
+
+    return NAVIGATE;
+}
+
+
+int input_navigate(void)
+{
+    switch (_lastchar) {
+        case 'Q':
+            CONTINUE = false;
+            break;
+        case 'j':
+            if ((_h->t) == NONE) {
+                TERRAIN_SELECTOR = true;
+                return TERRAIN_SELECT;
+            }
+            break;
+        case 'T':
+            TERRAIN_SELECTOR = true;
+            return TERRAIN_SELECT;
+        default:
+            break;
+    }
+
+    return NAVIGATE;
+}
+
+
+int input_terrain(void)
+{
+    switch (_lastchar) {
+        case 'q':
+            clear_panel(_terrain_selector);
+            TERRAIN_SELECTOR = false;
+            return NAVIGATE;
+        default:
+            break;
+    }
+    return TERRAIN_SELECT;
+}
+
+
+void handle_input(void)
 {
     _lastchar = getch();
 
-    if (SPLASH) {
-        int r0 = _rmid - (_splash->h / 2);
-        int c0 = _cmid - (_splash->w / 2);
-        clear_panel(_splash, r0, c0);
-        SPLASH = 0;
-    }
-
-    switch (_lastchar) {
-        case 'Q':
-            CONTINUE = 0;
+    switch (_input_mode) {
+        case CAPTURE:
+            _input_mode = input_capture();
             break;
+        case NAVIGATE:
+            _input_mode = input_navigate();
+            break;
+        case TERRAIN_SELECT:
+            _input_mode = input_terrain();
         default:
             break;
     }
 
     update_vars();
-    return 0;
 }
 
 

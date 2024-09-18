@@ -15,7 +15,7 @@ enum TERRAIN {
 };
 
 
-enum HexDirection {
+enum DIRECTION {
     EAST,
     NORTHEAST,
     NORTHWEST,
