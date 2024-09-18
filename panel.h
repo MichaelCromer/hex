@@ -3,17 +3,20 @@
 
 
 struct Panel {
+    int r0, c0;
     int w, h;
     int len;
     char **lines;
 };
 
 
-struct Panel *panel_create(int len)
+struct Panel *panel_create(int r0, int c0, int len)
 {
     struct Panel *p = malloc(sizeof(struct Panel));
     if (!p) return NULL;
 
+    p->r0 = r0;
+    p->c0 = c0;
     p->len = len;
 
     p->lines = malloc(len * sizeof(char *));
@@ -80,5 +83,13 @@ int panel_remove_line(struct Panel *p, int index)
     return 0;
 }
 
+
+int panel_set_rc(struct Panel *p, int r, int c)
+{
+    p->r0 = r;
+    p->c0 = c;
+
+    return 0;
+}
 
 #endif
