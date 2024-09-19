@@ -57,4 +57,17 @@ void hex_destroy(struct Hex *h)
 }
 
 
+void hex_set_terrain(struct Hex *h, enum TERRAIN t)
+{
+    h->t = t;
+}
+
+
+void hex_set_coords(struct Hex *h, int x, int y, int z)
+{
+    h->x = x;
+    h->y = y;
+    h->z = z;
+}
+
 #endif
