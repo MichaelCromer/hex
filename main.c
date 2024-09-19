@@ -246,13 +246,37 @@ int input_terrain(void)
 {
     switch (_lastchar) {
         case 'q':
-            clear_panel(_terrain_selector);
-            TERRAIN_SELECTOR = false;
-            return NAVIGATE;
-        default:
             break;
+        case '1':
+            hex_set_terrain(_h, WATER);
+            break;
+        case '2':
+            hex_set_terrain(_h, MOUNTAINS);
+            break;
+        case '3':
+            hex_set_terrain(_h, PLAINS);
+            break;
+        case '4':
+            hex_set_terrain(_h, HILLS);
+            break;
+        case '5':
+            hex_set_terrain(_h, FOREST);
+            break;
+        case '6':
+            hex_set_terrain(_h, DESERT);
+            break;
+        case '7':
+            hex_set_terrain(_h, JUNGLE);
+            break;
+        case '8':
+            hex_set_terrain(_h, SWAMP);
+            break;
+        default:
+            return TERRAIN_SELECT;
     }
-    return TERRAIN_SELECT;
+    clear_panel(_terrain_selector);
+    TERRAIN_SELECTOR = false;
+    return NAVIGATE;
 }
 
 
