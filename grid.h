@@ -5,9 +5,9 @@
 enum TERRAIN {
     NONE,
     WATER,
-    MOUNTAIN,
+    MOUNTAINS,
     PLAINS,
-    HILL,
+    HILLS,
     FOREST,
     DESERT,
     JUNGLE,

@@ -155,11 +155,11 @@ char get_terrainchr(enum TERRAIN t)
     switch (t) {
         case WATER:
             return '~';
-        case MOUNTAIN:
+        case MOUNTAINS:
             return '^';
         case PLAINS:
             return ';';
-        case HILL:
+        case HILLS:
             return 'n';
         case FOREST:
             return 'T';
