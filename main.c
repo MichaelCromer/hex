@@ -208,12 +208,6 @@ int draw_screen(void)
 }
 
 
-void fill_empty_hex(void)
-{
-
-}
-
-
 int input_capture(void)
 {
     if (SPLASH) {
