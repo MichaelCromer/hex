@@ -178,7 +178,7 @@ char get_terrainchr(enum TERRAIN t)
 
 int draw_hex(struct Hex *hex, int row0, int col0, int w_half, int h_half, float slope)
 {
-    char ch = get_terrainchr(hex->t);
+    char ch = get_terrainchr(hex_get_terrain(hex));
     int dh = 0;
 
     for (int col = -w_half; col <= w_half; col++) {
