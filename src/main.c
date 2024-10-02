@@ -226,7 +226,7 @@ int input_navigate(void)
             CONTINUE = false;
             break;
         case 'j':
-            if ((_h->t) == NONE) {
+            if (hex_get_terrain(_h) == NONE) {
                 TERRAIN_SELECTOR = true;
                 return TERRAIN_SELECT;
             }
