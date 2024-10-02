@@ -16,7 +16,6 @@ $(BLDDIR)/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-
 .PHONY: clean
 clean:
 	rm -r $(BLDDIR)
