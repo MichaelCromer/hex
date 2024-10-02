@@ -176,14 +176,14 @@ char get_terrainchr(enum TERRAIN t)
 }
 
 
-int draw_hex(int row0, int col0, struct Hex *hex)
+int draw_hex(struct Hex *hex, int row0, int col0, int w_half, int h_half, float slope)
 {
     char ch = get_terrainchr(hex->t);
     int dh = 0;
 
-    for (int col = -_hex_w; col <= _hex_w; col++) {
-        dh = (col < 0) ? round((_hex_w+col)*_DH_DW) : round((_hex_w-col)*_DH_DW);
-        for (int row = -(_hex_h + dh); row <= (_hex_h + dh); row++) {
+    for (int col = -w_half; col <= w_half; col++) {
+        dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
+        for (int row = -(h_half + dh); row <= (h_half + dh); row++) {
             mvaddch(row0 + row, col0 + col, ch);
         }
     }
@@ -194,7 +194,7 @@ int draw_hex(int row0, int col0, struct Hex *hex)
 int draw_screen(void)
 {
     draw_border(0, 0, _cols, _rows);
-    draw_hex(_rmid, _cmid, _h);
+    draw_hex(_h, _rmid, _cmid, _hex_w, _hex_h, _DH_DW);
 
     if (SPLASH) {
         draw_panel(_splash);
