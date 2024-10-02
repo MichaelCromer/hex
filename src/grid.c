@@ -68,15 +68,6 @@ void snode_add(struct SearchNode **head, struct Hex *new_hex, int new_score)
         return;
     }
 
-    /* find if hex already present */
-    struct SearchNode *existing = snode_find(head, new_hex);
-    if (existing) {
-        if (existing->score == new_score) {
-            return;
-        }
-        snode_remove(head, new_hex);
-    }
-
     /* create new node for new entry */
     struct SearchNode *new_node = snode_create(new_score, new_hex);
 
@@ -134,6 +125,40 @@ void snode_remove(struct SearchNode **head, struct Hex *hex)
  *      COORDINATE Functions
  */
 
+struct Coordinate d_ee = {  0,  1, -1 };
+struct Coordinate d_ne = { -1,  1,  0 };
+struct Coordinate d_nw = { -1,  0,  1 };
+struct Coordinate d_ww = {  0, -1,  1 };
+struct Coordinate d_sw = {  1, -1,  0 };
+struct Coordinate d_se = {  1,  0, -1 };
+
+
+enum DIRECTION direction_opposite(enum DIRECTION d)
+{
+    enum DIRECTION opp;
+    switch (d) {
+        case EAST:
+            opp = WEST;
+            break;
+        case NORTHEAST:
+            opp = SOUTHWEST;
+            break;
+        case NORTHWEST:
+            opp = SOUTHEAST;
+            break;
+        case WEST:
+            opp = EAST;
+            break;
+        case SOUTHWEST:
+            opp = NORTHEAST;
+            break;
+        case SOUTHEAST:
+            opp = NORTHWEST;
+            break;
+    }
+    return opp;
+}
+
 bool coordinate_equals(struct Coordinate *c0, struct Coordinate *c1)
 {
     return ((c0->x == c1->x) && (c0->y == c1->y) && (c0->z == c1->z));
@@ -152,44 +177,38 @@ int coordinate_distance(struct Coordinate *c0, struct Coordinate *c1)
     return dc;
 }
 
-struct Coordinate *coordinate_delta(struct Coordinate *c, enum DIRECTION d)
+void coordinate_add(struct Coordinate *c1, struct Coordinate *c2, struct Coordinate *a)
 {
-    struct Coordinate *result = malloc(sizeof(struct Coordinate));
+    a->x = c1->x + c2->x;
+    a->y = c1->y + c2->y;
+    a->z = c1->z + c2->z;
 
+    return;
+}
+
+void coordinate_delta(struct Coordinate *c, enum DIRECTION d, struct Coordinate *a)
+{
     switch (d) {
         case EAST:
-            result->x = c->x;
-            result->y = c->y + 1;
-            result->z = c->z - 1;
+            coordinate_add(c, &d_ee, a);
             break;
         case NORTHEAST:
-            result->x = c->x - 1;
-            result->y = c->y + 1;
-            result->z = c->z;
+            coordinate_add(c, &d_ne, a);
             break;
         case NORTHWEST:
-            result->x = c->x - 1;
-            result->y = c->y;
-            result->z = c->z + 1;
+            coordinate_add(c, &d_nw, a);
             break;
         case WEST:
-            result->x = c->x;
-            result->y = c->y - 1;
-            result->z = c->z + 1;
+            coordinate_add(c, &d_ww, a);
             break;
         case SOUTHWEST:
-            result->x = c->x + 1;
-            result->y = c->y - 1;
-            result->z = c->z;
+            coordinate_add(c, &d_sw, a);
             break;
         case SOUTHEAST:
-            result->x = c->x + 1;
-            result->y = c->y;
-            result->z = c->z - 1;
+            coordinate_add(c, &d_se, a);
             break;
     }
-
-    return result;
+    return;
 }
 
 /*
@@ -241,11 +260,6 @@ enum TERRAIN hex_get_terrain(struct Hex *h)
     return h->t;
 }
 
-
-void hex_set_coordinates(struct Hex *h, struct Coordinate *c)
-{
-    return;
-}
 
 int hex_x(struct Hex *h)
 {
@@ -310,20 +324,19 @@ struct Hex *hex_find(struct Hex *start, struct Coordinate *target)
 
 void hex_create_neighbour(struct Hex *h, enum DIRECTION d)
 {
+    /* create the hex with the right coords */
     struct Hex *nbr = hex_create();
-    struct *c = coordinate_delta(h, d);
-
-    nbr->c->x = c->x;
-    nbr->c->y = c->y;
-    nbr->c->z = c->z;
+    coordinate_delta(h->c, d, nbr->c);
 
     /* assign the new neighbour */
     h->n[d] = nbr;
+    nbr->n[direction_opposite(d)] = h;
 
     /* find the neighbour's neighbourhood */
+    struct Coordinate dc = {0, 0, 0};
     for (int i = WEST; i <= SOUTHEAST; i++) {
-        struct Coordinate *c = coordinate_delta(nbr->c, i);
-        struct Hex *nbr_nbr = hex_find(nbr, c);
+        coordinate_delta(nbr->c, i, &dc);
+        struct Hex *nbr_nbr = hex_find(nbr, &dc);
         if (nbr_nbr) {
             (nbr->n)[i] = nbr_nbr;
         }
