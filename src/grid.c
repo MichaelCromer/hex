@@ -4,10 +4,10 @@
 #include "grid.h"
 
 
-struct SearchNode {
+struct Queue {
     int score;
     struct Hex *hex;
-    struct SearchNode *next;
+    struct Queue *next;
 };
 
 struct Coordinate {
@@ -24,33 +24,33 @@ struct Hex {
 
 
 /*
- *      SEARCHNODE Functions
+ *      QUEUE Functions
  */
 
-struct SearchNode *snode_create(int score, struct Hex *hex)
+struct Queue *queue_create(int score, struct Hex *hex)
 {
-    struct SearchNode *snode = malloc(sizeof(struct SearchNode));
-    snode->score = score;
-    snode->hex = hex;
-    snode->next = NULL;
+    struct Queue *queue = malloc(sizeof(struct Queue));
+    queue->score = score;
+    queue->hex = hex;
+    queue->next = NULL;
 
-    return snode;
+    return queue;
 }
 
-void snode_destroy(struct SearchNode *snode)
+void queue_destroy(struct Queue *queue)
 {
-    struct SearchNode *tmp;
-    while (snode != NULL) {
-        tmp = snode;
-        snode = snode->next;
+    struct Queue *tmp;
+    while (queue != NULL) {
+        tmp = queue;
+        queue = queue->next;
         free(tmp);
     }
 }
 
 
-struct SearchNode *snode_find(struct SearchNode **head, struct Hex *hex)
+struct Queue *queue_find(struct Queue **head, struct Hex *hex)
 {
-    struct SearchNode *curr = *head;
+    struct Queue *curr = *head;
     while (curr != NULL) {
         if (curr->hex == hex) {
             return curr;
@@ -61,7 +61,7 @@ struct SearchNode *snode_find(struct SearchNode **head, struct Hex *hex)
 }
 
 
-void snode_add(struct SearchNode **head, struct Hex *new_hex, int new_score)
+void queue_add(struct Queue **head, struct Hex *new_hex, int new_score)
 {
     /* null pointer handling */
     if ((head == NULL) || (new_hex == NULL)) {
@@ -69,7 +69,7 @@ void snode_add(struct SearchNode **head, struct Hex *new_hex, int new_score)
     }
 
     /* create new node for new entry */
-    struct SearchNode *new_node = snode_create(new_score, new_hex);
+    struct Queue *new_node = queue_create(new_score, new_hex);
 
     /* special case of adding to start */
     if ((*head == NULL) || (*head)->score > new_node->score) {
@@ -79,7 +79,7 @@ void snode_add(struct SearchNode **head, struct Hex *new_hex, int new_score)
     }
 
     /* main case: loop through to find correct position */
-    struct SearchNode *curr = *head;
+    struct Queue *curr = *head;
     while ((curr->next != NULL) && (curr->next->score <= new_node->score)) {
         curr = curr->next;
     }
@@ -90,15 +90,15 @@ void snode_add(struct SearchNode **head, struct Hex *new_hex, int new_score)
 }
 
 
-void snode_remove(struct SearchNode **head, struct Hex *hex)
+void queue_remove(struct Queue **head, struct Hex *hex)
 {
     /* null pointer handling */
     if ((head == NULL) || (*head == NULL) || (hex == NULL)) {
         return;
     }
 
-    struct SearchNode *prev = NULL;
-    struct SearchNode *curr = *head;
+    struct Queue *prev = NULL;
+    struct Queue *curr = *head;
 
     /* loop through until we find the matching hex or run off the end */
     while ((curr != NULL) && (curr->hex != hex)) {
@@ -113,7 +113,7 @@ void snode_remove(struct SearchNode **head, struct Hex *hex)
         } else {
             prev->next = curr->next;
         }
-        snode_destroy(curr);
+        queue_destroy(curr);
     }
 
     return;
@@ -281,12 +281,12 @@ int hex_z(struct Hex *h)
 
 struct Hex *hex_find(struct Hex *start, struct Coordinate *target)
 {
-    struct SearchNode *open = NULL;
-    struct SearchNode *closed = NULL;
+    struct Queue *open = NULL;
+    struct Queue *closed = NULL;
     struct Hex *end = NULL; /* might not exist */
 
     /* start with the current hex */
-    snode_add(&open, start, coordinate_distance(start->c, target));
+    queue_add(&open, start, coordinate_distance(start->c, target));
 
     while (open) {
         struct Hex *curr = open->hex;
@@ -302,22 +302,22 @@ struct Hex *hex_find(struct Hex *start, struct Coordinate *target)
             struct Hex *nbr = (curr->n)[i];
 
             /* skip if null or already closed */
-            if (nbr == NULL || snode_find(&closed, nbr)) {
+            if (nbr == NULL || queue_find(&closed, nbr)) {
                 continue;
             }
 
-            snode_add(&open, nbr, coordinate_distance(nbr->c, target));
+            queue_add(&open, nbr, coordinate_distance(nbr->c, target));
         }
 
         /* close the current open head */
-        snode_add(&closed, curr, 0);
-        snode_remove(&open, curr);
+        queue_add(&closed, curr, 0);
+        queue_remove(&open, curr);
 
     }
 
     /* we did it, let's clean up and get out of here */
-    snode_destroy(open);
-    snode_destroy(closed);
+    queue_destroy(open);
+    queue_destroy(closed);
     return end; /* NULL if target not found */
 }
 
