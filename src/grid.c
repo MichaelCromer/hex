@@ -1,19 +1,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "queue.h"
 #include "grid.h"
 
 
-struct Queue {
-    int score;
-    struct Hex *hex;
-    struct Queue *next;
-};
-
 struct Coordinate {
-    int x;
-    int y;
-    int z;
+    int p, q, r;
+    float u, v;
 };
 
 struct Hex {
@@ -22,169 +16,78 @@ struct Hex {
     struct Hex *n[6];
 };
 
-
-/*
- *      QUEUE Functions
- */
-
-struct Queue *queue_create(int score, struct Hex *hex)
-{
-    struct Queue *queue = malloc(sizeof(struct Queue));
-    queue->score = score;
-    queue->hex = hex;
-    queue->next = NULL;
-
-    return queue;
-}
-
-void queue_destroy(struct Queue *queue)
-{
-    struct Queue *tmp;
-    while (queue != NULL) {
-        tmp = queue;
-        queue = queue->next;
-        free(tmp);
-    }
-}
-
-
-struct Queue *queue_find(struct Queue **head, struct Hex *hex)
-{
-    struct Queue *curr = *head;
-    while (curr != NULL) {
-        if (curr->hex == hex) {
-            return curr;
-        }
-        curr = curr->next;
-    }
-    return NULL;
-}
-
-
-void queue_add(struct Queue **head, struct Hex *new_hex, int new_score)
-{
-    /* null pointer handling */
-    if ((head == NULL) || (new_hex == NULL)) {
-        return;
-    }
-
-    /* create new node for new entry */
-    struct Queue *new_node = queue_create(new_score, new_hex);
-
-    /* special case of adding to start */
-    if ((*head == NULL) || (*head)->score > new_node->score) {
-        new_node->next = *head;
-        *head = new_node;
-        return;
-    }
-
-    /* main case: loop through to find correct position */
-    struct Queue *curr = *head;
-    while ((curr->next != NULL) && (curr->next->score <= new_node->score)) {
-        curr = curr->next;
-    }
-    new_node->next = curr->next;
-    curr->next = new_node;
-
-    return;
-}
-
-
-void queue_remove(struct Queue **head, struct Hex *hex)
-{
-    /* null pointer handling */
-    if ((head == NULL) || (*head == NULL) || (hex == NULL)) {
-        return;
-    }
-
-    struct Queue *prev = NULL;
-    struct Queue *curr = *head;
-
-    /* loop through until we find the matching hex or run off the end */
-    while ((curr != NULL) && (curr->hex != hex)) {
-        prev = curr;
-        curr = curr->next;
-    }
-
-    /* if we didn't run off the end, destroy the node and patch the list */
-    if (curr != NULL) {
-        if (prev == NULL) {
-            *head = curr->next;
-        } else {
-            prev->next = curr->next;
-        }
-        queue_destroy(curr);
-    }
-
-    return;
-}
-
-
-
 /*
  *      COORDINATE Functions
  */
 
-struct Coordinate d_ee = {  0,  1, -1 };
-struct Coordinate d_ne = { -1,  1,  0 };
-struct Coordinate d_nw = { -1,  0,  1 };
-struct Coordinate d_ww = {  0, -1,  1 };
-struct Coordinate d_sw = {  1, -1,  0 };
-struct Coordinate d_se = {  1,  0, -1 };
+/* coordinate deltas in each hex direction */
+static const struct Coordinate d_ee = {  1,  0, -1,  ROOT3,       0.0f };
+static const struct Coordinate d_ne = {  1, -1,  0,  ROOT3/2.0f, -3.0f/2.0f };
+static const struct Coordinate d_nw = {  0, -1,  1, -ROOT3/2.0f, -3.0f/2.0f };
+static const struct Coordinate d_ww = { -1,  0,  1, -ROOT3,       0.0f };
+static const struct Coordinate d_sw = { -1,  1,  0, -ROOT3/2.0f,  3.0f/2.0f };
+static const struct Coordinate d_se = {  0,  1, -1,  ROOT3/2.0f,  3.0f/2.0f };
+
+
+struct Coordinate *coordinate_create(int p, int q, int r)
+{
+    struct Coordinate *c = malloc(sizeof(struct Coordinate));
+    if (c == NULL) {
+        return NULL;
+    }
+
+    c->p = p;
+    c->q = q;
+    c->r = r;
+
+    c->u = ROOT3 * (p + q/2.0f);
+    c->v = 1.5f * q;
+
+    return c;
+}
 
 
 enum DIRECTION direction_opposite(enum DIRECTION d)
 {
-    enum DIRECTION opp;
-    switch (d) {
-        case EAST:
-            opp = WEST;
-            break;
-        case NORTHEAST:
-            opp = SOUTHWEST;
-            break;
-        case NORTHWEST:
-            opp = SOUTHEAST;
-            break;
-        case WEST:
-            opp = EAST;
-            break;
-        case SOUTHWEST:
-            opp = NORTHEAST;
-            break;
-        case SOUTHEAST:
-            opp = NORTHWEST;
-            break;
-    }
-    return opp;
+    return (d + 3) % 6;
 }
+
 
 bool coordinate_equals(struct Coordinate *c0, struct Coordinate *c1)
 {
-    return ((c0->x == c1->x) && (c0->y == c1->y) && (c0->z == c1->z));
+    return ((c0->p == c1->p) && (c0->q == c1->q) && (c0->r == c1->r));
 }
+
 
 int coordinate_distance(struct Coordinate *c0, struct Coordinate *c1)
 {
-    int dx = abs(c0->x - c1->x);
-    int dy = abs(c0->y - c1->y);
-    int dz = abs(c0->z - c1->z);
+    int dp = abs(c0->p - c1->p);
+    int dq = abs(c0->q - c1->q);
+    int dr = abs(c0->r - c1->r);
 
     int dc = 0;
-    dc = (dx > dy) ? dx : dy;
-    dc = (dz > dc) ? dz : dc;
+    dc = (dp > dq) ? dp : dq;
+    dc = (dr > dc) ? dr : dc;
 
     return dc;
 }
 
-void coordinate_add(struct Coordinate *c1, struct Coordinate *c2, struct Coordinate *a)
+
+void coordinate_add(
+        const struct Coordinate *c1, 
+        const struct Coordinate *c2, 
+        struct Coordinate *a
+    )
 {
-    a->x = c1->x + c2->x;
-    a->y = c1->y + c2->y;
-    a->z = c1->z + c2->z;
+    a->p = c1->p + c2->p;
+    a->q = c1->q + c2->q;
+    a->r = c1->r + c2->r;
+    a->u = c1->u + c2->u;
+    a->v = c1->v + c2->v;
 
     return;
 }
+
 
 void coordinate_delta(struct Coordinate *c, enum DIRECTION d, struct Coordinate *a)
 {
@@ -228,9 +131,9 @@ struct Hex *hex_create(void)
         return NULL;
     }
 
-    (h->c)->x = 0;
-    (h->c)->y = 0;
-    (h->c)->z = 0;
+    (h->c)->p = 0;
+    (h->c)->q = 0;
+    (h->c)->r = 0;
     h->t = NONE;
     for (int i=0; i<6; i++) {
         h->n[i] = NULL;
@@ -248,6 +151,18 @@ void hex_destroy(struct Hex *h)
 }
 
 
+float hex_u(struct Hex *hex)
+{
+    return hex->c->u;
+}
+
+
+float hex_v(struct Hex *hex)
+{
+    return hex->c->v;
+}
+
+
 void hex_set_terrain(struct Hex *h, enum TERRAIN t)
 {
     h->t = t;
@@ -261,21 +176,9 @@ enum TERRAIN hex_get_terrain(struct Hex *h)
 }
 
 
-int hex_x(struct Hex *h)
+struct Hex *hex_neighbour(struct Hex *h, enum DIRECTION d)
 {
-    return h->c->x;
-}
-
-
-int hex_y(struct Hex *h)
-{
-    return h->c->y;
-}
-
-
-int hex_z(struct Hex *h)
-{
-    return h->c->z;
+    return h->n[d];
 }
 
 
@@ -289,7 +192,7 @@ struct Hex *hex_find(struct Hex *start, struct Coordinate *target)
     queue_add(&open, start, coordinate_distance(start->c, target));
 
     while (open) {
-        struct Hex *curr = open->hex;
+        struct Hex *curr = queue_hex(open);
 
         /* we found it, end here */
         if (coordinate_equals(curr->c, target)) {
@@ -302,7 +205,7 @@ struct Hex *hex_find(struct Hex *start, struct Coordinate *target)
             struct Hex *nbr = (curr->n)[i];
 
             /* skip if null or already closed */
-            if (nbr == NULL || queue_find(&closed, nbr)) {
+            if (nbr == NULL || queue_find(closed, nbr)) {
                 continue;
             }
 
@@ -329,12 +232,12 @@ void hex_create_neighbour(struct Hex *h, enum DIRECTION d)
     coordinate_delta(h->c, d, nbr->c);
 
     /* assign the new neighbour */
-    h->n[d] = nbr;
+    (h->n)[d] = nbr;
     nbr->n[direction_opposite(d)] = h;
 
     /* find the neighbour's neighbourhood */
-    struct Coordinate dc = {0, 0, 0};
-    for (int i = WEST; i <= SOUTHEAST; i++) {
+    struct Coordinate dc = {0, 0, 0, 0.0f, 0.0f};
+    for (int i = 0; i < 6; i++) {
         coordinate_delta(nbr->c, i, &dc);
         struct Hex *nbr_nbr = hex_find(nbr, &dc);
         if (nbr_nbr) {
@@ -342,5 +245,18 @@ void hex_create_neighbour(struct Hex *h, enum DIRECTION d)
         }
     }
     
+    return;
+}
+
+
+void hex_create_neighbours(struct Hex *h)
+{
+    for (int i=0; i<6; i++) {
+        if (h->n[i] != NULL) {
+            continue;
+        }
+        hex_create_neighbour(h, i);
+    }
+
     return;
 }
