@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "queue.h"
 #include "grid.h"
 #include "panel.h"
 
@@ -15,8 +16,6 @@ enum INPUTMODE {
 
 bool CONTINUE;
 bool SPLASH, TERRAIN_SELECTOR;
-const float ROOT3 = 1.732050807f;
-const float ROOT3_INV = 0.57735026919f;
 const float CURSOR_ASPECT_RATIO = 0.66f;
 const float _DH_DW = ROOT3_INV * CURSOR_ASPECT_RATIO;
 
@@ -178,11 +177,12 @@ char get_terrainchr(enum TERRAIN t)
 
 int draw_hex(struct Hex *hex, int row0, int col0, int w_half, int h_half, float slope)
 {
-    char ch = get_terrainchr(hex->t);
+    char ch = get_terrainchr(hex_get_terrain(hex));
     int dh = 0;
 
     for (int col = -w_half; col <= w_half; col++) {
         dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
+
         for (int row = -(h_half + dh); row <= (h_half + dh); row++) {
             mvaddch(row0 + row, col0 + col, ch);
         }
@@ -191,10 +191,52 @@ int draw_hex(struct Hex *hex, int row0, int col0, int w_half, int h_half, float 
 }
 
 
+void draw_map(struct Hex *origin)
+{
+    struct Queue *open = queue_create(origin, 0);
+    struct Queue *closed = NULL;
+    struct Hex *curr = NULL;
+    struct Hex *nbr = NULL;
+    float dc, dr;
+    int r, c;
+
+    /* check which tiles should be drawn */
+    while (open) {
+        /* pop the top */
+        curr = queue_hex(open);
+        queue_remove(&open, curr);
+        queue_add(&closed, curr, 0);
+
+        /* add its neighbours tho */
+        for (int i=0; i<6; i++) {
+            nbr = hex_neighbour(curr, i);
+            if ((queue_find(closed, nbr) != NULL) || (queue_find(open, nbr) != NULL)) {
+                continue;
+            }
+            queue_add(&open, nbr, 0);
+        }
+
+        /* calc the geometry */
+        dc = _radius * (hex_u(curr) - hex_u(origin));
+        dr = CURSOR_ASPECT_RATIO * _radius * (hex_v(curr) - hex_v(origin));
+        c = round(_cmid + dc);
+        r = round(_rmid + dr);
+        if (r < 0 || r > _rows || c < 0 || c > _cols) {
+            continue;
+        }
+        draw_hex(curr, r, c, _hex_w, _hex_h, _DH_DW);
+    }
+
+    queue_destroy(open);
+    queue_destroy(closed);
+    return;
+}
+
+
 int draw_screen(void)
 {
     draw_border(0, 0, _cols, _rows);
-    draw_hex(_h, _rmid, _cmid, _hex_w, _hex_h, _DH_DW);
+    draw_map(_h);
 
     if (SPLASH) {
         draw_panel(_splash);
@@ -244,36 +286,41 @@ int input_navigate(void)
 
 int input_terrain(void)
 {
+    enum TERRAIN t = NONE;
     switch (_lastchar) {
         case 'q':
             break;
         case '1':
-            hex_set_terrain(_h, WATER);
+            t = WATER;
             break;
         case '2':
-            hex_set_terrain(_h, MOUNTAINS);
+            t = MOUNTAINS;
             break;
         case '3':
-            hex_set_terrain(_h, PLAINS);
+            t = PLAINS;
             break;
         case '4':
-            hex_set_terrain(_h, HILLS);
+            t = HILLS;
             break;
         case '5':
-            hex_set_terrain(_h, FOREST);
+            t = FOREST;
             break;
         case '6':
-            hex_set_terrain(_h, DESERT);
+            t = DESERT;
             break;
         case '7':
-            hex_set_terrain(_h, JUNGLE);
+            t = JUNGLE;
             break;
         case '8':
-            hex_set_terrain(_h, SWAMP);
+            t = SWAMP;
             break;
         default:
             return TERRAIN_SELECT;
     }
+    if (hex_get_terrain(_h) == NONE) {
+        hex_create_neighbours(_h);
+    }
+    hex_set_terrain(_h, t);
     clear_panel(_terrain_selector);
     TERRAIN_SELECTOR = false;
     return NAVIGATE;
