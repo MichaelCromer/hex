@@ -265,21 +265,56 @@ int input_capture(void)
 
 int input_navigate(void)
 {
+    bool directional = false;
+
+    /* first handle the non-directional keys */
     switch (_lastchar) {
         case 'Q':
             CONTINUE = false;
             break;
-        case 'j':
-            if (hex_get_terrain(_h) == NONE) {
-                TERRAIN_SELECTOR = true;
-                return TERRAIN_SELECT;
-            }
-            break;
         case 'T':
             TERRAIN_SELECTOR = true;
             return TERRAIN_SELECT;
-        default:
+        case 'j': /* TODO change this to open/close info panels */
             break;
+        default:
+            directional = true;
+            break;
+    }
+
+    /* exit unless we fell through the above */
+    if (!directional) {
+        return NAVIGATE;
+    }
+
+    /* now handle a direction */
+    enum DIRECTION dir;
+    switch (_lastchar) {
+        case 'k':
+            dir = EAST;
+            break;
+        case 'i':
+            dir = NORTHEAST;
+            break;
+        case 'u':
+            dir = NORTHWEST;
+            break;
+        case 'h':
+            dir = WEST;
+            break;
+        case 'n':
+            dir = SOUTHWEST;
+            break;
+        case 'm':
+            dir = SOUTHEAST;
+            break;
+        default:
+            return NAVIGATE;
+    }
+    if (dir >= 0) {
+        if (hex_neighbour(_h, dir)) {
+            _h = hex_neighbour(_h, dir);
+        }
     }
 
     return NAVIGATE;
