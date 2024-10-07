@@ -146,8 +146,38 @@ struct Hex *hex_create(void)
 
 void hex_destroy(struct Hex *h)
 {
-    free(h->c);
-    free(h);
+    /* early exit allows 'recursive step' */
+    if (h == NULL) {
+        return;
+    }
+
+    /* collect pointers to all the connected hexes */
+    struct Queue *open = queue_create(h, 0);
+    struct Queue *closed = NULL;
+    struct Hex *curr = NULL, *nbr = NULL;
+    while (open) {
+        curr = queue_hex(open);
+        queue_remove(&open, curr);
+        queue_add(&closed, curr, 0);
+
+        for (int i=0; i<6; i++) {
+            nbr = hex_neighbour(h, i);
+            if (!queue_find(open, nbr) && !queue_find(closed, nbr)) {
+                queue_add(&open, nbr, 0);
+            }
+        }
+    }
+
+    /* destroy each collected hex */
+    while (closed) {
+        curr = queue_hex(closed);
+        queue_remove(&closed, curr);
+
+        coordinate_destroy(curr->c);
+        free(curr);
+        curr = NULL;
+    }
+
     return;
 }
 
