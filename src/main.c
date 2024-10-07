@@ -222,7 +222,7 @@ void draw_map(struct Hex *origin)
         dr = CURSOR_ASPECT_RATIO * _radius * (hex_v(curr) - hex_v(origin));
         c = round(_cmid + dc);
         r = round(_rmid + dr);
-        if (r < 0 || r > _rows || c < 0 || c > _cols) {
+        if (r < -_hex_h || r > (_rows+_hex_h) || c < -_hex_w || c > (_cols+_hex_w)) {
             continue;
         }
         draw_hex(curr, r, c, _hex_w, _hex_h, _DH_DW);
@@ -237,8 +237,8 @@ void draw_map(struct Hex *origin)
 int draw_screen(void)
 {
     erase();
-    draw_border(0, 0, _cols, _rows);
     draw_map(_h);
+    draw_border(0, 0, _cols, _rows);
 
     if (SPLASH) {
         draw_panel(_splash);
