@@ -242,7 +242,8 @@ void hex_create_neighbour(struct Hex *h, enum DIRECTION d)
         coordinate_delta(nbr->c, i, &dc);
         struct Hex *nbr_nbr = hex_find(nbr, &dc);
         if (nbr_nbr) {
-            (nbr->n)[i] = nbr_nbr;
+            nbr->n[i] = nbr_nbr;
+            nbr_nbr->n[direction_opposite(i)] = nbr;
         }
     }
     
