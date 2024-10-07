@@ -87,6 +87,7 @@ int initialise(void)
 
 void cleanup(void)
 {
+    erase();
     endwin();
     panel_destroy(_splash);
     panel_destroy(_terrain_selector);
@@ -235,6 +236,7 @@ void draw_map(struct Hex *origin)
 
 int draw_screen(void)
 {
+    erase();
     draw_border(0, 0, _cols, _rows);
     draw_map(_h);
 
