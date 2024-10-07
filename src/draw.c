@@ -1,5 +1,8 @@
 #include <ncurses.h>
+#include <math.h>
 
+#include "draw.h"
+#include "queue.h"
 
 int draw_border(int r0, int c0, int w, int h)
 {
@@ -87,14 +90,38 @@ char get_terrainchr(enum TERRAIN t)
 }
 
 
-int draw_hex(int row0, int col0, struct Hex *hex)
+void draw_reticule(int row0, int col0, int w_half, int h_half, float slope)
 {
-    char ch = get_terrainchr(hex->t);
+    char ch = '#';
     int dh = 0;
 
-    for (int col = -_hex_w; col <= _hex_w; col++) {
-        dh = (col < 0) ? round((_hex_w+col)*_DH_DW) : round((_hex_w-col)*_DH_DW);
-        for (int row = -(_hex_h + dh); row <= (_hex_h + dh); row++) {
+    mvvline(row0-h_half, col0-w_half, ch, 2*h_half);
+    mvvline(row0-h_half, col0+w_half, ch, 2*h_half);
+
+    mvvline(row0-h_half, col0-w_half+1, ch, 2*h_half);
+    mvvline(row0-h_half, col0+w_half-1, ch, 2*h_half);
+
+    for (int col = -w_half; col <= w_half; col++) {
+        dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
+        mvaddch(row0 - (h_half + dh), col0 + col, ch);
+        mvaddch(row0 + (h_half + dh), col0 + col, ch);
+    }
+
+
+
+    return;
+}
+
+
+int draw_hex(struct Hex *hex, int row0, int col0, int w_half, int h_half, float slope)
+{
+    char ch = get_terrainchr(hex_get_terrain(hex));
+    int dh = 0;
+
+    for (int col = -w_half; col <= w_half; col++) {
+        dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
+
+        for (int row = -(h_half + dh); row <= (h_half + dh); row++) {
             mvaddch(row0 + row, col0 + col, ch);
         }
     }
@@ -102,20 +129,68 @@ int draw_hex(int row0, int col0, struct Hex *hex)
 }
 
 
-int draw_screen(void)
+void draw_map(struct Hex *origin, float scale, float aspect_ratio, int rows, int cols)
 {
-    draw_border(0, 0, _cols, _rows);
-    draw_hex(_rmid, _cmid, _h);
+    struct Queue *open = queue_create(origin, 0);
+    struct Queue *closed = NULL;
+    struct Hex *curr = NULL;
+    struct Hex *nbr = NULL;
 
-    if (SPLASH) {
-        draw_panel(_splash);
+    /* base geometry */
+    int hex_w = round(scale * ROOT3 / 2);
+    int hex_h = round(scale * aspect_ratio / 2);
+    float slope = ROOT3_INV * aspect_ratio;
+    int rmid = rows/2, cmid = cols/2;
+
+    /* tile-specific vars */
+    int r, c;
+    float dc, dr;
+
+    /* check which tiles should be drawn */
+    while (open) {
+        /* pop the top */
+        curr = queue_hex(open);
+        queue_remove(&open, curr);
+        queue_add(&closed, curr, 0);
+
+        /* add its neighbours tho */
+        for (int i=0; i<6; i++) {
+            nbr = hex_neighbour(curr, i);
+            if ((queue_find(closed, nbr) != NULL) || (queue_find(open, nbr) != NULL)) {
+                continue;
+            }
+            queue_add(&open, nbr, 0);
+        }
+
+        /* calc the geometry */
+        dc = scale * (hex_u(curr) - hex_u(origin));
+        dr = aspect_ratio * scale * (hex_v(curr) - hex_v(origin));
+        c = round(cmid + dc);
+        r = round(rmid + dr);
+        if (r < -hex_h || r > (rows+hex_h) || c < -hex_w || c > (cols+hex_w)) {
+            continue;
+        }
+        draw_hex(curr, r, c, hex_w, hex_h, slope);
     }
-    if (TERRAIN_SELECTOR) {
-        draw_panel(_terrain_selector);
-    }
+
+    queue_destroy(open);
+    queue_destroy(closed);
+    return;
+}
+
+
+int draw_screen(float scale, float aspect_ratio, int cols, int rows, struct Hex *map)
+{
+    int hex_w = round(scale * ROOT3 / 2);
+    int hex_h = round(scale * aspect_ratio / 2);
+    float slope = ROOT3_INV * aspect_ratio;
+    int rmid = rows/2, cmid = cols/2;
+
+    erase();
+    draw_map(map, scale, aspect_ratio, rows, cols);
+    draw_border(0, 0, cols, rows);
+    draw_reticule(rmid, cmid, hex_w, hex_h, slope);
 
     refresh();
     return 0;
 }
-
-
