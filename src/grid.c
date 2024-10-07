@@ -47,6 +47,13 @@ struct Coordinate *coordinate_create(int p, int q, int r)
 }
 
 
+void coordinate_destroy(struct Coordinate *c)
+{
+    free(c);
+    c = NULL;
+}
+
+
 enum DIRECTION direction_opposite(enum DIRECTION d)
 {
     return (d + 3) % 6;
