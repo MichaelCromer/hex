@@ -7,7 +7,6 @@
 
 struct Coordinate {
     int p, q, r;
-    float u, v;
 };
 
 struct Hex {
@@ -21,12 +20,12 @@ struct Hex {
  */
 
 /* coordinate deltas in each hex direction */
-static const struct Coordinate d_ee = {  1,  0, -1,  ROOT3,       0.0f };
-static const struct Coordinate d_ne = {  1, -1,  0,  ROOT3/2.0f, -3.0f/2.0f };
-static const struct Coordinate d_nw = {  0, -1,  1, -ROOT3/2.0f, -3.0f/2.0f };
-static const struct Coordinate d_ww = { -1,  0,  1, -ROOT3,       0.0f };
-static const struct Coordinate d_sw = { -1,  1,  0, -ROOT3/2.0f,  3.0f/2.0f };
-static const struct Coordinate d_se = {  0,  1, -1,  ROOT3/2.0f,  3.0f/2.0f };
+static const struct Coordinate d_ee = {  1,  0, -1 };
+static const struct Coordinate d_ne = {  1, -1,  0 };
+static const struct Coordinate d_nw = {  0, -1,  1 };
+static const struct Coordinate d_ww = { -1,  0,  1 };
+static const struct Coordinate d_sw = { -1,  1,  0 };
+static const struct Coordinate d_se = {  0,  1, -1 };
 
 
 struct Coordinate *coordinate_create(int p, int q, int r)
@@ -40,10 +39,14 @@ struct Coordinate *coordinate_create(int p, int q, int r)
     c->q = q;
     c->r = r;
 
-    c->u = ROOT3 * (p + q/2.0f);
-    c->v = 1.5f * q;
-
     return c;
+}
+
+
+void coordinate_destroy(struct Coordinate *c)
+{
+    free(c);
+    c = NULL;
 }
 
 
@@ -82,8 +85,6 @@ void coordinate_add(
     a->p = c1->p + c2->p;
     a->q = c1->q + c2->q;
     a->r = c1->r + c2->r;
-    a->u = c1->u + c2->u;
-    a->v = c1->v + c2->v;
 
     return;
 }
@@ -145,21 +146,51 @@ struct Hex *hex_create(void)
 
 void hex_destroy(struct Hex *h)
 {
-    free(h->c);
-    free(h);
+    /* early exit allows 'recursive step' */
+    if (h == NULL) {
+        return;
+    }
+
+    /* collect pointers to all the connected hexes */
+    struct Queue *open = queue_create(h, 0);
+    struct Queue *closed = NULL;
+    struct Hex *curr = NULL, *nbr = NULL;
+    while (open) {
+        curr = queue_hex(open);
+        queue_remove(&open, curr);
+        queue_add(&closed, curr, 0);
+
+        for (int i=0; i<6; i++) {
+            nbr = hex_neighbour(h, i);
+            if (!queue_find(open, nbr) && !queue_find(closed, nbr)) {
+                queue_add(&open, nbr, 0);
+            }
+        }
+    }
+
+    /* destroy each collected hex */
+    while (closed) {
+        curr = queue_hex(closed);
+        queue_remove(&closed, curr);
+
+        coordinate_destroy(curr->c);
+        free(curr);
+        curr = NULL;
+    }
+
     return;
 }
 
 
 float hex_u(struct Hex *hex)
 {
-    return hex->c->u;
+    return ROOT3 * (hex->c->p + hex->c->q/2.0f);
 }
 
 
 float hex_v(struct Hex *hex)
 {
-    return hex->c->v;
+    return 1.5f * hex->c->q;
 }
 
 
@@ -236,12 +267,13 @@ void hex_create_neighbour(struct Hex *h, enum DIRECTION d)
     nbr->n[direction_opposite(d)] = h;
 
     /* find the neighbour's neighbourhood */
-    struct Coordinate dc = {0, 0, 0, 0.0f, 0.0f};
+    struct Coordinate dc = { 0, 0, 0 };
     for (int i = 0; i < 6; i++) {
         coordinate_delta(nbr->c, i, &dc);
         struct Hex *nbr_nbr = hex_find(nbr, &dc);
         if (nbr_nbr) {
-            (nbr->n)[i] = nbr_nbr;
+            nbr->n[i] = nbr_nbr;
+            nbr_nbr->n[direction_opposite(i)] = nbr;
         }
     }
     

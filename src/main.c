@@ -87,6 +87,7 @@ int initialise(void)
 
 void cleanup(void)
 {
+    erase();
     endwin();
     panel_destroy(_splash);
     panel_destroy(_terrain_selector);
@@ -221,7 +222,7 @@ void draw_map(struct Hex *origin)
         dr = CURSOR_ASPECT_RATIO * _radius * (hex_v(curr) - hex_v(origin));
         c = round(_cmid + dc);
         r = round(_rmid + dr);
-        if (r < 0 || r > _rows || c < 0 || c > _cols) {
+        if (r < -_hex_h || r > (_rows+_hex_h) || c < -_hex_w || c > (_cols+_hex_w)) {
             continue;
         }
         draw_hex(curr, r, c, _hex_w, _hex_h, _DH_DW);
@@ -235,8 +236,9 @@ void draw_map(struct Hex *origin)
 
 int draw_screen(void)
 {
-    draw_border(0, 0, _cols, _rows);
+    erase();
     draw_map(_h);
+    draw_border(0, 0, _cols, _rows);
 
     if (SPLASH) {
         draw_panel(_splash);
@@ -263,21 +265,44 @@ int input_capture(void)
 
 int input_navigate(void)
 {
+    bool directional = false;
+
+    /* first handle the non-directional keys */
     switch (_lastchar) {
         case 'Q':
             CONTINUE = false;
             break;
-        case 'j':
-            if (hex_get_terrain(_h) == NONE) {
-                TERRAIN_SELECTOR = true;
-                return TERRAIN_SELECT;
-            }
-            break;
         case 'T':
             TERRAIN_SELECTOR = true;
             return TERRAIN_SELECT;
-        default:
+        case 'j': /* TODO change this to open/close info panels */
             break;
+        default:
+            directional = true;
+            break;
+    }
+
+    /* exit unless we fell through the above */
+    if (!directional) {
+        return NAVIGATE;
+    }
+
+    static const char *navichar_lower = "kiuhnm";
+    static const char *navichar_upper = "KIUHNM";
+    int step_count = 0;
+    for (int i=0; i<6; i++) {
+        if (_lastchar == navichar_upper[i]) {
+            step_count = 3;
+        } else if (_lastchar == navichar_lower[i]) {
+            step_count = 1;
+        } else {
+            continue;
+        }
+        while (hex_neighbour(_h, i) && step_count) {
+            _h = hex_neighbour(_h, i);
+            step_count--;
+        }
+        break;
     }
 
     return NAVIGATE;
