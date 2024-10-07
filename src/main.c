@@ -64,8 +64,8 @@ int initialise(void)
     panel_add_line(_splash, "Use u,i,h,l,n,m to navigate tiles",        2);
     panel_add_line(_splash, "Use j to interact with the current tile",  3);
     panel_add_line(_splash, "Shift-q to exit.",                         4);
-    r0 = _rmid - (_splash->h / 2);
-    c0 = _cmid - (_splash->w / 2);
+    r0 = _rmid - (panel_height(_splash) / 2);
+    c0 = _cmid - (panel_width(_splash) / 2);
     panel_set_rc(_splash, r0, c0);
 
     _terrain_selector = panel_create(0, 0, 5);
@@ -73,8 +73,8 @@ int initialise(void)
     panel_add_line(_terrain_selector, "1. Ocean     2. Mountain 3. Plains", 2);
     panel_add_line(_terrain_selector, "4. Hills     5. Forest   6. Desert", 3);
     panel_add_line(_terrain_selector, "7. Jungle    8. Swamp    q. Close ", 4);
-    r0 = _rmid - (_terrain_selector->h / 2);
-    c0 = _cmid - (_terrain_selector->w / 2);
+    r0 = _rmid - (panel_height(_terrain_selector) / 2);
+    c0 = _cmid - (panel_width(_terrain_selector) / 2);
     panel_set_rc(_terrain_selector, r0, c0);
 
     _h = hex_create();

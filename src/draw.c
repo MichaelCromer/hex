@@ -38,11 +38,14 @@ int draw_box(int r0, int c0, int w, int h, char bg)
 
 int draw_panel(struct Panel *p)
 {
-    draw_box(p->r0, p->c0, p->w, p->h, ' ');
+    int r = panel_row(p), c = panel_col(p);
+    int w = panel_width(p), h = panel_height(p);
+    draw_box(r, c, w, h, ' ');
 
-    for (int i=0; i<p->len; i++) {
-        if (!p->lines[i]) { continue; }
-        mvprintw(p->r0+2+i, p->c0+2, "%s", p->lines[i]);
+    for (int i=0; i<panel_len(p); i++) {
+        char *line = panel_line(p, i);
+        if (!line) { continue; }
+        mvprintw(r+2+i, c+2, "%s", line);
     }
     return 0;
 }
@@ -50,7 +53,9 @@ int draw_panel(struct Panel *p)
 
 int clear_panel(struct Panel *p)
 {
-    draw_rectangle(p->r0, p->c0, p->w, p->h, ' ');
+    int r = panel_row(p), c = panel_col(p);
+    int w = panel_width(p), h = panel_height(p);
+    draw_rectangle(r, c, w, h, ' ');
 
     return 0;
 }
