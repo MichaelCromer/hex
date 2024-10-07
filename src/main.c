@@ -176,6 +176,29 @@ char get_terrainchr(enum TERRAIN t)
 }
 
 
+void draw_reticule(int row0, int col0, int w_half, int h_half, float slope)
+{
+    char ch = '#';
+    int dh = 0;
+
+    mvvline(row0-h_half, col0-w_half, ch, 2*h_half);
+    mvvline(row0-h_half, col0+w_half, ch, 2*h_half);
+
+    mvvline(row0-h_half, col0-w_half+1, ch, 2*h_half);
+    mvvline(row0-h_half, col0+w_half-1, ch, 2*h_half);
+
+    for (int col = -w_half; col <= w_half; col++) {
+        dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
+        mvaddch(row0 - (h_half + dh), col0 + col, ch);
+        mvaddch(row0 + (h_half + dh), col0 + col, ch);
+    }
+
+
+
+    return;
+}
+
+
 int draw_hex(struct Hex *hex, int row0, int col0, int w_half, int h_half, float slope)
 {
     char ch = get_terrainchr(hex_get_terrain(hex));
@@ -239,6 +262,7 @@ int draw_screen(void)
     erase();
     draw_map(_h);
     draw_border(0, 0, _cols, _rows);
+    draw_reticule(_rmid, _cmid, _hex_w, _hex_h, _DH_DW);
 
     if (SPLASH) {
         draw_panel(_splash);
