@@ -287,34 +287,22 @@ int input_navigate(void)
         return NAVIGATE;
     }
 
-    /* now handle a direction */
-    enum DIRECTION dir;
-    switch (_lastchar) {
-        case 'k':
-            dir = EAST;
-            break;
-        case 'i':
-            dir = NORTHEAST;
-            break;
-        case 'u':
-            dir = NORTHWEST;
-            break;
-        case 'h':
-            dir = WEST;
-            break;
-        case 'n':
-            dir = SOUTHWEST;
-            break;
-        case 'm':
-            dir = SOUTHEAST;
-            break;
-        default:
-            return NAVIGATE;
-    }
-    if (dir >= 0) {
-        if (hex_neighbour(_h, dir)) {
-            _h = hex_neighbour(_h, dir);
+    static const char *navichar_lower = "kiuhnm";
+    static const char *navichar_upper = "KIUHNM";
+    int step_count = 0;
+    for (int i=0; i<6; i++) {
+        if (_lastchar == navichar_upper[i]) {
+            step_count = 3;
+        } else if (_lastchar == navichar_lower[i]) {
+            step_count = 1;
+        } else {
+            continue;
         }
+        while (hex_neighbour(_h, i) && step_count) {
+            _h = hex_neighbour(_h, i);
+            step_count--;
+        }
+        break;
     }
 
     return NAVIGATE;
