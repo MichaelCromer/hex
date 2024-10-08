@@ -39,7 +39,7 @@ void hex_destroy(struct Hex *h);
 
 /* Terrain-like */
 void hex_set_terrain(struct Hex *h, enum TERRAIN t);
-enum TERRAIN hex_get_terrain(struct Hex *h);
+enum TERRAIN hex_terrain(struct Hex *h);
 
 /* Geometry-like */
 float hex_u(struct Hex *h);

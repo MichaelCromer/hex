@@ -201,7 +201,7 @@ void hex_set_terrain(struct Hex *h, enum TERRAIN t)
 }
 
 
-enum TERRAIN hex_get_terrain(struct Hex *h)
+enum TERRAIN hex_terrain(struct Hex *h)
 {
     return h->t;
 }

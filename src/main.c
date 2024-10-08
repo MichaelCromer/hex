@@ -166,7 +166,7 @@ int input_terrain(void)
         default:
             return TERRAIN_SELECT;
     }
-    if (hex_get_terrain(_h) == NONE) {
+    if (hex_terrain(_h) == NONE) {
         hex_create_neighbours(_h);
     }
     hex_set_terrain(_h, t);
