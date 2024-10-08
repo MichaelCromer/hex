@@ -4,6 +4,99 @@
 #include "draw.h"
 #include "queue.h"
 
+
+/*
+ *      GEOMETRY
+ */
+
+struct Geometry {
+    float scale;
+    float aspect;
+    float slope;
+    int hex_w, hex_h;
+};
+
+
+/*  Geometry lifetime pipeline */
+
+struct Geometry *geometry_create(float scale, float aspect)
+{
+    struct Geometry *g = malloc(sizeof(struct Geometry));
+
+    g->scale = scale;
+    g->aspect = aspect;
+
+    geometry_update(g);
+
+    return g;
+}
+
+void geometry_update(struct Geometry *g)
+{
+    g->hex_w = round(g->scale * ROOT3 / 2);
+    g->hex_h = round(g->scale * g->aspect / 2);
+    g->slope = ROOT3_INV * g->aspect;
+}
+
+void geometry_destroy(struct Geometry *g)
+{
+    free(g);
+    g = NULL;
+}
+
+
+/* Geometry getters */
+
+float geometry_scale(struct Geometry *g)
+{
+    return g->scale;
+}
+
+
+float geometry_aspect(struct Geometry *g)
+{
+    return g->aspect;
+}
+
+
+float geometry_slope(struct Geometry *g)
+{
+    return g->slope;
+}
+
+
+float geometry_hex_h(struct Geometry *g)
+{
+    return g->hex_h;
+}
+
+
+float geometry_hex_w(struct Geometry *g)
+{
+    return g->hex_w;
+}
+
+
+/* Geometry setters */
+
+void geometry_set_scale(struct Geometry *g, float scale)
+{
+    g->scale = scale;
+    geometry_update(g);
+}
+
+
+void geometry_set_aspect(struct Geometry *g, float aspect)
+{
+    g->aspect = aspect;
+    geometry_update(g);
+}
+
+
+/*
+ *      DRAW 01 - Basic shapes
+ */
+
 int draw_border(int r0, int c0, int w, int h)
 {
     mvhline(r0,     c0,     ACS_HLINE, w-1);
@@ -39,6 +132,10 @@ int draw_box(int r0, int c0, int w, int h, char bg)
 }
 
 
+/*
+ *      DRAW 02 - Panels
+ */
+
 int draw_panel(struct Panel *p)
 {
     int r = panel_row(p), c = panel_col(p);
@@ -63,6 +160,9 @@ int clear_panel(struct Panel *p)
     return 0;
 }
 
+/*
+ *      DRAW 03 - Hexes and terrain
+ */
 
 char get_terrainchr(enum TERRAIN t)
 {
@@ -178,6 +278,10 @@ void draw_map(struct Hex *origin, float scale, float aspect_ratio, int rows, int
     return;
 }
 
+
+/*
+ *      DRAW 04 - Core stuff
+ */
 
 int draw_screen(float scale, float aspect_ratio, int cols, int rows, struct Hex *map)
 {
