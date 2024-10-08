@@ -77,8 +77,8 @@ int coordinate_distance(struct Coordinate *c0, struct Coordinate *c1)
 
 
 void coordinate_add(
-        const struct Coordinate *c1, 
-        const struct Coordinate *c2, 
+        const struct Coordinate *c1,
+        const struct Coordinate *c2,
         struct Coordinate *a
     )
 {
@@ -276,7 +276,7 @@ void hex_create_neighbour(struct Hex *h, enum DIRECTION d)
             nbr_nbr->n[direction_opposite(i)] = nbr;
         }
     }
-    
+
     return;
 }
 

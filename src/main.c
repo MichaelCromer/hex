@@ -7,6 +7,7 @@
 #include "queue.h"
 #include "grid.h"
 #include "panel.h"
+#include "draw.h"
 
 enum INPUTMODE {
     CAPTURE,
@@ -21,20 +22,17 @@ const float _DH_DW = ROOT3_INV * CURSOR_ASPECT_RATIO;
 
 enum INPUTMODE _input_mode;
 int _lastchar;
-int _rows, _cols;
-int _rmid, _cmid;
-float _radius;
-int _hex_w, _hex_h;
 
-struct Hex *_h;
+struct Hex *_h = NULL;
+struct Geometry *_g = NULL;
 
 struct Panel *_splash;
 struct Panel *_terrain_selector;
 
 void update_vars(void)
 {
-    _hex_w = round(_radius * ROOT3 / 2);
-    _hex_h = round(_radius * CURSOR_ASPECT_RATIO / 2);
+    /* placeholder */
+    return;
 }
 
 
@@ -51,21 +49,20 @@ int initialise(void)
     TERRAIN_SELECTOR = false;
 
     _input_mode = CAPTURE;
-
-    getmaxyx(stdscr, _rows, _cols);
-    _rmid = _rows / 2;
-    _cmid = _cols / 2;
     _lastchar=0;
-    _radius=10;
 
     int r0, c0;
+    getmaxyx(stdscr, r0, c0);
+    _g = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
+    int rmid = geometry_rmid(_g), cmid = geometry_cmid(_g);;
+
     _splash = panel_create(0, 0, 5);
     panel_add_line(_splash, "Welcome to hex",                           0);
     panel_add_line(_splash, "Use u,i,h,l,n,m to navigate tiles",        2);
     panel_add_line(_splash, "Use j to interact with the current tile",  3);
     panel_add_line(_splash, "Shift-q to exit.",                         4);
-    r0 = _rmid - (_splash->h / 2);
-    c0 = _cmid - (_splash->w / 2);
+    r0 = rmid - (panel_height(_splash) / 2);
+    c0 = cmid - (panel_width(_splash) / 2);
     panel_set_rc(_splash, r0, c0);
 
     _terrain_selector = panel_create(0, 0, 5);
@@ -73,8 +70,8 @@ int initialise(void)
     panel_add_line(_terrain_selector, "1. Ocean     2. Mountain 3. Plains", 2);
     panel_add_line(_terrain_selector, "4. Hills     5. Forest   6. Desert", 3);
     panel_add_line(_terrain_selector, "7. Jungle    8. Swamp    q. Close ", 4);
-    r0 = _rmid - (_terrain_selector->h / 2);
-    c0 = _cmid - (_terrain_selector->w / 2);
+    r0 = rmid - (panel_height(_terrain_selector) / 2);
+    c0 = cmid - (panel_width(_terrain_selector) / 2);
     panel_set_rc(_terrain_selector, r0, c0);
 
     _h = hex_create();
@@ -95,191 +92,9 @@ void cleanup(void)
 }
 
 
-int draw_border(int r0, int c0, int w, int h)
-{
-    mvhline(r0,     c0,     ACS_HLINE, w-1);
-    mvvline(r0,     c0,     ACS_VLINE, h-1);
-    mvvline(r0,     c0+w-1, ACS_VLINE, h-1);
-    mvhline(r0+h-1, c0,     ACS_HLINE, w-1);
-
-    mvaddch(r0,     c0,     ACS_PLUS);
-    mvaddch(r0,     c0+w-1, ACS_PLUS);
-    mvaddch(r0+h-1, c0,     ACS_PLUS);
-    mvaddch(r0+h-1, c0+w-1, ACS_PLUS);
-
-    return 0;
-}
-
-
-int draw_rectangle(int r0, int c0, int w, int h, char bg)
-{
-    for (int r=0; r<h; r++) {
-        mvhline(r0+r, c0, bg, w);
-    }
-
-    return 0;
-}
-
-
-int draw_box(int r0, int c0, int w, int h, char bg)
-{
-    draw_rectangle(r0, c0, w, h, bg);
-    draw_border(r0, c0, w, h);
-
-    return 0;
-}
-
-
-int draw_panel(struct Panel *p)
-{
-    draw_box(p->r0, p->c0, p->w, p->h, ' ');
-
-    for (int i=0; i<p->len; i++) {
-        if (!p->lines[i]) { continue; }
-        mvprintw(p->r0+2+i, p->c0+2, "%s", p->lines[i]);
-    }
-    return 0;
-}
-
-
-int clear_panel(struct Panel *p)
-{
-    draw_rectangle(p->r0, p->c0, p->w, p->h, ' ');
-
-    return 0;
-}
-
-
-char get_terrainchr(enum TERRAIN t)
-{
-    switch (t) {
-        case WATER:
-            return '~';
-        case MOUNTAINS:
-            return '^';
-        case PLAINS:
-            return ';';
-        case HILLS:
-            return 'n';
-        case FOREST:
-            return 'T';
-        case DESERT:
-            return '*';
-        case JUNGLE:
-            return '#';
-        case SWAMP:
-            return 'j';
-        default:
-            break;
-    }
-    return '?';
-}
-
-
-void draw_reticule(int row0, int col0, int w_half, int h_half, float slope)
-{
-    char ch = '#';
-    int dh = 0;
-
-    mvvline(row0-h_half, col0-w_half, ch, 2*h_half);
-    mvvline(row0-h_half, col0+w_half, ch, 2*h_half);
-
-    mvvline(row0-h_half, col0-w_half+1, ch, 2*h_half);
-    mvvline(row0-h_half, col0+w_half-1, ch, 2*h_half);
-
-    for (int col = -w_half; col <= w_half; col++) {
-        dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
-        mvaddch(row0 - (h_half + dh), col0 + col, ch);
-        mvaddch(row0 + (h_half + dh), col0 + col, ch);
-    }
-
-
-
-    return;
-}
-
-
-int draw_hex(struct Hex *hex, int row0, int col0, int w_half, int h_half, float slope)
-{
-    char ch = get_terrainchr(hex_get_terrain(hex));
-    int dh = 0;
-
-    for (int col = -w_half; col <= w_half; col++) {
-        dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
-
-        for (int row = -(h_half + dh); row <= (h_half + dh); row++) {
-            mvaddch(row0 + row, col0 + col, ch);
-        }
-    }
-    return 0;
-}
-
-
-void draw_map(struct Hex *origin)
-{
-    struct Queue *open = queue_create(origin, 0);
-    struct Queue *closed = NULL;
-    struct Hex *curr = NULL;
-    struct Hex *nbr = NULL;
-    float dc, dr;
-    int r, c;
-
-    /* check which tiles should be drawn */
-    while (open) {
-        /* pop the top */
-        curr = queue_hex(open);
-        queue_remove(&open, curr);
-        queue_add(&closed, curr, 0);
-
-        /* add its neighbours tho */
-        for (int i=0; i<6; i++) {
-            nbr = hex_neighbour(curr, i);
-            if ((queue_find(closed, nbr) != NULL) || (queue_find(open, nbr) != NULL)) {
-                continue;
-            }
-            queue_add(&open, nbr, 0);
-        }
-
-        /* calc the geometry */
-        dc = _radius * (hex_u(curr) - hex_u(origin));
-        dr = CURSOR_ASPECT_RATIO * _radius * (hex_v(curr) - hex_v(origin));
-        c = round(_cmid + dc);
-        r = round(_rmid + dr);
-        if (r < -_hex_h || r > (_rows+_hex_h) || c < -_hex_w || c > (_cols+_hex_w)) {
-            continue;
-        }
-        draw_hex(curr, r, c, _hex_w, _hex_h, _DH_DW);
-    }
-
-    queue_destroy(open);
-    queue_destroy(closed);
-    return;
-}
-
-
-int draw_screen(void)
-{
-    erase();
-    draw_map(_h);
-    draw_border(0, 0, _cols, _rows);
-    draw_reticule(_rmid, _cmid, _hex_w, _hex_h, _DH_DW);
-
-    if (SPLASH) {
-        draw_panel(_splash);
-    }
-    if (TERRAIN_SELECTOR) {
-        draw_panel(_terrain_selector);
-    }
-
-    refresh();
-    return 0;
-}
-
-
 int input_capture(void)
 {
     if (SPLASH) {
-        clear_panel(_splash);
         SPLASH = false;
     }
 
@@ -370,7 +185,6 @@ int input_terrain(void)
         hex_create_neighbours(_h);
     }
     hex_set_terrain(_h, t);
-    clear_panel(_terrain_selector);
     TERRAIN_SELECTOR = false;
     return NAVIGATE;
 }
@@ -402,7 +216,13 @@ int main(void)
     initialise();
 
     while (CONTINUE) {
-        draw_screen();
+        draw_screen(_g, _h);
+        if (SPLASH) {
+            draw_panel(_splash);
+        }
+        if (TERRAIN_SELECTOR) {
+            draw_panel(_terrain_selector);
+        }
         handle_input();
     }
 
