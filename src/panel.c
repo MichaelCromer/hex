@@ -133,3 +133,32 @@ int panel_set_rc(struct Panel *p, int r, int c)
 
     return 0;
 }
+
+struct Panel *panel_splash(int rmid, int cmid)
+{
+    struct Panel *splash = panel_create(0, 0, 5);
+    panel_add_line(splash, "Welcome to hex",                           0);
+    panel_add_line(splash, "Use u,i,h,l,n,m to navigate tiles",        2);
+    panel_add_line(splash, "Use j to interact with the current tile",  3);
+    panel_add_line(splash, "Shift-q to exit.",                         4);
+    int r0 = rmid - (panel_height(splash) / 2);
+    int c0 = cmid - (panel_width(splash) / 2);
+    panel_set_rc(splash, r0, c0);
+
+    return splash;
+}
+
+
+struct Panel *panel_terrain_selector(int rmid, int cmid)
+{
+    struct Panel *terrain_selector = panel_create(0, 0, 5);
+    panel_add_line(terrain_selector, "Select Terrain:", 0);
+    panel_add_line(terrain_selector, "1. Ocean     2. Mountain 3. Plains", 2);
+    panel_add_line(terrain_selector, "4. Hills     5. Forest   6. Desert", 3);
+    panel_add_line(terrain_selector, "7. Jungle    8. Swamp    q. Close ", 4);
+    int r0 = rmid - (panel_height(terrain_selector) / 2);
+    int c0 = cmid - (panel_width(terrain_selector) / 2);
+    panel_set_rc(terrain_selector, r0, c0);
+
+    return terrain_selector;
+}
