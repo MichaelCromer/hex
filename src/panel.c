@@ -110,7 +110,7 @@ int panel_remove_line(struct Panel *p, int index)
     if (index < 0 || index >= p->len) { return -1; }
     if (!p->lines[index]) { return 0; }
 
-    free(p->lines[index]); 
+    free(p->lines[index]);
     p->h = 0;
     p->w = 0;
 
