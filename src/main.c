@@ -174,6 +174,17 @@ int input_terrain(void)
         return TERRAIN_SELECT;
     }
 
+    static const char *navichar_lower = "kiuhnm";
+    for (int i=0; i<6; i++) {
+        if (_lastchar != navichar_lower[i]) {
+            continue;
+        }
+        if (hex_neighbour(_h, i)) {
+            _h = hex_neighbour(_h, i);
+            return TERRAIN_SELECT;
+        }
+    }
+
     switch (_lastchar) {
         case 'T':
             TERRAIN_SELECTOR = false;
@@ -184,9 +195,7 @@ int input_terrain(void)
     if (hex_terrain(_h) == NONE) {
         hex_create_neighbours(_h);
     }
-    hex_set_terrain(_h, t);
-    TERRAIN_SELECTOR = false;
-    return NAVIGATE;
+    return TERRAIN_SELECT;
 }
 
 
