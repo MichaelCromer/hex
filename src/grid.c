@@ -119,22 +119,19 @@ void coordinate_delta(struct Coordinate *c, enum DIRECTION d, struct Coordinate 
  *      HEX Functions
  */
 
-struct Hex *hex_create(void)
+struct Hex *hex_create(int p, int q, int r)
 {
     struct Hex *h = malloc(sizeof(struct Hex));
     if (h == NULL) {
         return NULL;
     }
 
-    h->c = malloc(sizeof(struct Coordinate));
+    h->c = coordinate_create(int p, int q, int r)
     if (h->c == NULL) {
         free(h);
         return NULL;
     }
 
-    (h->c)->p = 0;
-    (h->c)->q = 0;
-    (h->c)->r = 0;
     h->t = NONE;
     for (int i=0; i<6; i++) {
         h->n[i] = NULL;
@@ -287,6 +284,7 @@ void hex_create_neighbours(struct Hex *h)
         if (h->n[i] != NULL) {
             continue;
         }
+        struct Hex *new = hex_create(
         hex_create_neighbour(h, i);
     }
 
