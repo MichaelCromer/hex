@@ -10,9 +10,12 @@ struct Coordinate {
 };
 
 struct Hex {
-    struct Coordinate *c;
-    enum TERRAIN t;
-    struct Hex *n[6];
+    unsigned int magnitude;
+    struct Coordinate *coordinate;
+    enum TERRAIN terrain;
+    struct Hex *parent;
+    struct Hex *neighbours[6];
+    struct Hex **children;
 };
 
 /*
@@ -53,6 +56,16 @@ void coordinate_destroy(struct Coordinate *c)
 enum DIRECTION direction_opposite(enum DIRECTION d)
 {
     return (d + 3) % 6;
+}
+
+
+void coordinate_parent(const struct Coordinate *c, struct Coordinate *a)
+{
+    a->p = 3 * round(c->p / 3.0f);
+    a->q = 3 * round(c->q / 3.0f);
+    a->r = -(a->p + a->q);
+
+    return;
 }
 
 
@@ -119,23 +132,44 @@ void coordinate_delta(struct Coordinate *c, enum DIRECTION d, struct Coordinate 
  *      HEX Functions
  */
 
-struct Hex *hex_create(int p, int q, int r)
+struct Hex *hex_create(unsigned int m, int p, int q, int r)
 {
+    /* try allocate hex */
     struct Hex *h = malloc(sizeof(struct Hex));
     if (h == NULL) {
         return NULL;
     }
 
-    h->c = coordinate_create(int p, int q, int r)
-    if (h->c == NULL) {
+    /* try allocate coordinate */
+    h->coordinate = coordinate_create((m+1)*p, (m+1)*q, (m+1)*r)
+    if (h->coordinate == NULL) {
         free(h);
         return NULL;
     }
 
-    h->t = NONE;
+    /* try allocate parent, neighbour, children */
+    h->parent = NULL;
     for (int i=0; i<6; i++) {
-        h->n[i] = NULL;
+        h->neighbours[i] = NULL;
     }
+    if (m > 0) {
+        h->children = malloc(9*sizeof(struct Hex *));
+        if (h->children == NULL) {
+            coordinate_destroy(h->coordinate);
+            free(h);
+            h = NULL;
+            return NULL;
+        }
+        for (int i=0; i<9; i++) {
+            h->children[i] = NULL;
+        }
+    } else {
+        h->children = NULL;
+    }
+
+    /* other data */
+    h->magnitude = m;
+    h->terrain = NONE;
 
     return h;
 }
@@ -179,6 +213,25 @@ void hex_destroy(struct Hex *h)
 }
 
 
+void hex_insert_below(struct Hex **root, struct Hex *new)
+{
+    /* handle pathological cases */
+    if (!root || !(*root) || !new) {
+        return;
+    }
+    if (new->magnitude >= root->magnitude) {
+        return;
+    }
+
+    /* figure out where to look next */
+    struct Coordinate c = { 0, 0, 0 };
+    unsigned int d_mag = root->magnitude - new->magnitude;
+    for 
+
+}
+
+
+
 float hex_u(struct Hex *hex)
 {
     return ROOT3 * (hex->c->p + hex->c->q/2.0f);
@@ -193,20 +246,20 @@ float hex_v(struct Hex *hex)
 
 void hex_set_terrain(struct Hex *h, enum TERRAIN t)
 {
-    h->t = t;
+    h->terrain = t;
     return;
 }
 
 
 enum TERRAIN hex_terrain(struct Hex *h)
 {
-    return h->t;
+    return h->terrain;
 }
 
 
 struct Hex *hex_neighbour(struct Hex *h, enum DIRECTION d)
 {
-    return h->n[d];
+    return h->neighbours[d];
 }
 
 
@@ -257,10 +310,10 @@ void hex_create_neighbour(struct Hex *h, enum DIRECTION d)
 {
     /* create the hex with the right coords */
     struct Hex *nbr = hex_create();
-    coordinate_delta(h->c, d, nbr->c);
+    coordinate_delta(h->coordinate, d, nbr->c);
 
     /* assign the new neighbour */
-    (h->n)[d] = nbr;
+    (h->neighbours)[d] = nbr;
     nbr->n[direction_opposite(d)] = h;
 
     /* find the neighbour's neighbourhood */
@@ -281,7 +334,7 @@ void hex_create_neighbour(struct Hex *h, enum DIRECTION d)
 void hex_create_neighbours(struct Hex *h)
 {
     for (int i=0; i<6; i++) {
-        if (h->n[i] != NULL) {
+        if (h->neighbours[i] != NULL) {
             continue;
         }
         struct Hex *new = hex_create(
