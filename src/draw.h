@@ -12,6 +12,6 @@ void geometry_set_aspect(struct Geometry *g, float aspect);
 int geometry_cmid(struct Geometry *g);
 int geometry_rmid(struct Geometry *g);
 int draw_panel(struct Panel *p);
-int draw_screen(struct Geometry *g, struct Hex *map);
+int draw_screen(struct Geometry *g, struct Hex *map, struct Hex *centre);
 
 #endif

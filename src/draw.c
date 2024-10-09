@@ -24,8 +24,8 @@ struct Geometry {
 
 void geometry_update(struct Geometry *g)
 {
-    g->hex_w = round(g->scale * ROOT3 / 2);
-    g->hex_h = round(g->scale * g->aspect / 2);
+    g->hex_w = round(g->scale * ROOT3);
+    g->hex_h = round(g->scale * g->aspect);
     g->slope = ROOT3_INV * g->aspect;
     g->rmid = g->rows / 2;
     g->cmid = g->cols / 2;
@@ -220,88 +220,91 @@ void draw_reticule(struct Geometry *g)
 
     float slope = geometry_slope(g);
     int rmid = geometry_rmid(g), cmid = geometry_cmid(g);
-    int hex_w = geometry_hex_w(g), hex_h = geometry_hex_h(g);
+    int w_half = geometry_hex_w(g)/2, h_half = geometry_hex_h(g)/2;
 
-    mvvline(rmid-hex_h, cmid-hex_w, ch, 2*hex_h);
-    mvvline(rmid-hex_h, cmid+hex_w, ch, 2*hex_h);
+    mvvline(rmid-h_half, cmid-w_half, ch, 2*h_half);
+    mvvline(rmid-h_half, cmid+w_half, ch, 2*h_half);
 
-    mvvline(rmid-hex_h, cmid-hex_w+1, ch, 2*hex_h);
-    mvvline(rmid-hex_h, cmid+hex_w-1, ch, 2*hex_h);
+    mvvline(rmid-h_half, cmid-w_half+1, ch, 2*h_half);
+    mvvline(rmid-h_half, cmid+w_half-1, ch, 2*h_half);
 
-    for (int col = -hex_w; col <= hex_w; col++) {
-        dh = (col < 0) ? round((hex_w+col)*slope) : round((hex_w-col)*slope);
-        mvaddch(rmid - (hex_h + dh), cmid + col, ch);
-        mvaddch(rmid + (hex_h + dh), cmid + col, ch);
+    for (int col = -w_half; col <= w_half; col++) {
+        dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
+        mvaddch(rmid - (h_half + dh), cmid + col, ch);
+        mvaddch(rmid + (h_half + dh), cmid + col, ch);
     }
 
     return;
 }
 
 
-int draw_hex(struct Hex *hex, int row0, int col0, int w_half, int h_half, float slope)
+int draw_hex(struct Geometry *g, struct Hex *hex, int r0, int c0)
 {
-    char ch = get_terrainchr(hex_terrain(hex));
+    int w_half = geometry_hex_w(g) / 2,
+        h_half = geometry_hex_h(g) / 2;
     int dh = 0;
 
-    for (int col = -w_half; col <= w_half; col++) {
-        dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
+    char ch = get_terrainchr(hex_terrain(hex));
 
-        for (int row = -(h_half + dh); row <= (h_half + dh); row++) {
-            mvaddch(row0 + row, col0 + col, ch);
+    for (int c = -w_half; c <= w_half; c++) {
+        dh = (c < 0)
+                ? round((w_half+c)*geometry_slope(g))
+                : round((w_half-c)*geometry_slope(g));
+
+        for (int r = -(h_half + dh); r <= (h_half + dh); r++) {
+            mvaddch(r0 + r, c0 + c, ch);
         }
     }
     return 0;
 }
 
 
-void draw_map(struct Geometry *g, struct Hex *origin)
+void draw_map(struct Geometry *g, struct Hex *root, struct Hex *centre)
 {
-    /* for queuing tiles to be drawn */
-    struct Queue *open = queue_create(origin, 0);
-    struct Queue *closed = NULL;
-    struct Hex *curr = NULL;
-    struct Hex *nbr = NULL;
+    /* calculate the number of hexes that fit to screen */
+    int n_hor = 2 * ceil( geometry_cols(g) / (1.00f * geometry_hex_w(g))),
+        n_ver = 2 * ceil( geometry_rows(g) / (0.75f * geometry_hex_h(g)));
 
-    float scale = geometry_scale(g),
-          aspect = geometry_aspect(g),
-          slope = geometry_slope(g);
-    int rows = geometry_rows(g), cols = geometry_cols(g);
-    int rmid = geometry_rmid(g), cmid = geometry_cmid(g);
-    int hex_h = geometry_hex_h(g), hex_w = geometry_hex_w(g);
+    /* set up variables for checking the geometry of each hex */
+    float u0 = hex_u(centre),
+          v0 = hex_v(centre);
+    float u = 0, v = 0;
+    int dr = 0, dc = 0;
 
-    /* tile-location tracking & calculation */
-    int r, c;
-    float dc, dr;
+    struct Coordinate *edge = coordinate_duplicate(hex_coordinate(centre)),
+                      *target = coordinate_zero();
+    struct Hex *hex = NULL;
 
-    /* check which tiles should be drawn */
-    while (open) {
-        /* pop the top */
-        curr = queue_hex(open);
-        queue_remove(&open, curr);
-        queue_add(&closed, curr, 0);
-
-        /* add its neighbours tho */
-        for (int i=0; i<6; i++) {
-            nbr = hex_neighbour(curr, i);
-            if ((queue_find(closed, nbr) != NULL) || (queue_find(open, nbr) != NULL)) {
-                continue;
-            }
-            queue_add(&open, nbr, 0);
+    for (int y=0; y<(n_ver/4); y++) {
+        for (int x=0; x<(n_hor/4); x++) {
+            coordinate_shift(edge, WEST);
         }
-
-        /* calc the geometry */
-        dc = scale * (hex_u(curr) - hex_u(origin));
-        dr = aspect * scale * (hex_v(curr) - hex_v(origin));
-        c = round(cmid + dc);
-        r = round(rmid + dr);
-        if (r < -hex_h || r > (rows+hex_h) || c < -hex_w || c > (cols+hex_w)) {
-            continue;
-        }
-        draw_hex(curr, r, c, hex_w, hex_h, slope);
+        coordinate_shift(edge, (y % 2) ? SOUTHWEST : SOUTHEAST);
     }
 
-    queue_destroy(open);
-    queue_destroy(closed);
+    for (int y=0; y<n_ver; y++) {
+        coordinate_copy(edge, target);
+        for (int x=0; x<n_hor; x++) {
+            hex = hex_find(root, target);
+            if (hex) {
+                u = hex_u(hex);
+                v = hex_v(hex);
+                dc = round(geometry_scale(g) * (u - u0));
+                dr = round(geometry_scale(g) * geometry_aspect(g) * (v - v0));
+                draw_hex(g, hex, geometry_rmid(g) + dr, geometry_cmid(g) + dc);
+                int r0 = geometry_rmid(g), c0 = geometry_cmid(g),
+                    r = r0 + dr, c = c0 + dc;
+                mvprintw(r, c-7, "(%d, %d, %d)", hex_p(hex), hex_q(hex), hex_r(hex));
+                mvprintw(r+1, c-7, " (%d,  %d)  ", r, c);
+                mvprintw(r+2, c-7, " (%d,  %d)  ", dr, dc);
+            }
+            coordinate_shift(target, EAST);
+        }
+        coordinate_shift(edge, (y % 2) ? NORTHEAST : NORTHWEST);
+    }
+
+    coordinate_destroy(edge);
+    coordinate_destroy(target);
     return;
 }
 
@@ -310,11 +313,11 @@ void draw_map(struct Geometry *g, struct Hex *origin)
  *      DRAW 04 - Core stuff
  */
 
-int draw_screen(struct Geometry *g, struct Hex *map)
+int draw_screen(struct Geometry *g, struct Hex *map, struct Hex *centre)
 {
     erase();
 
-    draw_map(g, map);
+    draw_map(g, map, centre);
     draw_border(0, 0, geometry_cols(g), geometry_rows(g));
     draw_reticule(g);
 

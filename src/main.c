@@ -17,14 +17,13 @@ enum INPUTMODE {
 
 bool CONTINUE;
 bool SPLASH, TERRAIN_SELECTOR, HEX_DETAIL;
-const float CURSOR_ASPECT_RATIO = 0.66f;
-const float _DH_DW = ROOT3_INV * CURSOR_ASPECT_RATIO;
 
-enum INPUTMODE _input_mode;
-int _lastchar;
+enum INPUTMODE input_mode;
+int lastchar;
 
-struct Hex *_h = NULL;
-struct Geometry *_g = NULL;
+struct Hex *current_hex = NULL;
+struct Hex *map = NULL;
+struct Geometry *geometry = NULL;
 
 struct Panel *splash = NULL;
 struct Panel *terrain_selector = NULL;
@@ -49,19 +48,20 @@ int initialise(void)
     SPLASH = true;
     TERRAIN_SELECTOR = false;
 
-    _input_mode = CAPTURE;
-    _lastchar=0;
+    input_mode = CAPTURE;
+    lastchar=0;
 
     int r0, c0;
     getmaxyx(stdscr, r0, c0);
-    _g = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
-    int rmid = geometry_rmid(_g), cmid = geometry_cmid(_g);;
+    geometry = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
+    int rmid = geometry_rmid(geometry), cmid = geometry_cmid(geometry);;
 
     splash = panel_splash(rmid, cmid);
     terrain_selector = panel_terrain_selector();
     hex_detail = panel_hex_detail();
 
-    _h = hex_create();
+    current_hex = hex_origin();
+    map = current_hex;
 
     update_vars();
 
@@ -76,7 +76,7 @@ void cleanup(void)
     panel_destroy(splash);
     panel_destroy(terrain_selector);
     panel_destroy(hex_detail);
-    hex_destroy(_h);
+    hex_destroy(current_hex);
 }
 
 
@@ -95,7 +95,7 @@ int input_navigate(void)
     bool directional = false;
 
     /* first handle the non-directional keys */
-    switch (_lastchar) {
+    switch (lastchar) {
         case 'Q':
             CONTINUE = false;
             break;
@@ -119,15 +119,15 @@ int input_navigate(void)
     static const char *navichar_upper = "KIUHNM";
     int step_count = 0;
     for (int i=0; i<6; i++) {
-        if (_lastchar == navichar_upper[i]) {
+        if (lastchar == navichar_upper[i]) {
             step_count = 3;
-        } else if (_lastchar == navichar_lower[i]) {
+        } else if (lastchar == navichar_lower[i]) {
             step_count = 1;
         } else {
             continue;
         }
-        while (hex_neighbour(_h, i) && step_count) {
-            _h = hex_neighbour(_h, i);
+        while (hex_neighbour(map, current_hex, i) && step_count) {
+            current_hex = hex_neighbour(map, current_hex, i);
             step_count--;
         }
         break;
@@ -140,60 +140,60 @@ int input_navigate(void)
 int input_terrain(void)
 {
     /* first handle direct selection */
-    enum TERRAIN t = _lastchar - '0';
+    enum TERRAIN t = lastchar - '0';
     if ((t > NONE) && (t <= SWAMP)) {
-        if (hex_terrain(_h) == NONE) {
-            hex_create_neighbours(_h);
+        if (hex_terrain(current_hex) == NONE) {
+            hex_create_neighbours(&map, current_hex);
         }
-        hex_set_terrain(_h, t);
+        hex_set_terrain(current_hex, t);
         return TERRAIN_SELECT;
     }
 
     /* now handle copy/move painting */
     static const char *brushchar = "KIUHNM";
     for (int i=0; i<6; i++) {
-        if (_lastchar != brushchar[i]) {
+        if (lastchar != brushchar[i]) {
             /* skip unless input is a motion */
             continue;
         }
 
-        enum TERRAIN t = hex_terrain(_h);
-        struct Hex *nbr = hex_neighbour(_h, i);
+        enum TERRAIN t = hex_terrain(current_hex);
+        struct Hex *nbr = hex_neighbour(map, current_hex, i);
 
         if ((t == NONE) || (nbr == NULL)) {
             /* don't paint with none-terrain */
             return TERRAIN_SELECT;
         }
 
-        _h = nbr;
-        if (hex_terrain(_h) == NONE) {
-            hex_create_neighbours(_h);
+        current_hex = nbr;
+        if (hex_terrain(current_hex) == NONE) {
+            hex_create_neighbours(&map, current_hex);
         }
-        hex_set_terrain(_h, t);
+        hex_set_terrain(current_hex, t);
 
         return TERRAIN_SELECT;
     }
 
     static const char *navichar_lower = "kiuhnm";
     for (int i=0; i<6; i++) {
-        if (_lastchar != navichar_lower[i]) {
+        if (lastchar != navichar_lower[i]) {
             continue;
         }
-        if (hex_neighbour(_h, i)) {
-            _h = hex_neighbour(_h, i);
+        if (hex_neighbour(map, current_hex, i)) {
+            current_hex = hex_neighbour(map, current_hex, i);
             return TERRAIN_SELECT;
         }
     }
 
-    switch (_lastchar) {
+    switch (lastchar) {
         case 'T':
             TERRAIN_SELECTOR = false;
             return NAVIGATE;
         default:
             return TERRAIN_SELECT;
     }
-    if (hex_terrain(_h) == NONE) {
-        hex_create_neighbours(_h);
+    if (hex_terrain(current_hex) == NONE) {
+        hex_create_neighbours(&map, current_hex);
     }
     return TERRAIN_SELECT;
 }
@@ -201,17 +201,17 @@ int input_terrain(void)
 
 void handle_input(void)
 {
-    _lastchar = getch();
+    lastchar = getch();
 
-    switch (_input_mode) {
+    switch (input_mode) {
         case CAPTURE:
-            _input_mode = input_capture();
+            input_mode = input_capture();
             break;
         case NAVIGATE:
-            _input_mode = input_navigate();
+            input_mode = input_navigate();
             break;
         case TERRAIN_SELECT:
-            _input_mode = input_terrain();
+            input_mode = input_terrain();
         default:
             break;
     }
@@ -225,7 +225,7 @@ int main(void)
     initialise();
 
     while (CONTINUE) {
-        draw_screen(_g, _h);
+        draw_screen(geometry, map, current_hex);
         if (SPLASH) {
             draw_panel(splash);
         }
