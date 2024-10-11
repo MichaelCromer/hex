@@ -262,8 +262,8 @@ int draw_hex(struct Geometry *g, struct Hex *hex, int r0, int c0)
 void draw_map(struct Geometry *g, struct Hex *root, struct Hex *centre)
 {
     /* calculate the number of hexes that fit to screen */
-    int n_hor = 2 * ceil( geometry_cols(g) / (1.00f * geometry_hex_w(g))),
-        n_ver = 2 * ceil( geometry_rows(g) / (0.75f * geometry_hex_h(g)));
+    int n_hor = ceil( geometry_cols(g) / (1.00f * geometry_hex_w(g))),
+        n_ver = ceil( geometry_rows(g) / (0.75f * geometry_hex_h(g)));
 
     /* set up variables for checking the geometry of each hex */
     float u0 = hex_u(centre),
@@ -275,11 +275,13 @@ void draw_map(struct Geometry *g, struct Hex *root, struct Hex *centre)
                       *target = coordinate_zero();
     struct Hex *hex = NULL;
 
-    for (int y=0; y<(n_ver/4); y++) {
-        for (int x=0; x<(n_hor/4); x++) {
-            coordinate_shift(edge, WEST);
-        }
+    for (int y=0; y<(n_ver/2); y++) {
+        /* pair results in (-1, 2, -1) */
         coordinate_shift(edge, (y % 2) ? SOUTHWEST : SOUTHEAST);
+    }
+    for (int x=0; x<(n_hor/2); x++) {
+        /* single results in (-1, 0, 1) */
+        coordinate_shift(edge, WEST);
     }
 
     for (int y=0; y<n_ver; y++) {
@@ -292,11 +294,6 @@ void draw_map(struct Geometry *g, struct Hex *root, struct Hex *centre)
                 dc = round(geometry_scale(g) * (u - u0));
                 dr = round(geometry_scale(g) * geometry_aspect(g) * (v - v0));
                 draw_hex(g, hex, geometry_rmid(g) + dr, geometry_cmid(g) + dc);
-                int r0 = geometry_rmid(g), c0 = geometry_cmid(g),
-                    r = r0 + dr, c = c0 + dc;
-                mvprintw(r, c-7, "(%d, %d, %d)", hex_p(hex), hex_q(hex), hex_r(hex));
-                mvprintw(r+1, c-7, " (%d,  %d)  ", r, c);
-                mvprintw(r+2, c-7, " (%d,  %d)  ", dr, dc);
             }
             coordinate_shift(target, EAST);
         }
