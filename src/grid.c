@@ -183,7 +183,7 @@ void coordinate_common_ancestor(
  */
 int coordinate_index(const struct Coordinate *c)
 {
-    return (((3*c->q + c->r) % 9) + 9) % 9;
+    return (((3*c->p + c->q) % 9) + 9) % 9;
 }
 
 
