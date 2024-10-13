@@ -17,6 +17,7 @@ int panel_len(struct Panel *p);
 char *panel_line(struct Panel *p, int i);
 
 struct Panel *panel_splash(int rmid, int cmid);
-struct Panel *panel_terrain_selector(int rmid, int cmid);
+struct Panel *panel_terrain_selector(void);
+struct Panel *panel_hex_detail(void);
 
 #endif

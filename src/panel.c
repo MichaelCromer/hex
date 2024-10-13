@@ -14,7 +14,7 @@ struct Panel {
 struct Panel *panel_create(int r0, int c0, int len)
 {
     struct Panel *p = malloc(sizeof(struct Panel));
-    if (!p) return NULL;
+    if (!p) { return NULL; }
 
     p->r0 = r0;
     p->c0 = c0;
@@ -38,15 +38,20 @@ struct Panel *panel_create(int r0, int c0, int len)
 
 void panel_destroy(struct Panel *p)
 {
-    if (p) {
-        for (int i=0; i<p->len; i++) {
-            free(p->lines[i]);
-        }
-        free(p->lines);
-        p->lines = NULL;
-        free(p);
-        p = NULL;
+    if (!p) {
+        return;
     }
+
+    for (int i=0; i<p->len; i++) {
+        char *line = p->lines[i];
+        if (line) {
+            free(line);
+        }
+    }
+    free(p->lines);
+    p->lines = NULL;
+    free(p);
+    p = NULL;
 }
 
 
@@ -149,16 +154,27 @@ struct Panel *panel_splash(int rmid, int cmid)
 }
 
 
-struct Panel *panel_terrain_selector(int rmid, int cmid)
+struct Panel *panel_terrain_selector(void)//int rmid, int cmid)
 {
-    struct Panel *terrain_selector = panel_create(0, 0, 5);
+    struct Panel *terrain_selector = panel_create(9, 2, 5);
     panel_add_line(terrain_selector, "Select Terrain:", 0);
     panel_add_line(terrain_selector, "1. Ocean     2. Mountain 3. Plains", 2);
     panel_add_line(terrain_selector, "4. Hills     5. Forest   6. Desert", 3);
     panel_add_line(terrain_selector, "7. Jungle    8. Swamp    q. Close ", 4);
-    int r0 = rmid - (panel_height(terrain_selector) / 2);
-    int c0 = cmid - (panel_width(terrain_selector) / 2);
-    panel_set_rc(terrain_selector, r0, c0);
+    //int r0 = rmid - (panel_height(terrain_selector) / 2);
+    //int c0 = cmid - (panel_width(terrain_selector) / 2);
+    //panel_set_rc(terrain_selector, r0, c0);
 
     return terrain_selector;
+}
+
+
+struct Panel *panel_hex_detail(void)
+{
+    struct Panel *hex_detail = panel_create(2, 2, 3);
+    panel_add_line(hex_detail, "Currently at: ",    0);
+    panel_add_line(hex_detail, "    (p, q, r)",     1);
+    panel_add_line(hex_detail, "    TERRAIN: NONE", 2);
+
+    return hex_detail;
 }
