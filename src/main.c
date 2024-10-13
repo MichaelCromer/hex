@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "queue.h"
 #include "grid.h"
 #include "panel.h"
 #include "draw.h"
