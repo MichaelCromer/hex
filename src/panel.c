@@ -139,16 +139,21 @@ int panel_set_rc(struct Panel *p, int r, int c)
     return 0;
 }
 
-struct Panel *panel_splash(int rmid, int cmid)
+
+void panel_centre(struct Panel *p, int r, int c)
+{
+    p->r0 = r - p->h/2;
+    p->c0 = c - p->w/2;
+}
+
+
+struct Panel *panel_splash(void)
 {
     struct Panel *splash = panel_create(0, 0, 5);
     panel_add_line(splash, "Welcome to hex",                           0);
     panel_add_line(splash, "Use u,i,h,l,n,m to navigate tiles",        2);
     panel_add_line(splash, "Use j to interact with the current tile",  3);
     panel_add_line(splash, "Shift-q to exit.",                         4);
-    int r0 = rmid - (panel_height(splash) / 2);
-    int c0 = cmid - (panel_width(splash) / 2);
-    panel_set_rc(splash, r0, c0);
 
     return splash;
 }
