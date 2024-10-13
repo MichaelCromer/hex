@@ -228,7 +228,9 @@ void draw_reticule(struct Geometry *g)
     mvvline(rmid-h_half, cmid+w_half-1, ch, 2*h_half);
 
     for (int col = -w_half; col <= w_half; col++) {
-        dh = (col < 0) ? round((w_half+col)*slope) : round((w_half-col)*slope);
+        dh = (col < 0)
+            ? round((w_half+col)*slope)
+            : round((w_half-col)*slope);
         mvaddch(rmid - (h_half + dh), cmid + col, ch);
         mvaddch(rmid + (h_half + dh), cmid + col, ch);
     }
@@ -261,8 +263,8 @@ int draw_hex(struct Geometry *g, struct Hex *hex, int r0, int c0)
 void draw_map(struct Geometry *g, struct Hex *root, struct Hex *centre)
 {
     /* calculate the number of hexes that fit to screen */
-    int n_hor = ceil( geometry_cols(g) / (1.00f * geometry_hex_w(g))),
-        n_ver = ceil( geometry_rows(g) / (0.75f * geometry_hex_h(g)));
+    int n_hor = round( geometry_cols(g) / (1.00f * geometry_hex_w(g))) + 1,
+        n_ver = round( geometry_rows(g) / (0.75f * geometry_hex_h(g))) + 1;
 
     /* set up variables for checking the geometry of each hex */
     float u0 = hex_u(centre),
