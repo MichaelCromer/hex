@@ -51,7 +51,7 @@ int initialise(void)
     geometry = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
     int rmid = geometry_rmid(geometry), cmid = geometry_cmid(geometry);;
 
-    ui = ui_init();
+    ui = ui_initialise();
     panel_centre(ui_panel(ui, SPLASH), rmid, cmid);
     ui_toggle(ui, SPLASH);
 

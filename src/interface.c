@@ -26,7 +26,7 @@ struct UserInterface *ui_create(void)
 }
 
 
-struct UserInterface *ui_init(void)
+struct UserInterface *ui_initialise(void)
 {
     struct UserInterface *ui = ui_create();
 

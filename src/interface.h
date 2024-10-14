@@ -15,7 +15,7 @@ enum UI_PANEL {
 struct UserInterface;
 
 struct UserInterface *ui_create(void);
-struct UserInterface *ui_init(void);
+struct UserInterface *ui_initialise(void);
 void ui_destroy(struct UserInterface *ui);
 void ui_toggle(struct UserInterface *ui, enum UI_PANEL p);
 bool ui_show(struct UserInterface *ui, enum UI_PANEL p);
