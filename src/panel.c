@@ -23,6 +23,7 @@ struct Panel *panel_create(int r0, int c0, int len)
     p->lines = malloc(len * sizeof(char *));
     if (!p->lines) {
         free(p);
+        p = NULL;
         return NULL;
     }
 
@@ -94,28 +95,34 @@ char *panel_line(struct Panel *p, int i)
 }
 
 
-int panel_add_line(struct Panel *p, const char *line, int index)
+void panel_add_line(struct Panel *p, int index, const char *line)
 {
-    if (index < 0 || index >= p->len) { return -1; }
-    if (p->lines[index]) { free(p->lines[index]); }
+    if (index < 0 || index >= p->len) { return; }
+    if (p->lines[index]) { return; }
 
     p->lines[index] = strdup(line);
-    if (!p->lines[index]) { return -1; }
+    if (!p->lines[index]) { return; }
 
     int len = strlen(line);
-    if ((len+4) > p->w) { p->w = len+4; } /* +4 to fit border and pad */
-    if ((index+5) > p->h) { p->h = index+5; } /* +5 to fit border and pad, 0-indexed */
+    if ((len+4) > p->w) {
+        p->w = len+4;
+    } /* +4 to fit border and pad */
+    if ((index+5) > p->h) {
+        p->h = index+5;
+    } /* +5 to fit border and pad, 0-indexed */
 
-    return 0;
+    return;
 }
 
 
-int panel_remove_line(struct Panel *p, int index)
+void panel_remove_line(struct Panel *p, int index)
 {
-    if (index < 0 || index >= p->len) { return -1; }
-    if (!p->lines[index]) { return 0; }
+    if (index < 0 || index >= p->len) { return; }
+    if (!p->lines[index]) { return; }
 
     free(p->lines[index]);
+    p->lines[index] = NULL;
+
     p->h = 0;
     p->w = 0;
 
@@ -127,7 +134,7 @@ int panel_remove_line(struct Panel *p, int index)
         if ((i+5) > p->h) { p->h = i+5; }
     }
 
-    return 0;
+    return;
 }
 
 
@@ -150,10 +157,10 @@ void panel_centre(struct Panel *p, int r, int c)
 struct Panel *panel_splash(void)
 {
     struct Panel *splash = panel_create(0, 0, 5);
-    panel_add_line(splash, "Welcome to hex",                           0);
-    panel_add_line(splash, "Use u,i,h,l,n,m to navigate tiles",        2);
-    panel_add_line(splash, "Use j to interact with the current tile",  3);
-    panel_add_line(splash, "Shift-q to exit.",                         4);
+    panel_add_line(splash, 0, "Welcome to hex");
+    panel_add_line(splash, 1, "Use u,i,h,l,n,m to navigate tiles");
+    panel_add_line(splash, 2, "Use j to interact with the current tile");
+    panel_add_line(splash, 3, "Shift-q to exit.");
 
     return splash;
 }
@@ -162,13 +169,10 @@ struct Panel *panel_splash(void)
 struct Panel *panel_terrain_selector(void)//int rmid, int cmid)
 {
     struct Panel *terrain_selector = panel_create(9, 2, 5);
-    panel_add_line(terrain_selector, "Select Terrain:", 0);
-    panel_add_line(terrain_selector, "1. Ocean     2. Mountain 3. Plains", 2);
-    panel_add_line(terrain_selector, "4. Hills     5. Forest   6. Desert", 3);
-    panel_add_line(terrain_selector, "7. Jungle    8. Swamp    q. Close ", 4);
-    //int r0 = rmid - (panel_height(terrain_selector) / 2);
-    //int c0 = cmid - (panel_width(terrain_selector) / 2);
-    //panel_set_rc(terrain_selector, r0, c0);
+    panel_add_line(terrain_selector, 0, "Select Terrain:");
+    panel_add_line(terrain_selector, 1, "1. Ocean     2. Mountain 3. Plains");
+    panel_add_line(terrain_selector, 2, "4. Hills     5. Forest   6. Desert");
+    panel_add_line(terrain_selector, 3, "7. Jungle    8. Swamp    q. Close ");
 
     return terrain_selector;
 }
@@ -177,9 +181,9 @@ struct Panel *panel_terrain_selector(void)//int rmid, int cmid)
 struct Panel *panel_hex_detail(void)
 {
     struct Panel *hex_detail = panel_create(2, 2, 3);
-    panel_add_line(hex_detail, "Currently at: ",    0);
-    panel_add_line(hex_detail, "    (p, q, r)",     1);
-    panel_add_line(hex_detail, "    TERRAIN: NONE", 2);
+    panel_add_line(hex_detail, 0, "Currently at: ");
+    panel_add_line(hex_detail, 1, "    (p, q, r)");
+    panel_add_line(hex_detail, 2, "    TERRAIN: NONE");
 
     return hex_detail;
 }
