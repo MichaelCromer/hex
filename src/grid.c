@@ -4,6 +4,49 @@
 
 #include "grid.h"
 
+
+/*
+ * Terrain lookups
+ *
+ */
+
+static const char *terrain_none = "None";
+static const char *terrain_water = "Water";
+static const char *terrain_mountains = "Mountains";
+static const char *terrain_plains = "Plains";
+static const char *terrain_hills = "Hills";
+static const char *terrain_forest = "Forset";
+static const char *terrain_desert = "Desert";
+static const char *terrain_jungle = "Jungle";
+static const char *terrain_swamp = "Swamp";
+
+
+const char *terrain_string(enum TERRAIN t)
+{
+    switch (t) {
+        case WATER:
+            return terrain_water;
+        case MOUNTAINS:
+            return terrain_mountains;
+        case PLAINS:
+            return terrain_plains;
+        case HILLS:
+            return terrain_hills;
+        case FOREST:
+            return terrain_forest;
+        case DESERT:
+            return terrain_desert;
+        case JUNGLE:
+            return terrain_jungle;
+        case SWAMP:
+            return terrain_swamp;
+        default:
+            break;
+    }
+    return terrain_none;
+}
+
+
 /*
  *  struct Coordinate
  *
