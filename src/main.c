@@ -28,7 +28,29 @@ struct UserInterface *ui = NULL;
 
 void update_vars(void)
 {
-    /* placeholder */
+    struct Panel *hex_detail = ui_panel(ui, HEX_DETAIL);
+    char *coordinate = malloc(32); /* TODO def an appropriate length */
+    snprintf(coordinate, 32,
+            "    (%d, %d, %d)",
+            hex_p(current_hex),
+            hex_q(current_hex),
+            hex_r(current_hex)
+           );
+    panel_remove_line(hex_detail, 1);
+    panel_add_line(hex_detail, 1, coordinate);
+
+    char *terrain = malloc(32);
+    snprintf(terrain, 32,
+            "    Terrain: %s",
+            terrain_string(hex_terrain(current_hex))
+            );
+    panel_remove_line(hex_detail, 2);
+    panel_add_line(hex_detail, 2, terrain);
+
+    free(coordinate);
+    free(terrain);
+    coordinate = NULL;
+    terrain = NULL;
     return;
 }
 
