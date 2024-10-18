@@ -307,18 +307,34 @@ void draw_map(struct Geometry *g, struct Hex *root, struct Hex *centre)
 }
 
 
+void draw_ui(struct UserInterface *ui)
+{
+    for (int p=0; p<UI_NUM_PANELS; p++) {
+        if (ui_show(ui, p)) {
+            draw_panel(ui_panel(ui, p));
+        }
+    }
+    return;
+}
+
+
 /*
  *      DRAW 04 - Core stuff
  */
 
-int draw_screen(struct Geometry *g, struct Hex *map, struct Hex *centre)
-{
+void draw_screen(
+        struct Geometry *g,
+        struct Hex *map,
+        struct Hex *centre,
+        struct UserInterface *ui
+    ) {
     erase();
 
     draw_map(g, map, centre);
     draw_border(0, 0, geometry_cols(g), geometry_rows(g));
     draw_reticule(g);
+    draw_ui(ui);
 
     refresh();
-    return 0;
+    return;
 }

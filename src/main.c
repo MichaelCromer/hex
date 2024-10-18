@@ -7,6 +7,7 @@
 #include "grid.h"
 #include "panel.h"
 #include "draw.h"
+#include "interface.h"
 
 enum INPUTMODE {
     CAPTURE,
@@ -14,8 +15,7 @@ enum INPUTMODE {
     TERRAIN_SELECT
 };
 
-bool CONTINUE;
-bool SPLASH, TERRAIN_SELECTOR, HEX_DETAIL;
+bool quit;
 
 enum INPUTMODE input_mode;
 int lastchar;
@@ -23,14 +23,34 @@ int lastchar;
 struct Hex *current_hex = NULL;
 struct Hex *map = NULL;
 struct Geometry *geometry = NULL;
+struct UserInterface *ui = NULL;
 
-struct Panel *splash = NULL;
-struct Panel *terrain_selector = NULL;
-struct Panel *hex_detail = NULL;
 
 void update_vars(void)
 {
-    /* placeholder */
+    struct Panel *hex_detail = ui_panel(ui, HEX_DETAIL);
+    char *coordinate = malloc(32); /* TODO def an appropriate length */
+    snprintf(coordinate, 32,
+            "    (%d, %d, %d)",
+            hex_p(current_hex),
+            hex_q(current_hex),
+            hex_r(current_hex)
+           );
+    panel_remove_line(hex_detail, 1);
+    panel_add_line(hex_detail, 1, coordinate);
+
+    char *terrain = malloc(32);
+    snprintf(terrain, 32,
+            "    Terrain: %s",
+            terrain_string(hex_terrain(current_hex))
+            );
+    panel_remove_line(hex_detail, 2);
+    panel_add_line(hex_detail, 2, terrain);
+
+    free(coordinate);
+    free(terrain);
+    coordinate = NULL;
+    terrain = NULL;
     return;
 }
 
@@ -43,9 +63,7 @@ int initialise(void)
     noecho();               /* don't echo user input */
     curs_set(0);            /* disable cursor */
 
-    CONTINUE = true;
-    SPLASH = true;
-    TERRAIN_SELECTOR = false;
+    quit = false;
 
     input_mode = CAPTURE;
     lastchar=0;
@@ -55,9 +73,9 @@ int initialise(void)
     geometry = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
     int rmid = geometry_rmid(geometry), cmid = geometry_cmid(geometry);;
 
-    splash = panel_splash(rmid, cmid);
-    terrain_selector = panel_terrain_selector();
-    hex_detail = panel_hex_detail();
+    ui = ui_initialise();
+    panel_centre(ui_panel(ui, SPLASH), rmid, cmid);
+    ui_toggle(ui, SPLASH);
 
     current_hex = hex_origin();
     map = current_hex;
@@ -70,19 +88,19 @@ int initialise(void)
 
 void cleanup(void)
 {
+    ui_destroy(ui);
+    geometry_destroy(geometry);
+    hex_destroy(current_hex);
+
     erase();
     endwin();
-    panel_destroy(splash);
-    panel_destroy(terrain_selector);
-    panel_destroy(hex_detail);
-    hex_destroy(current_hex);
 }
 
 
 int input_capture(void)
 {
-    if (SPLASH) {
-        SPLASH = false;
+    if (ui_show(ui, SPLASH)) {
+        ui_toggle(ui, SPLASH);
     }
 
     return NAVIGATE;
@@ -96,13 +114,13 @@ int input_navigate(void)
     /* first handle the non-directional keys */
     switch (lastchar) {
         case 'Q':
-            CONTINUE = false;
+            quit = true;
             break;
         case 'T':
-            TERRAIN_SELECTOR = true;
+            ui_toggle(ui, TERRAIN_SELECTOR);
             return TERRAIN_SELECT;
         case 'j':
-            HEX_DETAIL = !HEX_DETAIL;
+            ui_toggle(ui, HEX_DETAIL);
             break;
         default:
             directional = true;
@@ -186,7 +204,7 @@ int input_terrain(void)
 
     switch (lastchar) {
         case 'T':
-            TERRAIN_SELECTOR = false;
+            ui_toggle(ui, TERRAIN_SELECTOR);
             return NAVIGATE;
         default:
             return TERRAIN_SELECT;
@@ -223,17 +241,8 @@ int main(void)
 {
     initialise();
 
-    while (CONTINUE) {
-        draw_screen(geometry, map, current_hex);
-        if (SPLASH) {
-            draw_panel(splash);
-        }
-        if (TERRAIN_SELECTOR) {
-            draw_panel(terrain_selector);
-        }
-        if (HEX_DETAIL) {
-            draw_panel(hex_detail);
-        }
+    while (!quit) {
+        draw_screen(geometry, map, current_hex, ui);
         handle_input();
     }
 
