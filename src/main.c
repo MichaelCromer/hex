@@ -15,7 +15,29 @@ enum INPUTMODE {
     TERRAIN_SELECT
 };
 
-bool quit;
+
+struct StateManager {
+    bool quit;
+};
+
+
+struct StateManager *state_create(void)
+{
+    struct StateManager *s = malloc(sizeof(struct StateManager));
+
+    s->quit = false;
+
+    return s;
+}
+
+
+void state_destroy(struct StateManager *s)
+{
+    free(s);
+    s = NULL;
+    return;
+}
+
 
 enum INPUTMODE input_mode;
 int lastchar;
@@ -24,6 +46,7 @@ struct Hex *current_hex = NULL;
 struct Hex *map = NULL;
 struct Geometry *geometry = NULL;
 struct UserInterface *ui = NULL;
+struct StateManager *sm = NULL;
 
 
 void update_vars(void)
@@ -63,7 +86,7 @@ int initialise(void)
     noecho();               /* don't echo user input */
     curs_set(0);            /* disable cursor */
 
-    quit = false;
+    sm = state_create();
 
     input_mode = CAPTURE;
     lastchar=0;
@@ -89,6 +112,7 @@ int initialise(void)
 void cleanup(void)
 {
     ui_destroy(ui);
+    state_destroy(sm);
     geometry_destroy(geometry);
     hex_destroy(current_hex);
 
@@ -114,7 +138,7 @@ int input_navigate(void)
     /* first handle the non-directional keys */
     switch (lastchar) {
         case 'Q':
-            quit = true;
+            sm->quit = true;
             break;
         case 'T':
             ui_toggle(ui, TERRAIN_SELECTOR);
@@ -241,7 +265,7 @@ int main(void)
 {
     initialise();
 
-    while (!quit) {
+    while (!sm->quit) {
         draw_screen(geometry, map, current_hex, ui);
         handle_input();
     }
