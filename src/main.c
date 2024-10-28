@@ -9,6 +9,7 @@
 #include "draw.h"
 #include "interface.h"
 
+
 enum INPUTMODE {
     INPUT_NONE,
     INPUT_CAPTURE,
@@ -41,8 +42,6 @@ void state_destroy(struct StateManager *s)
     return;
 }
 
-
-int lastchar;
 
 struct Hex *current_hex = NULL;
 struct Hex *map = NULL;
@@ -91,8 +90,6 @@ int initialise(void)
     sm = state_create();
     sm->input_mode = INPUT_CAPTURE;
 
-    lastchar=0;
-
     int r0, c0;
     getmaxyx(stdscr, r0, c0);
     geometry = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
@@ -123,12 +120,26 @@ void cleanup(void)
 }
 
 
-int input_navigate(void)
+enum INPUTMODE input_parse_capture(char ch)
+{
+    if (!ch) {
+        return INPUT_NONE;
+    }
+
+    if (ui_show(ui, PANEL_SPLASH)) {
+        ui_toggle(ui, PANEL_SPLASH);
+    }
+
+    return INPUT_NAVIGATE;
+}
+
+
+enum INPUTMODE input_parse_navigate(char ch)
 {
     bool directional = false;
 
     /* first handle the non-directional keys */
-    switch (lastchar) {
+    switch (ch) {
         case 'Q':
             sm->quit = true;
             break;
@@ -152,9 +163,9 @@ int input_navigate(void)
     static const char *navichar_upper = "KIUHNM";
     int step_count = 0;
     for (int i=0; i<6; i++) {
-        if (lastchar == navichar_upper[i]) {
+        if (ch == navichar_upper[i]) {
             step_count = 3;
-        } else if (lastchar == navichar_lower[i]) {
+        } else if (ch == navichar_lower[i]) {
             step_count = 1;
         } else {
             continue;
@@ -170,10 +181,10 @@ int input_navigate(void)
 }
 
 
-int input_terrain(void)
+enum INPUTMODE input_parse_terrain(char ch)
 {
     /* first handle direct selection */
-    enum TERRAIN t = lastchar - '0';
+    enum TERRAIN t = ch - '0';
     if ((t > NONE) && (t <= SWAMP)) {
         if (hex_terrain(current_hex) == NONE) {
             hex_create_neighbours(&map, current_hex);
@@ -185,7 +196,7 @@ int input_terrain(void)
     /* now handle copy/move painting */
     static const char *brushchar = "KIUHNM";
     for (int i=0; i<6; i++) {
-        if (lastchar != brushchar[i]) {
+        if (ch != brushchar[i]) {
             /* skip unless input is a motion */
             continue;
         }
@@ -209,7 +220,7 @@ int input_terrain(void)
 
     static const char *navichar_lower = "kiuhnm";
     for (int i=0; i<6; i++) {
-        if (lastchar != navichar_lower[i]) {
+        if (ch != navichar_lower[i]) {
             continue;
         }
         if (hex_neighbour(map, current_hex, i)) {
@@ -218,7 +229,7 @@ int input_terrain(void)
         }
     }
 
-    switch (lastchar) {
+    switch (ch) {
         case 'T':
             ui_toggle(ui, PANEL_TERRAIN);
             return INPUT_NAVIGATE;
@@ -232,27 +243,25 @@ int input_terrain(void)
 }
 
 
-void handle_input(void)
+void input_parse(char ch)
 {
-    lastchar = getch();
-
-    if (sm->input_mode == CAPTURE) {
-        if (ui_show(ui, PANEL_SPLASH)) {
-            ui_toggle(ui, PANEL_SPLASH);
-            sm->input_mode = INPUT_NAVIGATE;
-        }
-    }
+    enum INPUTMODE next_mode = INPUT_NONE;
 
     switch (sm->input_mode) {
+        case INPUT_CAPTURE:
+            next_mode = input_parse_capture(ch);
+            break;
         case INPUT_NAVIGATE:
-            sm->input_mode = input_navigate();
+            next_mode = input_parse_navigate(ch);
             break;
         case INPUT_TERRAIN:
-            sm->input_mode = input_terrain();
+            next_mode = input_parse_terrain(ch);
+            break;
         default:
             break;
     }
 
+    sm->input_mode = next_mode;
     update_vars();
 }
 
@@ -263,7 +272,7 @@ int main(void)
 
     while (!sm->quit) {
         draw_screen(geometry, map, current_hex, ui);
-        handle_input();
+        input_parse(getch());
     }
 
     cleanup();
