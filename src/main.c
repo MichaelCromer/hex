@@ -10,14 +10,16 @@
 #include "interface.h"
 
 enum INPUTMODE {
-    CAPTURE,
-    NAVIGATE,
-    TERRAIN_SELECT
+    INPUT_NONE,
+    INPUT_CAPTURE,
+    INPUT_NAVIGATE,
+    INPUT_TERRAIN
 };
 
 
 struct StateManager {
     bool quit;
+    enum INPUTMODE input_mode;
 };
 
 
@@ -26,6 +28,7 @@ struct StateManager *state_create(void)
     struct StateManager *s = malloc(sizeof(struct StateManager));
 
     s->quit = false;
+    s->input_mode = INPUT_NONE;
 
     return s;
 }
@@ -39,7 +42,6 @@ void state_destroy(struct StateManager *s)
 }
 
 
-enum INPUTMODE input_mode;
 int lastchar;
 
 struct Hex *current_hex = NULL;
@@ -51,7 +53,7 @@ struct StateManager *sm = NULL;
 
 void update_vars(void)
 {
-    struct Panel *hex_detail = ui_panel(ui, HEX_DETAIL);
+    struct Panel *hex_detail = ui_panel(ui, PANEL_DETAIL);
     char *coordinate = malloc(32); /* TODO def an appropriate length */
     snprintf(coordinate, 32,
             "    (%d, %d, %d)",
@@ -87,8 +89,8 @@ int initialise(void)
     curs_set(0);            /* disable cursor */
 
     sm = state_create();
+    sm->input_mode = INPUT_CAPTURE;
 
-    input_mode = CAPTURE;
     lastchar=0;
 
     int r0, c0;
@@ -97,8 +99,8 @@ int initialise(void)
     int rmid = geometry_rmid(geometry), cmid = geometry_cmid(geometry);;
 
     ui = ui_initialise();
-    panel_centre(ui_panel(ui, SPLASH), rmid, cmid);
-    ui_toggle(ui, SPLASH);
+    panel_centre(ui_panel(ui, PANEL_SPLASH), rmid, cmid);
+    ui_toggle(ui, PANEL_SPLASH);
 
     current_hex = hex_origin();
     map = current_hex;
@@ -121,16 +123,6 @@ void cleanup(void)
 }
 
 
-int input_capture(void)
-{
-    if (ui_show(ui, SPLASH)) {
-        ui_toggle(ui, SPLASH);
-    }
-
-    return NAVIGATE;
-}
-
-
 int input_navigate(void)
 {
     bool directional = false;
@@ -141,10 +133,10 @@ int input_navigate(void)
             sm->quit = true;
             break;
         case 'T':
-            ui_toggle(ui, TERRAIN_SELECTOR);
-            return TERRAIN_SELECT;
+            ui_toggle(ui, PANEL_TERRAIN);
+            return INPUT_TERRAIN;
         case 'j':
-            ui_toggle(ui, HEX_DETAIL);
+            ui_toggle(ui, PANEL_DETAIL);
             break;
         default:
             directional = true;
@@ -153,7 +145,7 @@ int input_navigate(void)
 
     /* exit unless we fell through the above */
     if (!directional) {
-        return NAVIGATE;
+        return INPUT_NAVIGATE;
     }
 
     static const char *navichar_lower = "kiuhnm";
@@ -174,7 +166,7 @@ int input_navigate(void)
         break;
     }
 
-    return NAVIGATE;
+    return INPUT_NAVIGATE;
 }
 
 
@@ -187,7 +179,7 @@ int input_terrain(void)
             hex_create_neighbours(&map, current_hex);
         }
         hex_set_terrain(current_hex, t);
-        return TERRAIN_SELECT;
+        return INPUT_TERRAIN;
     }
 
     /* now handle copy/move painting */
@@ -203,7 +195,7 @@ int input_terrain(void)
 
         if ((t == NONE) || (nbr == NULL)) {
             /* don't paint with none-terrain */
-            return TERRAIN_SELECT;
+            return INPUT_TERRAIN;
         }
 
         current_hex = nbr;
@@ -212,7 +204,7 @@ int input_terrain(void)
         }
         hex_set_terrain(current_hex, t);
 
-        return TERRAIN_SELECT;
+        return INPUT_TERRAIN;
     }
 
     static const char *navichar_lower = "kiuhnm";
@@ -222,21 +214,21 @@ int input_terrain(void)
         }
         if (hex_neighbour(map, current_hex, i)) {
             current_hex = hex_neighbour(map, current_hex, i);
-            return TERRAIN_SELECT;
+            return INPUT_TERRAIN;
         }
     }
 
     switch (lastchar) {
         case 'T':
-            ui_toggle(ui, TERRAIN_SELECTOR);
-            return NAVIGATE;
+            ui_toggle(ui, PANEL_TERRAIN);
+            return INPUT_NAVIGATE;
         default:
-            return TERRAIN_SELECT;
+            return INPUT_TERRAIN;
     }
     if (hex_terrain(current_hex) == NONE) {
         hex_create_neighbours(&map, current_hex);
     }
-    return TERRAIN_SELECT;
+    return INPUT_TERRAIN;
 }
 
 
@@ -244,15 +236,19 @@ void handle_input(void)
 {
     lastchar = getch();
 
-    switch (input_mode) {
-        case CAPTURE:
-            input_mode = input_capture();
+    if (sm->input_mode == CAPTURE) {
+        if (ui_show(ui, PANEL_SPLASH)) {
+            ui_toggle(ui, PANEL_SPLASH);
+            sm->input_mode = INPUT_NAVIGATE;
+        }
+    }
+
+    switch (sm->input_mode) {
+        case INPUT_NAVIGATE:
+            sm->input_mode = input_navigate();
             break;
-        case NAVIGATE:
-            input_mode = input_navigate();
-            break;
-        case TERRAIN_SELECT:
-            input_mode = input_terrain();
+        case INPUT_TERRAIN:
+            sm->input_mode = input_terrain();
         default:
             break;
     }
