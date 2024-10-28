@@ -273,7 +273,7 @@ void draw_map(struct Geometry *g, struct Hex *root, struct Hex *centre)
     int dr = 0, dc = 0;
 
     struct Coordinate *edge = coordinate_duplicate(hex_coordinate(centre)),
-                      *target = coordinate_zero();
+                      *target = coordinate_duplicate(coordinate_zero());
     struct Hex *hex = NULL;
 
     for (int y=0; y<(n_ver/2); y++) {

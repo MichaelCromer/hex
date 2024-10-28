@@ -4,6 +4,7 @@
 #define ROOT3       1.732050807f
 #define ROOT3_INV   0.57735026919f
 
+#include "coordinate.h"
 
 enum TERRAIN {
     NONE,
@@ -18,34 +19,11 @@ enum TERRAIN {
 };
 
 
-enum DIRECTION {
-    EAST,
-    NORTHEAST,
-    NORTHWEST,
-    WEST,
-    SOUTHWEST,
-    SOUTHEAST
-};
-
-
 /***************************************************
  *  TERRAIN
  ***************************************************/
 
 const char *terrain_string(enum TERRAIN t);
-
-
-/***************************************************
- *  COORDINATE
- ***************************************************/
-struct Coordinate;
-
-void coordinate_copy(const struct Coordinate *c, struct Coordinate *a);
-struct Coordinate *coordinate_duplicate(const struct Coordinate *c);
-struct Coordinate *coordinate_zero();
-void coordinate_shift(struct Coordinate *c, enum DIRECTION d);
-void coordinate_destroy(struct Coordinate *c);
-
 
 /***************************************************
  *  HEX
@@ -53,7 +31,7 @@ void coordinate_destroy(struct Coordinate *c);
 struct Hex;
 
 /* Basics */
-struct Hex *hex_create(struct Coordinate *c);
+struct Hex *hex_create(const struct Coordinate *c);
 struct Hex *hex_origin(void);
 void hex_destroy(struct Hex *h);
 
