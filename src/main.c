@@ -4,10 +4,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "grid.h"
-#include "panel.h"
-#include "draw.h"
-#include "interface.h"
+#include "include/grid.h"
+#include "include/panel.h"
+#include "include/draw.h"
+#include "include/interface.h"
 
 
 enum INPUTMODE {

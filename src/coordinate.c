@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "coordinate.h"
+#include "include/coordinate.h"
 
 /*
  *  struct Coordinate

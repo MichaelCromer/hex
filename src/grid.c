@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "grid.h"
+#include "include/grid.h"
 
 
 /*

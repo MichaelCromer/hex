@@ -2,7 +2,7 @@
 #include <ncurses.h>
 #include <math.h>
 
-#include "draw.h"
+#include "include/draw.h"
 
 
 /*

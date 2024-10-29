@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
-#include "panel.h"
-#include "interface.h"
+#include "include/panel.h"
+#include "include/interface.h"
 
 
 struct UserInterface {
