@@ -315,3 +315,147 @@ void hex_create_neighbours(struct Hex **root, struct Hex *hex)
     return;
 }
 
+
+/* MAP functions */
+
+struct Map *map_create(struct Hex *root)
+{
+    struct Map *m = malloc(sizeof(struct Map));
+
+    m->root = root;
+    m->curr = NULL;
+
+    return m;
+}
+
+
+void map_destroy(struct Map *m)
+{
+    if (!m) {
+        return;
+    }
+
+    if (m->root) {
+        hex_destroy(m->root);
+    }
+
+    m->curr = NULL;
+    m->root = NULL;
+
+    free(m);
+    m = NULL;
+
+    return;
+}
+
+
+struct Coordinate *map_coordinate(const struct Map *m)
+{
+    return m->curr->coordinate;
+}
+
+
+enum TERRAIN map_curr_terrain(const struct Map *m)
+{
+    return m->curr->terrain;
+}
+
+
+struct Hex *map_curr(const struct Map *m)
+{
+    return m->curr;
+}
+
+
+struct Hex *map_find(const struct Map *m, const struct Coordinate *c)
+{
+    if (!m || !c) {
+        return NULL;
+    }
+
+    int dm = coordinate_magnitude(m->root->coordinate) - coordinate_magnitude(c);
+    if (dm <= 0) {
+        if (coordinate_equals(m->root->coordinate, c)) {
+            return m->root;
+        }
+        return NULL;
+    }
+
+    int path[dm];
+    struct Coordinate *zoom = coordinate_duplicate(c);
+    struct Hex *target = m->root;
+
+    /* load up the path of patches to zoom into */
+    for (int i = 1; i <= dm; i++) {
+        path[dm - i] = coordinate_index(zoom);
+        coordinate_lift_by(zoom, 1);
+    }
+
+    /* execute the path */
+    for (int i = 0; i < dm; i++) {
+        target = hex_child(target, path[i]);
+        if (!target) {
+            break;
+        }
+    }
+
+    coordinate_destroy(zoom);
+    return target;
+}
+
+
+void map_goto(struct Map *m, const struct Coordinate *c)
+{
+    struct Hex *new = map_find(m, c);
+    if (new) {
+        m->curr = new;
+    }
+    return;
+}
+
+
+/* TODO a map-native implementation of map_insert */
+void map_insert(struct Map *m, struct Hex *h)
+{
+    hex_insert(&(m->root), h);
+    return;
+}
+
+
+void map_step(struct Map *m, enum DIRECTION d)
+{
+    struct Coordinate *target = coordinate_duplicate(m->curr->coordinate);
+    coordinate_shift(target, d);
+    map_goto(m, target);
+    coordinate_destroy(target);
+    return;
+}
+
+
+struct Hex *map_neighbour(struct Map *m, enum DIRECTION d)
+{
+    struct Coordinate *target = coordinate_duplicate(m->curr->coordinate);
+    struct Hex *result = NULL;
+    coordinate_shift(target, d);
+    result = map_find(m, target);
+    coordinate_destroy(target);
+    return result;
+}
+
+
+/* TODO a map-natrve implementation of map_create_neighbours */
+void map_create_neighbours(struct Map *m)
+{
+    hex_create_neighbours(&(m->root), m->curr);
+    return;
+}
+
+
+/* paint terrain, creates neighbours if not already */
+void map_paint(struct Map *m, enum TERRAIN t)
+{
+    if (map_curr_terrain(m) == NONE) {
+        map_create_neighbours(m);
+    }
+    hex_set_terrain(m->curr, t);
+}
