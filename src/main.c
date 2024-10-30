@@ -43,8 +43,7 @@ void state_destroy(struct StateManager *s)
 }
 
 
-struct Hex *current_hex = NULL;
-struct Hex *map = NULL;
+struct Map *map = NULL;
 struct Geometry *geometry = NULL;
 struct UserInterface *ui = NULL;
 struct StateManager *sm = NULL;
@@ -52,6 +51,9 @@ struct StateManager *sm = NULL;
 
 void update_vars(void)
 {
+    struct Hex *current_hex = map_curr(map);
+
+    /* TODO this is ridiculous as written here */
     struct Panel *hex_detail = ui_panel(ui, PANEL_DETAIL);
     char *coordinate = malloc(32); /* TODO def an appropriate length */
     snprintf(coordinate, 32,
@@ -90,17 +92,19 @@ int initialise(void)
     sm = state_create();
     sm->input_mode = INPUT_CAPTURE;
 
+    /* TODO remove magic numbers and have a geometry_initialise that takes a screen */
     int r0, c0;
     getmaxyx(stdscr, r0, c0);
     geometry = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
     int rmid = geometry_rmid(geometry), cmid = geometry_cmid(geometry);;
 
+    /* TODO remove the jank, make it reference a geometry */
     ui = ui_initialise();
     panel_centre(ui_panel(ui, PANEL_SPLASH), rmid, cmid);
     ui_toggle(ui, PANEL_SPLASH);
 
-    current_hex = hex_origin();
-    map = current_hex;
+    map = map_create(hex_origin());
+    map_goto(map, coordinate_zero());
 
     update_vars();
 
@@ -113,7 +117,7 @@ void cleanup(void)
     ui_destroy(ui);
     state_destroy(sm);
     geometry_destroy(geometry);
-    hex_destroy(current_hex);
+    map_destroy(map);
 
     erase();
     endwin();
@@ -170,8 +174,8 @@ enum INPUTMODE input_parse_navigate(char ch)
         } else {
             continue;
         }
-        while (hex_neighbour(map, current_hex, i) && step_count) {
-            current_hex = hex_neighbour(map, current_hex, i);
+        while (step_count) {
+            map_step(map, i);
             step_count--;
         }
         break;
@@ -186,10 +190,7 @@ enum INPUTMODE input_parse_terrain(char ch)
     /* first handle direct selection */
     enum TERRAIN t = ch - '0';
     if ((t > NONE) && (t <= SWAMP)) {
-        if (hex_terrain(current_hex) == NONE) {
-            hex_create_neighbours(&map, current_hex);
-        }
-        hex_set_terrain(current_hex, t);
+        map_paint(map, t);
         return INPUT_TERRAIN;
     }
 
@@ -201,19 +202,15 @@ enum INPUTMODE input_parse_terrain(char ch)
             continue;
         }
 
-        enum TERRAIN t = hex_terrain(current_hex);
-        struct Hex *nbr = hex_neighbour(map, current_hex, i);
+        enum TERRAIN t = map_curr_terrain(map);
 
-        if ((t == NONE) || (nbr == NULL)) {
+        if (t == NONE) {
             /* don't paint with none-terrain */
             return INPUT_TERRAIN;
         }
 
-        current_hex = nbr;
-        if (hex_terrain(current_hex) == NONE) {
-            hex_create_neighbours(&map, current_hex);
-        }
-        hex_set_terrain(current_hex, t);
+        map_step(map, i);
+        map_paint(map, t);
 
         return INPUT_TERRAIN;
     }
@@ -223,10 +220,7 @@ enum INPUTMODE input_parse_terrain(char ch)
         if (ch != navichar_lower[i]) {
             continue;
         }
-        if (hex_neighbour(map, current_hex, i)) {
-            current_hex = hex_neighbour(map, current_hex, i);
-            return INPUT_TERRAIN;
-        }
+        map_step(map, i);
     }
 
     switch (ch) {
@@ -234,10 +228,7 @@ enum INPUTMODE input_parse_terrain(char ch)
             ui_toggle(ui, PANEL_TERRAIN);
             return INPUT_NAVIGATE;
         default:
-            return INPUT_TERRAIN;
-    }
-    if (hex_terrain(current_hex) == NONE) {
-        hex_create_neighbours(&map, current_hex);
+            break;
     }
     return INPUT_TERRAIN;
 }
@@ -271,7 +262,7 @@ int main(void)
     initialise();
 
     while (!sm->quit) {
-        draw_screen(geometry, map, current_hex, ui);
+        draw_screen(geometry, map, ui);
         input_parse(getch());
     }
 

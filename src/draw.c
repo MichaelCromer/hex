@@ -260,8 +260,10 @@ int draw_hex(struct Geometry *g, struct Hex *hex, int r0, int c0)
 }
 
 
-void draw_map(struct Geometry *g, struct Hex *root, struct Hex *centre)
+void draw_map(struct Geometry *g, struct Map *map)
 {
+    struct Hex *centre = map_curr(map);
+
     /* calculate the number of hexes that fit to screen */
     int n_hor = round( geometry_cols(g) / (1.00f * geometry_hex_w(g))) + 1,
         n_ver = round( geometry_rows(g) / (0.75f * geometry_hex_h(g))) + 1;
@@ -288,7 +290,7 @@ void draw_map(struct Geometry *g, struct Hex *root, struct Hex *centre)
     for (int y=0; y<n_ver; y++) {
         coordinate_copy(edge, target);
         for (int x=0; x<n_hor; x++) {
-            hex = hex_find(root, target);
+            hex = map_find(map, target);
             if (hex) {
                 u = hex_u(hex);
                 v = hex_v(hex);
@@ -322,15 +324,11 @@ void draw_ui(struct UserInterface *ui)
  *      DRAW 04 - Core stuff
  */
 
-void draw_screen(
-        struct Geometry *g,
-        struct Hex *map,
-        struct Hex *centre,
-        struct UserInterface *ui
-    ) {
+void draw_screen(struct Geometry *g, struct Map *map, struct UserInterface *ui)
+{
     erase();
 
-    draw_map(g, map, centre);
+    draw_map(g, map);
     draw_border(0, 0, geometry_cols(g), geometry_rows(g));
     draw_reticule(g);
     draw_ui(ui);
