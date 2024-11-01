@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "include/draw.h"
+#include "include/terrain.h"
 
 
 /*
@@ -186,30 +187,6 @@ int clear_panel(struct Panel *p)
  *      DRAW 03 - Hexes and terrain
  */
 
-char get_terrainchr(enum TERRAIN t)
-{
-    switch (t) {
-        case WATER:
-            return '~';
-        case MOUNTAINS:
-            return '^';
-        case PLAINS:
-            return ';';
-        case HILLS:
-            return 'n';
-        case FOREST:
-            return 'T';
-        case DESERT:
-            return '*';
-        case JUNGLE:
-            return '#';
-        case SWAMP:
-            return 'j';
-        default:
-            break;
-    }
-    return '?';
-}
 
 
 void draw_reticule(struct Geometry *g)
@@ -219,7 +196,7 @@ void draw_reticule(struct Geometry *g)
 
     float slope = geometry_slope(g);
     int rmid = geometry_rmid(g), cmid = geometry_cmid(g);
-    int w_half = geometry_hex_w(g)/2, h_half = geometry_hex_h(g)/2;
+    int w_half = (geometry_hex_w(g)+1)/2, h_half = (geometry_hex_h(g)+1)/2;
 
     mvvline(rmid-h_half, cmid-w_half, ch, 2*h_half);
     mvvline(rmid-h_half, cmid+w_half, ch, 2*h_half);
@@ -229,8 +206,8 @@ void draw_reticule(struct Geometry *g)
 
     for (int col = -w_half; col <= w_half; col++) {
         dh = (col < 0)
-            ? round((w_half+col)*slope)
-            : round((w_half-col)*slope);
+            ? floor((w_half+col)*slope)
+            : floor((w_half-col)*slope);
         mvaddch(rmid - (h_half + dh), cmid + col, ch);
         mvaddch(rmid + (h_half + dh), cmid + col, ch);
     }
@@ -241,18 +218,18 @@ void draw_reticule(struct Geometry *g)
 
 int draw_hex(struct Geometry *g, struct Hex *hex, int r0, int c0)
 {
-    int w_half = geometry_hex_w(g) / 2,
-        h_half = geometry_hex_h(g) / 2;
+    int w_half = (geometry_hex_w(g)+1) / 2,
+        h_half = (geometry_hex_h(g)+1) / 2;
     int dh = 0;
-
-    char ch = get_terrainchr(hex_terrain(hex));
+    char ch = 0;
 
     for (int c = -w_half; c <= w_half; c++) {
         dh = (c < 0)
-                ? round((w_half+c)*geometry_slope(g))
-                : round((w_half-c)*geometry_slope(g));
+                ? floor((w_half+c)*geometry_slope(g))
+                : floor((w_half-c)*geometry_slope(g));
 
         for (int r = -(h_half + dh); r <= (h_half + dh); r++) {
+            ch = terrain_getch(hex_terrain(hex), c, r, hex_seed(hex));
             mvaddch(r0 + r, c0 + c, ch);
         }
     }

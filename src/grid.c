@@ -10,44 +10,8 @@
  * Terrain lookups
  *
  */
-
-const char *terrain_none = "None";
-const char *terrain_water = "Water";
-const char *terrain_mountains = "Mountains";
-const char *terrain_plains = "Plains";
-const char *terrain_hills = "Hills";
-const char *terrain_forest = "Forset";
-const char *terrain_desert = "Desert";
-const char *terrain_jungle = "Jungle";
-const char *terrain_swamp = "Swamp";
-
-
-const char *terrain_string(enum TERRAIN t)
-{
-    switch (t) {
-        case WATER:
-            return terrain_water;
-        case MOUNTAINS:
-            return terrain_mountains;
-        case PLAINS:
-            return terrain_plains;
-        case HILLS:
-            return terrain_hills;
-        case FOREST:
-            return terrain_forest;
-        case DESERT:
-            return terrain_desert;
-        case JUNGLE:
-            return terrain_jungle;
-        case SWAMP:
-            return terrain_swamp;
-        default:
-            break;
-    }
-    return terrain_none;
-}
-
 static int seed_count = 0;
+
 int seed_gen(const struct Coordinate *c)
 {
     int x = coordinate_p(c),
