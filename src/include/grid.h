@@ -6,8 +6,11 @@
 
 #include "coordinate.h"
 
+#define NUM_TERRAIN 9
+
 enum TERRAIN {
-    NONE,
+    TERRAIN_NONE,
+    TERRAIN_UNKNOWN,
     WATER,
     MOUNTAINS,
     PLAINS,

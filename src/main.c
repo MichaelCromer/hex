@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <math.h>
 #include <ncurses.h>
 #include <stdlib.h>
@@ -9,6 +10,34 @@
 #include "include/draw.h"
 #include "include/interface.h"
 
+
+#define         KEY_TOGGLE_QUIT 'Q'
+#define      KEY_TOGGLE_TERRAIN 'T'
+#define       KEY_TOGGLE_DETAIL 'j'
+
+#define                  KEY_EE 'k'
+#define                  KEY_NE 'i'
+#define                  KEY_NW 'u'
+#define                  KEY_WW 'h'
+#define                  KEY_SW 'n'
+#define                  KEY_SE 'm'
+
+#define          KEY_EE_SPECIAL 'K'
+#define          KEY_NE_SPECIAL 'I'
+#define          KEY_NW_SPECIAL 'U'
+#define          KEY_WW_SPECIAL 'H'
+#define          KEY_SW_SPECIAL 'N'
+#define          KEY_SE_SPECIAL 'M'
+
+#define     KEY_TERRAIN_UNKNOWN '0'
+#define       KEY_TERRAIN_WATER '1'
+#define   KEY_TERRAIN_MOUNTAINS '2'
+#define      KEY_TERRAIN_PLAINS '3'
+#define       KEY_TERRAIN_HILLS '4'
+#define      KEY_TERRAIN_FOREST '5'
+#define      KEY_TERRAIN_DESERT '6'
+#define      KEY_TERRAIN_JUNGLE '7'
+#define       KEY_TERRAIN_SWAMP '8'
 
 enum INPUTMODE {
     INPUT_NONE,
@@ -124,12 +153,107 @@ void cleanup(void)
 }
 
 
-enum INPUTMODE input_parse_capture(char ch)
+enum DIRECTION key_direction(char ch)
 {
-    if (!ch) {
-        return INPUT_NONE;
+    switch (tolower(ch)) {
+        case KEY_EE:
+            return EAST;
+        case KEY_NE:
+            return NORTHEAST;
+        case KEY_NW:
+            return NORTHWEST;
+        case KEY_WW:
+            return WEST;
+        case KEY_SW:
+            return SOUTHWEST;
+        case KEY_SE:
+            return SOUTHEAST;
+        default:
+            return DIRECTION_NONE;
     }
+}
 
+
+bool key_is_direction(char ch)
+{
+    switch (tolower(ch)) {
+        case KEY_EE:
+        case KEY_NE:
+        case KEY_NW:
+        case KEY_WW:
+        case KEY_SW:
+        case KEY_SE:
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+bool key_is_special(char ch)
+{
+    switch (ch) {
+        case KEY_EE_SPECIAL:
+        case KEY_NE_SPECIAL:
+        case KEY_NW_SPECIAL:
+        case KEY_WW_SPECIAL:
+        case KEY_SW_SPECIAL:
+        case KEY_SE_SPECIAL:
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+enum TERRAIN key_terrain(char ch)
+{
+    switch (ch) {
+        case KEY_TERRAIN_UNKNOWN:
+            return TERRAIN_UNKNOWN;
+        case KEY_TERRAIN_WATER:
+            return WATER;
+        case KEY_TERRAIN_MOUNTAINS:
+            return MOUNTAINS;
+        case KEY_TERRAIN_PLAINS:
+            return PLAINS;
+        case KEY_TERRAIN_HILLS:
+            return HILLS;
+        case KEY_TERRAIN_FOREST:
+            return FOREST;
+        case KEY_TERRAIN_DESERT:
+            return DESERT;
+        case KEY_TERRAIN_JUNGLE:
+            return JUNGLE;
+        case KEY_TERRAIN_SWAMP:
+            return SWAMP;
+        default:
+            return TERRAIN_NONE;
+    }
+}
+
+
+enum TERRAIN key_is_terrain(char ch)
+{
+    switch (ch) {
+        case KEY_TERRAIN_UNKNOWN:
+        case KEY_TERRAIN_WATER:
+        case KEY_TERRAIN_MOUNTAINS:
+        case KEY_TERRAIN_PLAINS:
+        case KEY_TERRAIN_HILLS:
+        case KEY_TERRAIN_FOREST:
+        case KEY_TERRAIN_DESERT:
+        case KEY_TERRAIN_JUNGLE:
+        case KEY_TERRAIN_SWAMP:
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+enum INPUTMODE input_parse_capture(void)
+{
     if (ui_show(ui, PANEL_SPLASH)) {
         ui_toggle(ui, PANEL_SPLASH);
     }
@@ -140,45 +264,28 @@ enum INPUTMODE input_parse_capture(char ch)
 
 enum INPUTMODE input_parse_navigate(char ch)
 {
-    bool directional = false;
-
     /* first handle the non-directional keys */
     switch (ch) {
-        case 'Q':
+        case KEY_TOGGLE_QUIT:
             sm->quit = true;
-            break;
-        case 'T':
+            return INPUT_NONE;
+        case KEY_TOGGLE_TERRAIN:
             ui_toggle(ui, PANEL_TERRAIN);
             return INPUT_TERRAIN;
-        case 'j':
+        case KEY_TOGGLE_DETAIL:
             ui_toggle(ui, PANEL_DETAIL);
-            break;
+            return INPUT_NAVIGATE;
         default:
-            directional = true;
             break;
     }
 
-    /* exit unless we fell through the above */
-    if (!directional) {
-        return INPUT_NAVIGATE;
-    }
-
-    static const char *navichar_lower = "kiuhnm";
-    static const char *navichar_upper = "KIUHNM";
-    int step_count = 0;
-    for (int i=0; i<6; i++) {
-        if (ch == navichar_upper[i]) {
-            step_count = 3;
-        } else if (ch == navichar_lower[i]) {
-            step_count = 1;
-        } else {
-            continue;
-        }
+    if (key_is_direction(ch)) {
+        enum DIRECTION d = key_direction(ch);
+        int step_count = (key_is_special(ch)) ? 3 : 1;
         while (step_count) {
-            map_step(map, i);
+            map_step(map, d);
             step_count--;
         }
-        break;
     }
 
     return INPUT_NAVIGATE;
@@ -188,43 +295,26 @@ enum INPUTMODE input_parse_navigate(char ch)
 enum INPUTMODE input_parse_terrain(char ch)
 {
     /* first handle direct selection */
-    enum TERRAIN t = ch - '0';
-    if ((t > NONE) && (t <= SWAMP)) {
-        map_paint(map, t);
+    if (key_is_terrain(ch)) {
+        map_paint(map, key_terrain(ch));
         return INPUT_TERRAIN;
     }
 
-    /* now handle copy/move painting */
-    static const char *brushchar = "KIUHNM";
-    for (int i=0; i<6; i++) {
-        if (ch != brushchar[i]) {
-            /* skip unless input is a motion */
-            continue;
-        }
-
+    if (key_is_direction(ch)) {
+        enum DIRECTION d = key_direction(ch);
         enum TERRAIN t = map_curr_terrain(map);
+        map_step(map, d);
 
-        if (t == NONE) {
-            /* don't paint with none-terrain */
-            return INPUT_TERRAIN;
+        if (key_is_special(ch)) {
+            if (t != TERRAIN_UNKNOWN) {
+                map_paint(map, t);
+            }
         }
-
-        map_step(map, i);
-        map_paint(map, t);
-
         return INPUT_TERRAIN;
-    }
-
-    static const char *navichar_lower = "kiuhnm";
-    for (int i=0; i<6; i++) {
-        if (ch != navichar_lower[i]) {
-            continue;
-        }
-        map_step(map, i);
     }
 
     switch (ch) {
-        case 'T':
+        case KEY_TOGGLE_TERRAIN:
             ui_toggle(ui, PANEL_TERRAIN);
             return INPUT_NAVIGATE;
         default:
@@ -240,7 +330,7 @@ void input_parse(char ch)
 
     switch (sm->input_mode) {
         case INPUT_CAPTURE:
-            next_mode = input_parse_capture(ch);
+            next_mode = input_parse_capture();
             break;
         case INPUT_NAVIGATE:
             next_mode = input_parse_navigate(ch);

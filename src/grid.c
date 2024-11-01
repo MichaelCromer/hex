@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "include/grid.h"
 
@@ -99,7 +100,7 @@ struct Hex *hex_create(const struct Coordinate *c)
 
     /* other data */
     /* TODO? separate struct Tile containing all terrain-like data, for nullability */
-    h->terrain = NONE;
+    h->terrain = TERRAIN_UNKNOWN;
 
     return h;
 }
@@ -301,7 +302,7 @@ void hex_create_neighbours(struct Hex **root, struct Hex *hex)
     struct Coordinate *location = coordinate_duplicate(coordinate_zero());
     static const struct Coordinate *d_loc;
     struct Hex *neighbour = NULL;
-    for (int i=0; i<6; i++) {
+    for (int i = 0; i < NUM_DIRECTIONS; i++) {
         d_loc = coordinate_delta(i);
         coordinate_add(hex->coordinate, d_loc, location);
         neighbour = hex_find(*root, location);
@@ -382,6 +383,8 @@ struct Hex *map_find(const struct Map *m, const struct Coordinate *c)
     }
 
     int path[dm];
+    memset(path, 0, dm * sizeof(int));
+
     struct Coordinate *zoom = coordinate_duplicate(c);
     struct Hex *target = m->root;
 
@@ -389,6 +392,11 @@ struct Hex *map_find(const struct Map *m, const struct Coordinate *c)
     for (int i = 1; i <= dm; i++) {
         path[dm - i] = coordinate_index(zoom);
         coordinate_lift_by(zoom, 1);
+    }
+
+    if (!coordinate_equals(m->root->coordinate, zoom)) {
+        /* we backtracked the path but target is not under root */
+        return NULL;
     }
 
     /* execute the path */
@@ -454,7 +462,7 @@ void map_create_neighbours(struct Map *m)
 /* paint terrain, creates neighbours if not already */
 void map_paint(struct Map *m, enum TERRAIN t)
 {
-    if (map_curr_terrain(m) == NONE) {
+    if (map_curr_terrain(m) == TERRAIN_UNKNOWN) {
         map_create_neighbours(m);
     }
     hex_set_terrain(m->curr, t);
