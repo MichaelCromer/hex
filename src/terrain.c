@@ -1,3 +1,4 @@
+#include <ncurses.h>
 #include <stddef.h>
 
 #include "include/terrain.h"
@@ -14,13 +15,13 @@ const char *terrain_jungle = "Jungle";
 const char *terrain_swamp = "Swamp";
 
 #define NUM_TERRAIN_CHOPTS 12
-const char *terrain_chopts_unknown      = "  ??????????";
+const char *terrain_chopts_unknown      = "         ??*";
 const char *terrain_chopts_water        = "    ~~~~~~~~";
-const char *terrain_chopts_mountains    = "   ..^^^^AAV";
+const char *terrain_chopts_mountains    = "    ..^^^AAA";
 const char *terrain_chopts_plains       = "      ,,,;;t";
 const char *terrain_chopts_hills        = "      ,;nnnn";
 const char *terrain_chopts_forest       = "    ttttTT44";
-const char *terrain_chopts_desert       = "     ....nn*";
+const char *terrain_chopts_desert       = "     .....nn";
 const char *terrain_chopts_jungle       = "    ttt&%$#@";
 const char *terrain_chopts_swamp        = "    iijj%~%~";
 
@@ -76,11 +77,35 @@ const char *terrain_chopts(enum TERRAIN t)
 }
 
 
-
 char terrain_getch(enum TERRAIN t, int x, int y, int seed)
 {
     const char *chopts = terrain_chopts(t);
     int offset = (int)t;
 
     return chopts[seed_prng(x, y, seed + offset, NUM_TERRAIN_CHOPTS)];
+}
+
+
+int terrain_colour(enum TERRAIN t)
+{
+    switch (t) {
+        case WATER:
+            return COLOR_BLUE;
+        case MOUNTAINS:
+            return COLOR_WHITE;
+        case PLAINS:
+            return COLOR_GREEN;
+        case HILLS:
+            return COLOR_YELLOW;
+        case FOREST:
+            return COLOR_GREEN;
+        case DESERT:
+            return COLOR_YELLOW;
+        case JUNGLE:
+            return COLOR_GREEN;
+        case SWAMP:
+            return COLOR_CYAN;
+        default:
+            return COLOR_WHITE;
+    }
 }
