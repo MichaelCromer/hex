@@ -10,6 +10,8 @@
 #include "include/draw.h"
 #include "include/interface.h"
 #include "include/key.h"
+#include "include/terrain.h"
+
 
 struct StateManager {
     bool quit;
@@ -61,7 +63,7 @@ void update_vars(void)
     char *terrain = malloc(32);
     snprintf(terrain, 32,
             "    Terrain: %s",
-            terrain_string(hex_terrain(current_hex))
+            terrain_name(hex_terrain(current_hex))
             );
     panel_remove_line(hex_detail, 2);
     panel_add_line(hex_detail, 2, terrain);
