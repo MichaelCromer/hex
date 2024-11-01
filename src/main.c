@@ -66,10 +66,21 @@ void update_vars(void)
     panel_remove_line(hex_detail, 2);
     panel_add_line(hex_detail, 2, terrain);
 
+    int seed = hex_seed(current_hex);
+    char *seedstr = malloc(32);
+    snprintf(seedstr, 32,
+            "  Seed: %d",
+            seed
+            );
+    panel_remove_line(hex_detail, 3);
+    panel_add_line(hex_detail, 3, seedstr);
+
     free(coordinate);
     free(terrain);
+    free(seedstr);
     coordinate = NULL;
     terrain = NULL;
+    seedstr = NULL;
     return;
 }
 

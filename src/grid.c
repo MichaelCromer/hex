@@ -47,7 +47,17 @@ const char *terrain_string(enum TERRAIN t)
     return terrain_none;
 }
 
+static int seed_count = 0;
+int seed_gen(const struct Coordinate *c)
+{
+    int x = coordinate_p(c),
+        y = coordinate_q(c),
+        z = coordinate_r(c);
+    return (x * 73856093) ^ (y * 19349963) ^ (z * 83492791) ^ (seed_count++ * 5821);
+}
+
 struct Hex {
+    int seed;
     struct Coordinate *coordinate;
     enum TERRAIN terrain;
     struct Hex **children;
@@ -100,6 +110,7 @@ struct Hex *hex_create(const struct Coordinate *c)
 
     /* other data */
     /* TODO? separate struct Tile containing all terrain-like data, for nullability */
+    h->seed = seed_gen(c);
     h->terrain = TERRAIN_UNKNOWN;
 
     return h;
@@ -169,6 +180,12 @@ struct Coordinate *hex_coordinate(struct Hex *hex)
 unsigned int hex_m(struct Hex *hex)
 {
     return coordinate_magnitude(hex->coordinate);
+}
+
+
+int hex_seed(struct Hex *hex)
+{
+    return hex->seed;
 }
 
 
