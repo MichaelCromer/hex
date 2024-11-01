@@ -5,22 +5,7 @@
 #define ROOT3_INV   0.57735026919f
 
 #include "coordinate.h"
-
-#define NUM_TERRAIN 9
-
-enum TERRAIN {
-    TERRAIN_NONE,
-    TERRAIN_UNKNOWN,
-    WATER,
-    MOUNTAINS,
-    PLAINS,
-    HILLS,
-    FOREST,
-    DESERT,
-    JUNGLE,
-    SWAMP
-};
-
+#include "enum.h"
 
 /***************************************************
  *  TERRAIN

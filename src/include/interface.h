@@ -3,14 +3,7 @@
 
 #include <stdbool.h>
 
-#define UI_NUM_PANELS 3
-
-enum UI_PANEL {
-   PANEL_SPLASH,
-   PANEL_TERRAIN,
-   PANEL_DETAIL
-};
-
+#include "enum.h"
 
 struct UserInterface;
 

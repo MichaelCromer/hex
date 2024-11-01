@@ -39,13 +39,6 @@
 #define      KEY_TERRAIN_JUNGLE '7'
 #define       KEY_TERRAIN_SWAMP '8'
 
-enum INPUTMODE {
-    INPUT_NONE,
-    INPUT_CAPTURE,
-    INPUT_NAVIGATE,
-    INPUT_TERRAIN
-};
-
 
 struct StateManager {
     bool quit;

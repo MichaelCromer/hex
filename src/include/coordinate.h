@@ -1,17 +1,8 @@
 #ifndef COORDINATE_H
 #define COORDINATE_H
 
-#define NUM_DIRECTIONS 6
+#include "enum.h"
 
-enum DIRECTION {
-    EAST,
-    NORTHEAST,
-    NORTHWEST,
-    WEST,
-    SOUTHWEST,
-    SOUTHEAST,
-    DIRECTION_NONE
-};
 
 struct Coordinate;
 
