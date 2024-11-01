@@ -196,22 +196,25 @@ void draw_reticule(struct Geometry *g)
 
     float slope = geometry_slope(g);
     int rmid = geometry_rmid(g), cmid = geometry_cmid(g);
-    int w_half = (geometry_hex_w(g)+1)/2, h_half = (geometry_hex_h(g)+1)/2;
+    int w_half = (geometry_hex_w(g)+1)/2, h_half = (geometry_hex_h(g))/2;
 
-    mvvline(rmid-h_half, cmid-w_half, ch, 2*h_half);
-    mvvline(rmid-h_half, cmid+w_half, ch, 2*h_half);
+    attron(COLOR_PAIR(COLOR_RED));
 
-    mvvline(rmid-h_half, cmid-w_half+1, ch, 2*h_half);
-    mvvline(rmid-h_half, cmid+w_half-1, ch, 2*h_half);
+    mvvline(rmid-h_half + 1, cmid-w_half, ch, 2*h_half + 1);
+    mvvline(rmid-h_half + 1, cmid+w_half, ch, 2*h_half + 1);
+
+    mvvline(rmid-h_half + 1, cmid-w_half+1, ch, 2*h_half + 1);
+    mvvline(rmid-h_half + 1, cmid+w_half-1, ch, 2*h_half + 1);
 
     for (int col = -w_half; col <= w_half; col++) {
         dh = (col < 0)
             ? floor((w_half+col)*slope)
             : floor((w_half-col)*slope);
         mvaddch(rmid - (h_half + dh), cmid + col, ch);
-        mvaddch(rmid + (h_half + dh), cmid + col, ch);
+        mvaddch(rmid + (h_half + dh)+1, cmid + col, ch);
     }
 
+    attroff(COLOR_PAIR(COLOR_RED));
     return;
 }
 
@@ -223,16 +226,21 @@ int draw_hex(struct Geometry *g, struct Hex *hex, int r0, int c0)
     int dh = 0;
     char ch = 0;
 
+    enum TERRAIN t = hex_terrain(hex);
+    int s = hex_seed(hex);
+
+    attron(COLOR_PAIR(terrain_colour(t)));
     for (int c = -w_half; c <= w_half; c++) {
         dh = (c < 0)
                 ? floor((w_half+c)*geometry_slope(g))
                 : floor((w_half-c)*geometry_slope(g));
 
-        for (int r = -(h_half + dh); r <= (h_half + dh); r++) {
-            ch = terrain_getch(hex_terrain(hex), c, r, hex_seed(hex));
+        for (int r = -(h_half + dh)+1; r <= (h_half + dh); r++) {
+            ch = terrain_getch(t, c, r, s);
             mvaddch(r0 + r, c0 + c, ch);
         }
     }
+    attroff(COLOR_PAIR(terrain_colour(t)));
     return 0;
 }
 
