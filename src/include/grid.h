@@ -4,29 +4,8 @@
 #define ROOT3       1.732050807f
 #define ROOT3_INV   0.57735026919f
 
-
-enum TERRAIN {
-    NONE,
-    WATER,
-    MOUNTAINS,
-    PLAINS,
-    HILLS,
-    FOREST,
-    DESERT,
-    JUNGLE,
-    SWAMP
-};
-
-
-enum DIRECTION {
-    EAST,
-    NORTHEAST,
-    NORTHWEST,
-    WEST,
-    SOUTHWEST,
-    SOUTHEAST
-};
-
+#include "coordinate.h"
+#include "enum.h"
 
 /***************************************************
  *  TERRAIN
@@ -34,26 +13,13 @@ enum DIRECTION {
 
 const char *terrain_string(enum TERRAIN t);
 
-
-/***************************************************
- *  COORDINATE
- ***************************************************/
-struct Coordinate;
-
-void coordinate_copy(const struct Coordinate *c, struct Coordinate *a);
-struct Coordinate *coordinate_duplicate(const struct Coordinate *c);
-struct Coordinate *coordinate_zero();
-void coordinate_shift(struct Coordinate *c, enum DIRECTION d);
-void coordinate_destroy(struct Coordinate *c);
-
-
 /***************************************************
  *  HEX
  ***************************************************/
 struct Hex;
 
 /* Basics */
-struct Hex *hex_create(struct Coordinate *c);
+struct Hex *hex_create(const struct Coordinate *c);
 struct Hex *hex_origin(void);
 void hex_destroy(struct Hex *h);
 
@@ -74,5 +40,21 @@ struct Hex *hex_neighbour(struct Hex *root, struct Hex *hex, enum DIRECTION d);
 struct Hex *hex_find(struct Hex *root, struct Coordinate *target);
 void hex_insert(struct Hex **root, struct Hex *hex);
 void hex_create_neighbours(struct Hex **root, struct Hex *hex);
+
+
+/***************************************************
+ *  MAP
+ ***************************************************/
+struct Map;
+
+struct Map *map_create(struct Hex *root);
+void map_destroy(struct Map *m);
+struct Hex *map_find(const struct Map *m, const struct Coordinate *c);
+void map_goto(struct Map *m, const struct Coordinate *c);
+void map_insert(struct Map *m, struct Hex *h);
+struct Hex *map_curr(const struct Map *m);
+void map_step(struct Map *m, enum DIRECTION d);
+void map_paint(struct Map *m, enum TERRAIN t);
+enum TERRAIN map_curr_terrain(const struct Map *m);
 
 #endif

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "panel.h"
+#include "include/panel.h"
 
 struct Panel {
     int r0, c0;

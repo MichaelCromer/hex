@@ -1,34 +1,53 @@
+#include <ctype.h>
 #include <math.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
-#include "grid.h"
-#include "panel.h"
-#include "draw.h"
-#include "interface.h"
+#include "include/grid.h"
+#include "include/panel.h"
+#include "include/draw.h"
+#include "include/interface.h"
+#include "include/key.h"
 
-enum INPUTMODE {
-    CAPTURE,
-    NAVIGATE,
-    TERRAIN_SELECT
+struct StateManager {
+    bool quit;
+    enum INPUTMODE input_mode;
 };
 
-bool quit;
 
-enum INPUTMODE input_mode;
-int lastchar;
+struct StateManager *state_create(void)
+{
+    struct StateManager *s = malloc(sizeof(struct StateManager));
 
-struct Hex *current_hex = NULL;
-struct Hex *map = NULL;
+    s->quit = false;
+    s->input_mode = INPUT_NONE;
+
+    return s;
+}
+
+
+void state_destroy(struct StateManager *s)
+{
+    free(s);
+    s = NULL;
+    return;
+}
+
+
+struct Map *map = NULL;
 struct Geometry *geometry = NULL;
 struct UserInterface *ui = NULL;
+struct StateManager *sm = NULL;
 
 
 void update_vars(void)
 {
-    struct Panel *hex_detail = ui_panel(ui, HEX_DETAIL);
+    struct Hex *current_hex = map_curr(map);
+
+    /* TODO this is ridiculous as written here */
+    struct Panel *hex_detail = ui_panel(ui, PANEL_DETAIL);
     char *coordinate = malloc(32); /* TODO def an appropriate length */
     snprintf(coordinate, 32,
             "    (%d, %d, %d)",
@@ -63,22 +82,22 @@ int initialise(void)
     noecho();               /* don't echo user input */
     curs_set(0);            /* disable cursor */
 
-    quit = false;
+    sm = state_create();
+    sm->input_mode = INPUT_CAPTURE;
 
-    input_mode = CAPTURE;
-    lastchar=0;
-
+    /* TODO remove magic numbers and have a geometry_initialise that takes a screen */
     int r0, c0;
     getmaxyx(stdscr, r0, c0);
     geometry = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
     int rmid = geometry_rmid(geometry), cmid = geometry_cmid(geometry);;
 
+    /* TODO remove the jank, make it reference a geometry */
     ui = ui_initialise();
-    panel_centre(ui_panel(ui, SPLASH), rmid, cmid);
-    ui_toggle(ui, SPLASH);
+    panel_centre(ui_panel(ui, PANEL_SPLASH), rmid, cmid);
+    ui_toggle(ui, PANEL_SPLASH);
 
-    current_hex = hex_origin();
-    map = current_hex;
+    map = map_create(hex_origin());
+    map_goto(map, coordinate_zero());
 
     update_vars();
 
@@ -89,150 +108,107 @@ int initialise(void)
 void cleanup(void)
 {
     ui_destroy(ui);
+    state_destroy(sm);
     geometry_destroy(geometry);
-    hex_destroy(current_hex);
+    map_destroy(map);
 
     erase();
     endwin();
 }
 
 
-int input_capture(void)
+
+enum INPUTMODE input_parse_capture(void)
 {
-    if (ui_show(ui, SPLASH)) {
-        ui_toggle(ui, SPLASH);
+    if (ui_show(ui, PANEL_SPLASH)) {
+        ui_toggle(ui, PANEL_SPLASH);
     }
 
-    return NAVIGATE;
+    return INPUT_NAVIGATE;
 }
 
 
-int input_navigate(void)
+enum INPUTMODE input_parse_navigate(char ch)
 {
-    bool directional = false;
-
     /* first handle the non-directional keys */
-    switch (lastchar) {
-        case 'Q':
-            quit = true;
-            break;
-        case 'T':
-            ui_toggle(ui, TERRAIN_SELECTOR);
-            return TERRAIN_SELECT;
-        case 'j':
-            ui_toggle(ui, HEX_DETAIL);
-            break;
+    switch (ch) {
+        case KEY_TOGGLE_QUIT:
+            sm->quit = true;
+            return INPUT_NONE;
+        case KEY_TOGGLE_TERRAIN:
+            ui_toggle(ui, PANEL_TERRAIN);
+            return INPUT_TERRAIN;
+        case KEY_TOGGLE_DETAIL:
+            ui_toggle(ui, PANEL_DETAIL);
+            return INPUT_NAVIGATE;
         default:
-            directional = true;
             break;
     }
 
-    /* exit unless we fell through the above */
-    if (!directional) {
-        return NAVIGATE;
-    }
-
-    static const char *navichar_lower = "kiuhnm";
-    static const char *navichar_upper = "KIUHNM";
-    int step_count = 0;
-    for (int i=0; i<6; i++) {
-        if (lastchar == navichar_upper[i]) {
-            step_count = 3;
-        } else if (lastchar == navichar_lower[i]) {
-            step_count = 1;
-        } else {
-            continue;
-        }
-        while (hex_neighbour(map, current_hex, i) && step_count) {
-            current_hex = hex_neighbour(map, current_hex, i);
+    if (key_is_direction(ch)) {
+        enum DIRECTION d = key_direction(ch);
+        int step_count = (key_is_special(ch)) ? 3 : 1;
+        while (step_count) {
+            map_step(map, d);
             step_count--;
         }
-        break;
     }
 
-    return NAVIGATE;
+    return INPUT_NAVIGATE;
 }
 
 
-int input_terrain(void)
+enum INPUTMODE input_parse_terrain(char ch)
 {
     /* first handle direct selection */
-    enum TERRAIN t = lastchar - '0';
-    if ((t > NONE) && (t <= SWAMP)) {
-        if (hex_terrain(current_hex) == NONE) {
-            hex_create_neighbours(&map, current_hex);
-        }
-        hex_set_terrain(current_hex, t);
-        return TERRAIN_SELECT;
+    if (key_is_terrain(ch)) {
+        map_paint(map, key_terrain(ch));
+        return INPUT_TERRAIN;
     }
 
-    /* now handle copy/move painting */
-    static const char *brushchar = "KIUHNM";
-    for (int i=0; i<6; i++) {
-        if (lastchar != brushchar[i]) {
-            /* skip unless input is a motion */
-            continue;
+    if (key_is_direction(ch)) {
+        enum DIRECTION d = key_direction(ch);
+        enum TERRAIN t = map_curr_terrain(map);
+        map_step(map, d);
+
+        if (key_is_special(ch)) {
+            if (t != TERRAIN_UNKNOWN) {
+                map_paint(map, t);
+            }
         }
-
-        enum TERRAIN t = hex_terrain(current_hex);
-        struct Hex *nbr = hex_neighbour(map, current_hex, i);
-
-        if ((t == NONE) || (nbr == NULL)) {
-            /* don't paint with none-terrain */
-            return TERRAIN_SELECT;
-        }
-
-        current_hex = nbr;
-        if (hex_terrain(current_hex) == NONE) {
-            hex_create_neighbours(&map, current_hex);
-        }
-        hex_set_terrain(current_hex, t);
-
-        return TERRAIN_SELECT;
+        return INPUT_TERRAIN;
     }
 
-    static const char *navichar_lower = "kiuhnm";
-    for (int i=0; i<6; i++) {
-        if (lastchar != navichar_lower[i]) {
-            continue;
-        }
-        if (hex_neighbour(map, current_hex, i)) {
-            current_hex = hex_neighbour(map, current_hex, i);
-            return TERRAIN_SELECT;
-        }
-    }
-
-    switch (lastchar) {
-        case 'T':
-            ui_toggle(ui, TERRAIN_SELECTOR);
-            return NAVIGATE;
+    switch (ch) {
+        case KEY_TOGGLE_TERRAIN:
+            ui_toggle(ui, PANEL_TERRAIN);
+            return INPUT_NAVIGATE;
         default:
-            return TERRAIN_SELECT;
+            break;
     }
-    if (hex_terrain(current_hex) == NONE) {
-        hex_create_neighbours(&map, current_hex);
-    }
-    return TERRAIN_SELECT;
+    return INPUT_TERRAIN;
 }
 
 
-void handle_input(void)
+void input_parse(char ch)
 {
-    lastchar = getch();
+    enum INPUTMODE next_mode = INPUT_NONE;
 
-    switch (input_mode) {
-        case CAPTURE:
-            input_mode = input_capture();
+    switch (sm->input_mode) {
+        case INPUT_CAPTURE:
+            next_mode = input_parse_capture();
             break;
-        case NAVIGATE:
-            input_mode = input_navigate();
+        case INPUT_NAVIGATE:
+            next_mode = input_parse_navigate(ch);
             break;
-        case TERRAIN_SELECT:
-            input_mode = input_terrain();
+        case INPUT_TERRAIN:
+            next_mode = input_parse_terrain(ch);
+            break;
         default:
             break;
     }
 
+    sm->input_mode = next_mode;
     update_vars();
 }
 
@@ -241,9 +217,9 @@ int main(void)
 {
     initialise();
 
-    while (!quit) {
-        draw_screen(geometry, map, current_hex, ui);
-        handle_input();
+    while (!sm->quit) {
+        draw_screen(geometry, map, ui);
+        input_parse(getch());
     }
 
     cleanup();

@@ -16,11 +16,6 @@ int geometry_rmid(struct Geometry *g);
 int draw_panel(struct Panel *p);
 void draw_ui(struct UserInterface *ui);
 
-void draw_screen(
-        struct Geometry *g,
-        struct Hex *map,
-        struct Hex *centre,
-        struct UserInterface *ui
-    );
+void draw_screen(struct Geometry *g, struct Map *map, struct UserInterface *ui);
 
 #endif

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
-#include "panel.h"
-#include "interface.h"
+#include "include/panel.h"
+#include "include/interface.h"
 
 
 struct UserInterface {
@@ -30,9 +30,9 @@ struct UserInterface *ui_initialise(void)
 {
     struct UserInterface *ui = ui_create();
 
-    ui->panel[SPLASH] = panel_splash();
-    ui->panel[TERRAIN_SELECTOR] = panel_terrain_selector();
-    ui->panel[HEX_DETAIL] = panel_hex_detail();
+    ui->panel[PANEL_SPLASH] = panel_splash();
+    ui->panel[PANEL_TERRAIN] = panel_terrain_selector();
+    ui->panel[PANEL_DETAIL] = panel_hex_detail();
 
     return ui;
 }
