@@ -16,6 +16,7 @@
 struct StateManager {
     bool quit;
     enum INPUTMODE input_mode;
+    enum UI_COLOUR colours;
 };
 
 
@@ -25,6 +26,7 @@ struct StateManager *state_create(void)
 
     s->quit = false;
     s->input_mode = INPUT_NONE;
+    s->colours = COLOUR_NONE;
 
     return s;
 }
@@ -97,6 +99,24 @@ int initialise(void)
 
     sm = state_create();
     sm->input_mode = INPUT_CAPTURE;
+
+    /* set up colours */
+    sm->colours = (has_colors())
+        ? ((can_change_color()) ? COLOUR_MANY : COLOUR_SOME)
+        : COLOUR_NONE;
+
+
+    if (sm->colours == COLOUR_SOME || sm->colours == COLOUR_MANY) {
+        start_color();
+        init_pair(1, COLOR_RED, COLOR_BLACK);
+        init_pair(2, COLOR_GREEN, COLOR_BLACK);
+        init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(4, COLOR_BLUE, COLOR_BLACK);
+        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(6, COLOR_CYAN, COLOR_BLACK);
+        init_pair(7, COLOR_WHITE, COLOR_BLACK);
+    }
+
 
     /* TODO remove magic numbers and have a geometry_initialise that takes a screen */
     int r0, c0;
