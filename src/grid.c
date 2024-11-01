@@ -56,6 +56,11 @@ int seed_gen(const struct Coordinate *c)
     return (x * 73856093) ^ (y * 19349963) ^ (z * 83492791) ^ (seed_count++ * 5821);
 }
 
+int seed_prng(const int x, const int y, const int seed, const int max)
+{
+    return ((((x * 73856093) ^ (y * 19349963) ^ (seed * 83492791)) % max) + max) % max;
+}
+
 struct Hex {
     int seed;
     struct Coordinate *coordinate;
