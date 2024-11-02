@@ -4,15 +4,16 @@
 #include "include/terrain.h"
 #include "include/grid.h"
 
-const char *terrain_unknown = "Unknown";
-const char *terrain_water = "Water";
-const char *terrain_mountains = "Mountains";
-const char *terrain_plains = "Plains";
-const char *terrain_hills = "Hills";
-const char *terrain_forest = "Forest";
-const char *terrain_desert = "Desert";
-const char *terrain_jungle = "Jungle";
-const char *terrain_swamp = "Swamp";
+const char *terrain_unknown     = "Unknown";
+const char *terrain_water       = "Water";
+const char *terrain_mountains   = "Mountains";
+const char *terrain_plains      = "Plains";
+const char *terrain_hills       = "Hills";
+const char *terrain_forest      = "Forest";
+const char *terrain_desert      = "Desert";
+const char *terrain_jungle      = "Jungle";
+const char *terrain_swamp       = "Swamp";
+const char *terrain_tundra      = "Tundra";
 
 #define NUM_TERRAIN_CHOPTS 12
 const char *terrain_chopts_unknown      = "          ?*";
@@ -24,27 +25,30 @@ const char *terrain_chopts_forest       = "    ttttTT44";
 const char *terrain_chopts_desert       = "    ......nn";
 const char *terrain_chopts_jungle       = "    tT4&%$#@";
 const char *terrain_chopts_swamp        = "    iijj%~%~";
+const char *terrain_chopts_tundra       = "      ..o=-_";
 
 
 const char *terrain_name(enum TERRAIN t)
 {
     switch (t) {
-        case WATER:
+        case TERRAIN_WATER:
             return terrain_water;
-        case MOUNTAINS:
+        case TERRAIN_MOUNTAINS:
             return terrain_mountains;
-        case PLAINS:
+        case TERRAIN_PLAINS:
             return terrain_plains;
-        case HILLS:
+        case TERRAIN_HILLS:
             return terrain_hills;
-        case FOREST:
+        case TERRAIN_FOREST:
             return terrain_forest;
-        case DESERT:
+        case TERRAIN_DESERT:
             return terrain_desert;
-        case JUNGLE:
+        case TERRAIN_JUNGLE:
             return terrain_jungle;
-        case SWAMP:
+        case TERRAIN_SWAMP:
             return terrain_swamp;
+        case TERRAIN_TUNDRA:
+            return terrain_tundra;
         default:
             break;
     }
@@ -55,22 +59,24 @@ const char *terrain_name(enum TERRAIN t)
 const char *terrain_chopts(enum TERRAIN t)
 {
     switch (t) {
-        case WATER:
+        case TERRAIN_WATER:
             return terrain_chopts_water;
-        case MOUNTAINS:
+        case TERRAIN_MOUNTAINS:
             return terrain_chopts_mountains;
-        case PLAINS:
+        case TERRAIN_PLAINS:
             return terrain_chopts_plains;
-        case HILLS:
+        case TERRAIN_HILLS:
             return terrain_chopts_hills;
-        case FOREST:
+        case TERRAIN_FOREST:
             return terrain_chopts_forest;
-        case DESERT:
+        case TERRAIN_DESERT:
             return terrain_chopts_desert;
-        case JUNGLE:
+        case TERRAIN_JUNGLE:
             return terrain_chopts_jungle;
-        case SWAMP:
+        case TERRAIN_SWAMP:
             return terrain_chopts_swamp;
+        case TERRAIN_TUNDRA:
+            return terrain_chopts_tundra;
         default:
             return terrain_chopts_unknown;
     }
@@ -89,21 +95,23 @@ char terrain_getch(enum TERRAIN t, int x, int y, int seed)
 int terrain_colour(enum TERRAIN t)
 {
     switch (t) {
-        case WATER:
+        case TERRAIN_WATER:
             return COLOR_BLUE;
-        case MOUNTAINS:
+        case TERRAIN_MOUNTAINS:
             return COLOR_WHITE;
-        case PLAINS:
+        case TERRAIN_PLAINS:
             return COLOR_GREEN;
-        case HILLS:
+        case TERRAIN_HILLS:
             return COLOR_YELLOW;
-        case FOREST:
+        case TERRAIN_FOREST:
             return COLOR_GREEN;
-        case DESERT:
+        case TERRAIN_DESERT:
             return COLOR_YELLOW;
-        case JUNGLE:
+        case TERRAIN_JUNGLE:
             return COLOR_GREEN;
-        case SWAMP:
+        case TERRAIN_SWAMP:
+            return COLOR_MAGENTA;
+        case TERRAIN_TUNDRA:
             return COLOR_CYAN;
         default:
             return COLOR_WHITE;

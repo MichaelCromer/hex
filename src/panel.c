@@ -170,9 +170,9 @@ struct Panel *panel_terrain_selector(void)//int rmid, int cmid)
 {
     struct Panel *terrain_selector = panel_create(10, 2, 5);
     panel_add_line(terrain_selector, 0, "Select Terrain:");
-    panel_add_line(terrain_selector, 1, "1. Ocean     2. Mountain 3. Plains");
-    panel_add_line(terrain_selector, 2, "4. Hills     5. Forest   6. Desert");
-    panel_add_line(terrain_selector, 3, "7. Jungle    8. Swamp    q. Close ");
+    panel_add_line(terrain_selector, 1, "q. Ocean     w. Mountain e. Hills");
+    panel_add_line(terrain_selector, 2, "a. Plains    s. Forest   d. Swamp");
+    panel_add_line(terrain_selector, 3, "z. Desert    x. Jungle   c. Tundra");
 
     return terrain_selector;
 }
