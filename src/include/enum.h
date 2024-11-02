@@ -1,6 +1,14 @@
 #ifndef ENUM_H
 #define ENUM_H
 
+
+enum UI_COLOUR {
+    COLOUR_NONE,
+    COLOUR_SOME,
+    COLOUR_MANY
+};
+
+
 #define UI_NUM_PANELS 3
 enum UI_PANEL {
    PANEL_SPLASH,

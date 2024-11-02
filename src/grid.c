@@ -10,44 +10,23 @@
  * Terrain lookups
  *
  */
+static int seed_count = 0;
 
-const char *terrain_none = "None";
-const char *terrain_water = "Water";
-const char *terrain_mountains = "Mountains";
-const char *terrain_plains = "Plains";
-const char *terrain_hills = "Hills";
-const char *terrain_forest = "Forset";
-const char *terrain_desert = "Desert";
-const char *terrain_jungle = "Jungle";
-const char *terrain_swamp = "Swamp";
-
-
-const char *terrain_string(enum TERRAIN t)
+int seed_gen(const struct Coordinate *c)
 {
-    switch (t) {
-        case WATER:
-            return terrain_water;
-        case MOUNTAINS:
-            return terrain_mountains;
-        case PLAINS:
-            return terrain_plains;
-        case HILLS:
-            return terrain_hills;
-        case FOREST:
-            return terrain_forest;
-        case DESERT:
-            return terrain_desert;
-        case JUNGLE:
-            return terrain_jungle;
-        case SWAMP:
-            return terrain_swamp;
-        default:
-            break;
-    }
-    return terrain_none;
+    int x = coordinate_p(c),
+        y = coordinate_q(c),
+        z = coordinate_r(c);
+    return (x * 73856093) ^ (y * 19349963) ^ (z * 83492791) ^ (seed_count++ * 5821);
+}
+
+int seed_prng(const int x, const int y, const int seed, const int max)
+{
+    return ((((x * 73856093) ^ (y * 19349963) ^ (seed * 83492791)) % max) + max) % max;
 }
 
 struct Hex {
+    int seed;
     struct Coordinate *coordinate;
     enum TERRAIN terrain;
     struct Hex **children;
@@ -100,6 +79,7 @@ struct Hex *hex_create(const struct Coordinate *c)
 
     /* other data */
     /* TODO? separate struct Tile containing all terrain-like data, for nullability */
+    h->seed = seed_gen(c);
     h->terrain = TERRAIN_UNKNOWN;
 
     return h;
@@ -169,6 +149,12 @@ struct Coordinate *hex_coordinate(struct Hex *hex)
 unsigned int hex_m(struct Hex *hex)
 {
     return coordinate_magnitude(hex->coordinate);
+}
+
+
+int hex_seed(struct Hex *hex)
+{
+    return hex->seed;
 }
 
 

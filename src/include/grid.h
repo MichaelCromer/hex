@@ -28,6 +28,8 @@ void hex_set_terrain(struct Hex *h, enum TERRAIN t);
 enum TERRAIN hex_terrain(struct Hex *h);
 
 /* Geometry-like */
+int hex_seed(struct Hex *hex);
+int seed_prng(const int x, const int y, const int seed, const int max);
 int hex_p(struct Hex *hex);
 int hex_q(struct Hex *hex);
 int hex_r(struct Hex *hex);
