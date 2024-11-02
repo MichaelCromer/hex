@@ -1,1 +1,9 @@
 [ ] Migrate panel, geometry, and draw to use windows/screens.
+[ ] UI: input mode indicator in bottom
+[ ] UI: terrain mode panel resize/reshape?
+[ ] UX: change controls for terrain input
+[ ] Implement tundra terrain
+[ ] UX: reticule changes colour based on input mode
+[ ] UX different brush sizes
+[ ] UX remember last placed terrain
+[ ] UX drag-paint doesn't update last placed terrain?
