@@ -10,10 +10,13 @@
 #include "include/draw.h"
 #include "include/interface.h"
 #include "include/key.h"
+#include "include/terrain.h"
+
 
 struct StateManager {
     bool quit;
     enum INPUTMODE input_mode;
+    enum UI_COLOUR colours;
 };
 
 
@@ -23,6 +26,7 @@ struct StateManager *state_create(void)
 
     s->quit = false;
     s->input_mode = INPUT_NONE;
+    s->colours = COLOUR_NONE;
 
     return s;
 }
@@ -61,15 +65,26 @@ void update_vars(void)
     char *terrain = malloc(32);
     snprintf(terrain, 32,
             "    Terrain: %s",
-            terrain_string(hex_terrain(current_hex))
+            terrain_name(hex_terrain(current_hex))
             );
     panel_remove_line(hex_detail, 2);
     panel_add_line(hex_detail, 2, terrain);
 
+    int seed = hex_seed(current_hex);
+    char *seedstr = malloc(32);
+    snprintf(seedstr, 32,
+            "  Seed: %d",
+            seed
+            );
+    panel_remove_line(hex_detail, 3);
+    panel_add_line(hex_detail, 3, seedstr);
+
     free(coordinate);
     free(terrain);
+    free(seedstr);
     coordinate = NULL;
     terrain = NULL;
+    seedstr = NULL;
     return;
 }
 
@@ -84,6 +99,24 @@ int initialise(void)
 
     sm = state_create();
     sm->input_mode = INPUT_CAPTURE;
+
+    /* set up colours */
+    sm->colours = (has_colors())
+        ? ((can_change_color()) ? COLOUR_MANY : COLOUR_SOME)
+        : COLOUR_NONE;
+
+
+    if (sm->colours == COLOUR_SOME || sm->colours == COLOUR_MANY) {
+        start_color();
+        init_pair(1, COLOR_RED, COLOR_BLACK);
+        init_pair(2, COLOR_GREEN, COLOR_BLACK);
+        init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(4, COLOR_BLUE, COLOR_BLACK);
+        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(6, COLOR_CYAN, COLOR_BLACK);
+        init_pair(7, COLOR_WHITE, COLOR_BLACK);
+    }
+
 
     /* TODO remove magic numbers and have a geometry_initialise that takes a screen */
     int r0, c0;
