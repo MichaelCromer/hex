@@ -1,9 +1,19 @@
-[ ] Migrate panel, geometry, and draw to use windows/screens.
+[X] UX: change controls for terrain input
+[X] Implement tundra terrain
+[ ] Migrate panel and draw to use windows/screens.
 [ ] UI: input mode indicator in bottom
 [ ] UI: terrain mode panel resize/reshape?
-[ ] UX: change controls for terrain input
-[ ] Implement tundra terrain
 [ ] UX: reticule changes colour based on input mode
 [ ] UX different brush sizes
 [ ] UX remember last placed terrain
 [ ] UX drag-paint doesn't update last placed terrain?
+[ ] update splash
+[ ] 'soft'/oneshot vs 'hard'/locked input mode (like 't' vs 'T' for terrain entry)
+[ ] decide on state manager handling all update vs action model
+[ ] main.c L53  this is ridiculous as written here 
+[ ] main.c L55  def an appropriate length 
+[ ] main.c L121 remove magic numbers and have a geometry_initialise that takes a screen 
+[ ] main.c L127 remove the jank, make it reference a geometry 
+[ ] grid.c L81  separate struct Tile containing all terrain-like data, for nullability 
+[ ] grid.c L411 a map-native implementation of map_insert 
+[ ] grid.c L440 a map-natrve implementation of map_create_neighbours 
