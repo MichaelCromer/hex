@@ -15,14 +15,14 @@ const char *terrain_jungle = "Jungle";
 const char *terrain_swamp = "Swamp";
 
 #define NUM_TERRAIN_CHOPTS 12
-const char *terrain_chopts_unknown      = "         ??*";
+const char *terrain_chopts_unknown      = "          ?*";
 const char *terrain_chopts_water        = "    ~~~~~~~~";
 const char *terrain_chopts_mountains    = "    ..^^^AAA";
 const char *terrain_chopts_plains       = "      ,,,;;t";
 const char *terrain_chopts_hills        = "      ,;nnnn";
 const char *terrain_chopts_forest       = "    ttttTT44";
-const char *terrain_chopts_desert       = "     .....nn";
-const char *terrain_chopts_jungle       = "    ttt&%$#@";
+const char *terrain_chopts_desert       = "    ......nn";
+const char *terrain_chopts_jungle       = "    tT4&%$#@";
 const char *terrain_chopts_swamp        = "    iijj%~%~";
 
 
