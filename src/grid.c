@@ -10,7 +10,7 @@
  * Terrain lookups
  *
  */
-static int seed_count = 0;
+static int seed_count = 0; /* TODO change to time? */
 
 int seed_gen(const struct Coordinate *c)
 {

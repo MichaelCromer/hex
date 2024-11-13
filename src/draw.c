@@ -293,6 +293,10 @@ void draw_map(struct Geometry *g, struct Map *map)
     return;
 }
 
+/*
+ *      DRAW 04 - Core stuff
+ */
+
 
 void draw_ui(struct UserInterface *ui)
 {
@@ -305,16 +309,11 @@ void draw_ui(struct UserInterface *ui)
 }
 
 
-/*
- *      DRAW 04 - Core stuff
- */
-
 void draw_screen(struct Geometry *g, struct Map *map, struct UserInterface *ui)
 {
     erase();
 
     draw_map(g, map);
-    draw_border(0, 0, geometry_cols(g), geometry_rows(g));
     draw_reticule(g);
     draw_ui(ui);
 

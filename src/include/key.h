@@ -5,9 +5,13 @@
 
 #include "enum.h"
 
-#define         KEY_TOGGLE_QUIT 'Q'
+#define         KEY_TOGGLE_QUIT 'q'
+#define      KEY_TOGGLE_COMMAND ':'
 #define      KEY_TOGGLE_TERRAIN 'T'
 #define       KEY_TOGGLE_DETAIL 'j'
+#define     KEY_TOGGLE_RETICULE 'x'
+
+#define       KEY_AWAIT_TERRAIN 't'
 
 #define                  KEY_EE 'k'
 #define                  KEY_NE 'i'
@@ -33,6 +37,8 @@
 #define      KEY_TERRAIN_DESERT 'z'
 #define      KEY_TERRAIN_JUNGLE 'x'
 #define       KEY_TERRAIN_SWAMP 'd'
+
+typedef int key;
 
 enum DIRECTION key_direction(char ch);
 bool key_is_direction(char ch);
