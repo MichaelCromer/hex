@@ -1,6 +1,8 @@
 #ifndef COORDINATE_H
 #define COORDINATE_H
 
+#include <stdbool.h>
+
 #include "enum.h"
 
 

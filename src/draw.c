@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "include/draw.h"
+#include "include/terrain.h"
 
 
 /*
@@ -186,30 +187,6 @@ int clear_panel(struct Panel *p)
  *      DRAW 03 - Hexes and terrain
  */
 
-char get_terrainchr(enum TERRAIN t)
-{
-    switch (t) {
-        case WATER:
-            return '~';
-        case MOUNTAINS:
-            return '^';
-        case PLAINS:
-            return ';';
-        case HILLS:
-            return 'n';
-        case FOREST:
-            return 'T';
-        case DESERT:
-            return '*';
-        case JUNGLE:
-            return '#';
-        case SWAMP:
-            return 'j';
-        default:
-            break;
-    }
-    return '?';
-}
 
 
 void draw_reticule(struct Geometry *g)
@@ -219,43 +196,51 @@ void draw_reticule(struct Geometry *g)
 
     float slope = geometry_slope(g);
     int rmid = geometry_rmid(g), cmid = geometry_cmid(g);
-    int w_half = geometry_hex_w(g)/2, h_half = geometry_hex_h(g)/2;
+    int w_half = (geometry_hex_w(g)+1)/2, h_half = (geometry_hex_h(g))/2;
 
-    mvvline(rmid-h_half, cmid-w_half, ch, 2*h_half);
-    mvvline(rmid-h_half, cmid+w_half, ch, 2*h_half);
+    attron(COLOR_PAIR(COLOR_RED));
 
-    mvvline(rmid-h_half, cmid-w_half+1, ch, 2*h_half);
-    mvvline(rmid-h_half, cmid+w_half-1, ch, 2*h_half);
+    mvvline(rmid-h_half + 1, cmid-w_half, ch, 2*h_half + 1);
+    mvvline(rmid-h_half + 1, cmid+w_half, ch, 2*h_half + 1);
+
+    mvvline(rmid-h_half + 1, cmid-w_half+1, ch, 2*h_half + 1);
+    mvvline(rmid-h_half + 1, cmid+w_half-1, ch, 2*h_half + 1);
 
     for (int col = -w_half; col <= w_half; col++) {
         dh = (col < 0)
-            ? round((w_half+col)*slope)
-            : round((w_half-col)*slope);
+            ? floor((w_half+col)*slope)
+            : floor((w_half-col)*slope);
         mvaddch(rmid - (h_half + dh), cmid + col, ch);
-        mvaddch(rmid + (h_half + dh), cmid + col, ch);
+        mvaddch(rmid + (h_half + dh)+1, cmid + col, ch);
     }
 
+    attroff(COLOR_PAIR(COLOR_RED));
     return;
 }
 
 
 int draw_hex(struct Geometry *g, struct Hex *hex, int r0, int c0)
 {
-    int w_half = geometry_hex_w(g) / 2,
-        h_half = geometry_hex_h(g) / 2;
+    int w_half = (geometry_hex_w(g)+1) / 2,
+        h_half = (geometry_hex_h(g)+1) / 2;
     int dh = 0;
+    char ch = 0;
 
-    char ch = get_terrainchr(hex_terrain(hex));
+    enum TERRAIN t = hex_terrain(hex);
+    int s = hex_seed(hex);
 
+    attron(COLOR_PAIR(terrain_colour(t)));
     for (int c = -w_half; c <= w_half; c++) {
         dh = (c < 0)
-                ? round((w_half+c)*geometry_slope(g))
-                : round((w_half-c)*geometry_slope(g));
+                ? floor((w_half+c)*geometry_slope(g))
+                : floor((w_half-c)*geometry_slope(g));
 
-        for (int r = -(h_half + dh); r <= (h_half + dh); r++) {
+        for (int r = -(h_half + dh)+1; r <= (h_half + dh); r++) {
+            ch = terrain_getch(t, c, r, s);
             mvaddch(r0 + r, c0 + c, ch);
         }
     }
+    attroff(COLOR_PAIR(terrain_colour(t)));
     return 0;
 }
 
@@ -308,6 +293,10 @@ void draw_map(struct Geometry *g, struct Map *map)
     return;
 }
 
+/*
+ *      DRAW 04 - Core stuff
+ */
+
 
 void draw_ui(struct UserInterface *ui)
 {
@@ -320,16 +309,11 @@ void draw_ui(struct UserInterface *ui)
 }
 
 
-/*
- *      DRAW 04 - Core stuff
- */
-
 void draw_screen(struct Geometry *g, struct Map *map, struct UserInterface *ui)
 {
     erase();
 
     draw_map(g, map);
-    draw_border(0, 0, geometry_cols(g), geometry_rows(g));
     draw_reticule(g);
     draw_ui(ui);
 

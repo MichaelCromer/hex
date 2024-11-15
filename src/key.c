@@ -62,21 +62,23 @@ enum TERRAIN key_terrain(char ch)
         case KEY_TERRAIN_UNKNOWN:
             return TERRAIN_UNKNOWN;
         case KEY_TERRAIN_WATER:
-            return WATER;
+            return TERRAIN_WATER;
         case KEY_TERRAIN_MOUNTAINS:
-            return MOUNTAINS;
+            return TERRAIN_MOUNTAINS;
         case KEY_TERRAIN_PLAINS:
-            return PLAINS;
+            return TERRAIN_PLAINS;
         case KEY_TERRAIN_HILLS:
-            return HILLS;
+            return TERRAIN_HILLS;
         case KEY_TERRAIN_FOREST:
-            return FOREST;
+            return TERRAIN_FOREST;
         case KEY_TERRAIN_DESERT:
-            return DESERT;
+            return TERRAIN_DESERT;
         case KEY_TERRAIN_JUNGLE:
-            return JUNGLE;
+            return TERRAIN_JUNGLE;
         case KEY_TERRAIN_SWAMP:
-            return SWAMP;
+            return TERRAIN_SWAMP;
+        case KEY_TERRAIN_TUNDRA:
+            return TERRAIN_TUNDRA;
         default:
             return TERRAIN_NONE;
     }
@@ -95,10 +97,9 @@ enum TERRAIN key_is_terrain(char ch)
         case KEY_TERRAIN_DESERT:
         case KEY_TERRAIN_JUNGLE:
         case KEY_TERRAIN_SWAMP:
+        case KEY_TERRAIN_TUNDRA:
             return true;
         default:
             return false;
     }
 }
-
-
