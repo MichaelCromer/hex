@@ -12,7 +12,6 @@
 #include "include/key.h"
 #include "include/terrain.h"
 
-
 struct StateManager {
     bool quit;
     bool await;
@@ -21,7 +20,43 @@ struct StateManager {
     key lastch;
     enum INPUTMODE input_mode;
     enum UI_COLOUR colours;
+
+    struct Geometry *geometry;
 };
+
+
+struct StateManager *state_create(void)
+{
+    struct StateManager *s = malloc(sizeof(struct StateManager));
+
+    s->quit = false;
+    s->await = false;
+    s->reticule = false;
+    s->lastch = 0;
+    memset(s->cmdbuf, 0, 1024);
+    s->input_mode = INPUT_NONE;
+    s->colours = COLOUR_NONE;
+
+    s->geometry = NULL;
+
+    return s;
+}
+
+
+void state_destroy(struct StateManager *s)
+{
+    geometry_destroy(s->geometry);
+
+    free(s);
+    s = NULL;
+    return;
+}
+
+
+struct Geometry *state_geometry(const struct StateManager *sm)
+{
+    return sm->geometry;
+}
 
 
 const char *modestr_navigate = "NAV";
@@ -58,11 +93,11 @@ int mode_colour(enum INPUTMODE m)
 }
 
 
-void draw_statusline(struct StateManager *s, struct Geometry *g)
+void draw_statusline(struct StateManager *s)
 {
-    int r0 = geometry_rows(g)-1,
+    int r0 = geometry_rows(state_geometry(s))-1,
         c0 = 0,
-        w  = geometry_cols(g)-1;
+        w  = geometry_cols(state_geometry(s))-1;
 
     mvhline(r0, c0, ' ', w);
     attron(COLOR_PAIR(mode_colour(s->input_mode)));
@@ -76,33 +111,7 @@ void draw_statusline(struct StateManager *s, struct Geometry *g)
     return;
 }
 
-
-struct StateManager *state_create(void)
-{
-    struct StateManager *s = malloc(sizeof(struct StateManager));
-
-    s->quit = false;
-    s->await = false;
-    s->reticule = false;
-    s->lastch = 0;
-    memset(s->cmdbuf, 0, 1024);
-    s->input_mode = INPUT_NONE;
-    s->colours = COLOUR_NONE;
-
-    return s;
-}
-
-
-void state_destroy(struct StateManager *s)
-{
-    free(s);
-    s = NULL;
-    return;
-}
-
-
 struct Map *map = NULL;
-struct Geometry *geometry = NULL;
 struct UserInterface *ui = NULL;
 struct StateManager *sm = NULL;
 
@@ -179,16 +188,14 @@ int initialise(void)
     }
 
 
-    /* TODO remove magic numbers and have a geometry_initialise that takes a screen */
-    int r0, c0;
-    getmaxyx(stdscr, r0, c0);
-    geometry = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
-    int rmid = geometry_rmid(geometry), cmid = geometry_cmid(geometry);;
+    sm->geometry = geometry_create(
+            GEOMETRY_DEFAULT_SCALE,
+            GEOMETRY_DEFAULT_ASPECT,
+            stdscr
+            );
 
-    /* TODO remove the jank, make it reference a geometry */
-    ui = ui_initialise();
-    panel_centre(ui_panel(ui, PANEL_SPLASH), rmid, cmid);
-    ui_toggle(ui, PANEL_SPLASH);
+    ui = ui_create();
+    ui_initialise(ui, state_geometry(sm));
 
     map = map_create(hex_origin());
     map_goto(map, coordinate_zero());
@@ -203,7 +210,6 @@ void cleanup(void)
 {
     ui_destroy(ui);
     state_destroy(sm);
-    geometry_destroy(geometry);
     map_destroy(map);
 
     erase();
@@ -352,8 +358,8 @@ int main(void)
     initialise();
 
     while (!sm->quit) {
-        draw_screen(geometry, map, ui);
-        draw_statusline(sm, geometry);
+        draw_screen(state_geometry(sm), map, ui);
+        draw_statusline(sm);
         sm->lastch = getch();
         input_parse(sm->lastch);
     }

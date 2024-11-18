@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "include/geometry.h"
 #include "include/panel.h"
 #include "include/interface.h"
 
@@ -26,15 +27,15 @@ struct UserInterface *ui_create(void)
 }
 
 
-struct UserInterface *ui_initialise(void)
+void ui_initialise(struct UserInterface *ui, struct Geometry *g)
 {
-    struct UserInterface *ui = ui_create();
-
     ui->panel[PANEL_SPLASH] = panel_splash();
     ui->panel[PANEL_TERRAIN] = panel_terrain_selector();
     ui->panel[PANEL_DETAIL] = panel_hex_detail();
+    panel_centre(ui->panel[PANEL_SPLASH], geometry_rmid(g), geometry_cmid(g));
+    ui->show[PANEL_SPLASH] = true;
 
-    return ui;
+    return;
 }
 
 
