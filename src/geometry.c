@@ -28,7 +28,6 @@ struct Geometry *geometry_create(float scale, float aspect, WINDOW *win)
     g->rmid = g->rows / 2;
     g->cmid = g->cols / 2;
 
-
     return g;
 }
 
