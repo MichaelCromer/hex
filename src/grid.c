@@ -6,10 +6,6 @@
 #include "include/grid.h"
 
 
-/*
- * Terrain lookups
- *
- */
 static int seed_count = 0; /* TODO change to time? */
 
 int seed_gen(const struct Coordinate *c)
@@ -23,6 +19,48 @@ int seed_gen(const struct Coordinate *c)
 int seed_prng(const int x, const int y, const int seed, const int max)
 {
     return ((((x * 73856093) ^ (y * 19349963) ^ (seed * 83492791)) % max) + max) % max;
+}
+
+struct Hex {
+    int seed;
+    struct Coordinate *coordinate;
+    enum TERRAIN terrain;
+    struct Hex **children;
+};
+
+
+struct Map {
+    struct Hex *root;
+    struct Hex *curr;
+};
+
+
+/*
+ *      HEX Functions
+ */
+
+
+struct Hex *hex_create(const struct Coordinate *c)
+{
+    /* try allocate hex */
+    struct Hex *h = malloc(sizeof(struct Hex));
+    if (h == NULL) {
+        return NULL;
+    }
+
+    /* try allocate coordinate */
+    h->coordinate = coordinate_create(0,0,0,0);
+    if (h->coordinate == NULL) {
+        free(h);
+        h = NULL;
+        return NULL;
+    }
+    coordinate_copy(c, h->coordinate);
+
+    /* try allocate children */
+    if (coordinate_magnitude(c) > 0) {
+        h->children = malloc(9 * sizeof(struct Hex *));
+        if (h->children == NULL) {
             coordinate_destroy(h->coordinate);
             free(h);
             h = NULL;
@@ -107,6 +145,12 @@ struct Coordinate *hex_coordinate(struct Hex *hex)
 unsigned int hex_m(struct Hex *hex)
 {
     return coordinate_magnitude(hex->coordinate);
+}
+
+
+int hex_seed(struct Hex *hex)
+{
+    return hex->seed;
 }
 
 

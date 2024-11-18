@@ -1,10 +1,8 @@
 #ifndef GRID_H
 #define GRID_H
 
-#define ROOT3       1.732050807f
-#define ROOT3_INV   0.57735026919f
-
 #include "coordinate.h"
+#include "geometry.h"
 #include "enum.h"
 
 /***************************************************
