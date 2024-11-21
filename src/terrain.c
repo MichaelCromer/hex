@@ -27,7 +27,7 @@ const char *terrain_chopts_jungle       = "       ttttt TTT 444 #%@";
 const char *terrain_chopts_swamp        = "                iijj%~%~";
 const char *terrain_chopts_tundra       = "                  ..o=-_";
 
-const char *terrain_hints = "q:watr w:mntn e:hill a:grss s:frst d:swmp z:dsrt x:jngl c:tndr";
+const char *terrain_hints = "q:water w:mountain e:hills a:plains s:forest d:swamp z:desert x:jungle c:tundra";
 
 const char *terrain_name(enum TERRAIN t)
 {

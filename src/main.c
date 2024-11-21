@@ -51,7 +51,7 @@ enum INPUT_MODE input_parse_navigate(struct State *s, key ch)
         case KEY_TOGGLE_COMMAND:
             return INPUT_MODE_COMMAND;
         case KEY_TOGGLE_TERRAIN:
-            ui_toggle(state_ui(s), PANEL_TERRAIN);
+            /*ui_toggle(state_ui(s), PANEL_TERRAIN);*/
             return INPUT_MODE_TERRAIN;
         case KEY_AWAIT_TERRAIN:
             state_set_await(s, true);
@@ -107,7 +107,7 @@ enum INPUT_MODE input_parse_terrain(struct State *s, key ch)
 
     switch (ch) {
         case KEY_TOGGLE_TERRAIN:
-            ui_toggle(state_ui(s), PANEL_TERRAIN);
+            /*ui_toggle(state_ui(s), PANEL_TERRAIN); */
             return INPUT_MODE_NAVIGATE;
         default:
             break;

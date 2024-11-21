@@ -15,9 +15,9 @@
 
 #define STATE_CHARBUF_LEN 1024
 
-const char *modestr_navigate = "NAV";
-const char *modestr_terrain = "TRN";
-const char *modestr_command = "CMD";
+const char *modestr_navigate = "NAVIGATE";
+const char *modestr_terrain = "TERRAIN";
+const char *modestr_command = "COMMAND";
 const char *modestr_unknown = "???";
 
 
