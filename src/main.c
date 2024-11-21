@@ -34,7 +34,7 @@ void cleanup(void)
 
 
 
-enum INPUTMODE input_parse_capture(struct StateManager *s)
+enum INPUTMODE input_parse_capture(struct State *s)
 {
     if (ui_show(state_ui(s), PANEL_SPLASH)) {
         ui_toggle(state_ui(s), PANEL_SPLASH);
@@ -44,7 +44,7 @@ enum INPUTMODE input_parse_capture(struct StateManager *s)
 }
 
 
-enum INPUTMODE input_parse_navigate(struct StateManager *s, key ch)
+enum INPUTMODE input_parse_navigate(struct State *s, key ch)
 {
     /* first handle the non-directional keys */
     switch (ch) {
@@ -76,7 +76,7 @@ enum INPUTMODE input_parse_navigate(struct StateManager *s, key ch)
 }
 
 
-enum INPUTMODE input_parse_terrain(struct StateManager *s, key ch)
+enum INPUTMODE input_parse_terrain(struct State *s, key ch)
 {
     if (state_await(s)) {
         state_set_await(s, false);
@@ -116,7 +116,7 @@ enum INPUTMODE input_parse_terrain(struct StateManager *s, key ch)
 }
 
 
-enum INPUTMODE input_parse_command(struct StateManager *s, key ch)
+enum INPUTMODE input_parse_command(struct State *s, key ch)
 {
     if (ch == KEY_ENTER || ch == '\n') {
         char *buf = state_charbuf(s);
@@ -139,7 +139,7 @@ enum INPUTMODE input_parse_command(struct StateManager *s, key ch)
 }
 
 
-void input_parse(struct StateManager *s, key ch)
+void input_parse(struct State *s, key ch)
 {
     enum INPUTMODE next_mode = INPUT_NONE;
 
@@ -168,7 +168,7 @@ int main(void)
 {
     initialise();
 
-    struct StateManager *s = state_create();
+    struct State *s = state_create();
     state_initialise(s, stdscr);
 
     while (!state_quit(s)) {

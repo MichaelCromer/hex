@@ -3,6 +3,6 @@
 
 #include "state.h"
 
-void draw_state(struct StateManager *sm);
+void draw_state(struct State *s);
 
 #endif

@@ -204,32 +204,32 @@ void draw_ui(struct UserInterface *ui)
 }
 
 
-void draw_statusline(struct StateManager *sm)
+void draw_statusline(struct State *s)
 {
-    int r0 = geometry_rows(state_geometry(sm))-1,
+    int r0 = geometry_rows(state_geometry(s))-1,
         c0 = 0,
-        w  = geometry_cols(state_geometry(sm))-1;
+        w  = geometry_cols(state_geometry(s))-1;
 
     mvhline(r0, c0, ' ', w);
-    attron(COLOR_PAIR(state_mode_colour(sm)));
-    mvaddstr(r0, c0+1, state_mode_name(sm));
-    attroff(COLOR_PAIR(state_mode_colour(sm)));
-    if (state_mode(sm) == INPUT_COMMAND) {
+    attron(COLOR_PAIR(state_mode_colour(s)));
+    mvaddstr(r0, c0+1, state_mode_name(s));
+    attroff(COLOR_PAIR(state_mode_colour(s)));
+    if (state_mode(s) == INPUT_COMMAND) {
         addch(' ');
         addch(':');
-        addstr(state_charbuf(sm));
+        addstr(state_charbuf(s));
     }
     return;
 }
 
 
-void draw_state(struct StateManager *sm)
+void draw_state(struct State *s)
 {
-    struct Geometry *g = state_geometry(sm);
+    struct Geometry *g = state_geometry(s);
 
-    draw_map(g, state_map(sm));
+    draw_map(g, state_map(s));
     draw_reticule(g);
-    draw_ui(state_ui(sm));
-    draw_statusline(sm);
+    draw_ui(state_ui(s));
+    draw_statusline(s);
     return;
 }
