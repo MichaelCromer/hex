@@ -5,10 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "include/grid.h"
-#include "include/panel.h"
 #include "include/draw.h"
-#include "include/interface.h"
 #include "include/key.h"
 #include "include/terrain.h"
 #include "include/state.h"
