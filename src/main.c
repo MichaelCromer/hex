@@ -34,31 +34,31 @@ void cleanup(void)
 
 
 
-enum INPUTMODE input_parse_capture(struct State *s)
+enum INPUT_MODE input_parse_capture(struct State *s)
 {
     if (ui_show(state_ui(s), PANEL_SPLASH)) {
         ui_toggle(state_ui(s), PANEL_SPLASH);
     }
 
-    return INPUT_NAVIGATE;
+    return INPUT_MODE_NAVIGATE;
 }
 
 
-enum INPUTMODE input_parse_navigate(struct State *s, key ch)
+enum INPUT_MODE input_parse_navigate(struct State *s, key ch)
 {
     /* first handle the non-directional keys */
     switch (ch) {
         case KEY_TOGGLE_COMMAND:
-            return INPUT_COMMAND;
+            return INPUT_MODE_COMMAND;
         case KEY_TOGGLE_TERRAIN:
             ui_toggle(state_ui(s), PANEL_TERRAIN);
-            return INPUT_TERRAIN;
+            return INPUT_MODE_TERRAIN;
         case KEY_AWAIT_TERRAIN:
             state_set_await(s, true);
-            return INPUT_TERRAIN;
+            return INPUT_MODE_TERRAIN;
         case KEY_TOGGLE_DETAIL:
             ui_toggle(state_ui(s), PANEL_DETAIL);
-            return INPUT_NAVIGATE;
+            return INPUT_MODE_NAVIGATE;
         default:
             break;
     }
@@ -72,24 +72,24 @@ enum INPUTMODE input_parse_navigate(struct State *s, key ch)
         }
     }
 
-    return INPUT_NAVIGATE;
+    return INPUT_MODE_NAVIGATE;
 }
 
 
-enum INPUTMODE input_parse_terrain(struct State *s, key ch)
+enum INPUT_MODE input_parse_terrain(struct State *s, key ch)
 {
     if (state_await(s)) {
         state_set_await(s, false);
         if (key_is_terrain(ch)) {
             map_paint(state_map(s), key_terrain(ch));
         }
-        return INPUT_NAVIGATE;
+        return INPUT_MODE_NAVIGATE;
     }
     /* first handle direct selection */
 
     if (key_is_terrain(ch)) {
         map_paint(state_map(s), key_terrain(ch));
-        return INPUT_TERRAIN;
+        return INPUT_MODE_TERRAIN;
     }
 
     if (key_is_direction(ch)) {
@@ -102,21 +102,21 @@ enum INPUTMODE input_parse_terrain(struct State *s, key ch)
                 map_paint(state_map(s), t);
             }
         }
-        return INPUT_TERRAIN;
+        return INPUT_MODE_TERRAIN;
     }
 
     switch (ch) {
         case KEY_TOGGLE_TERRAIN:
             ui_toggle(state_ui(s), PANEL_TERRAIN);
-            return INPUT_NAVIGATE;
+            return INPUT_MODE_NAVIGATE;
         default:
             break;
     }
-    return INPUT_TERRAIN;
+    return INPUT_MODE_TERRAIN;
 }
 
 
-enum INPUTMODE input_parse_command(struct State *s, key ch)
+enum INPUT_MODE input_parse_command(struct State *s, key ch)
 {
     if (ch == KEY_ENTER || ch == '\n') {
         char *buf = state_charbuf(s);
@@ -124,36 +124,36 @@ enum INPUTMODE input_parse_command(struct State *s, key ch)
             state_set_quit(s, true);
         }
         state_reset_charbuf(s);
-        return INPUT_NAVIGATE;
+        return INPUT_MODE_NAVIGATE;
     } else if (ch == KEY_BACKSPACE || ch == '\b' || ch == 127) {
         if (strlen(state_charbuf(s)) == 0) {
             state_reset_charbuf(s);
-            return INPUT_NAVIGATE;
+            return INPUT_MODE_NAVIGATE;
         }
         state_reset_nextchar(s);
     } else if (isprint(ch)) {
         state_set_nextchar(s, ch);
     }
 
-    return INPUT_COMMAND;
+    return INPUT_MODE_COMMAND;
 }
 
 
 void input_parse(struct State *s, key ch)
 {
-    enum INPUTMODE next_mode = INPUT_NONE;
+    enum INPUT_MODE next_mode = INPUT_MODE_NONE;
 
     switch (state_mode(s)) {
-        case INPUT_CAPTURE:
+        case INPUT_MODE_CAPTURE:
             next_mode = input_parse_capture(s);
             break;
-        case INPUT_NAVIGATE:
+        case INPUT_MODE_NAVIGATE:
             next_mode = input_parse_navigate(s, ch);
             break;
-        case INPUT_TERRAIN:
+        case INPUT_MODE_TERRAIN:
             next_mode = input_parse_terrain(s, ch);
             break;
-        case INPUT_COMMAND:
+        case INPUT_MODE_COMMAND:
             next_mode = input_parse_command(s, ch);
             break;
         default:

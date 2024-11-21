@@ -30,7 +30,7 @@ struct State {
     char *nextchar;
 
     key currkey;
-    enum INPUTMODE mode;
+    enum INPUT_MODE mode;
 
     WINDOW *win;
     enum UI_COLOUR colour;
@@ -51,7 +51,7 @@ struct State *state_create(void)
     s->currkey = 0;
     memset(s->charbuf, 0, STATE_CHARBUF_LEN);
     s->nextchar = s->charbuf;
-    s->mode = INPUT_NONE;
+    s->mode = INPUT_MODE_NONE;
     s->colour = COLOUR_NONE;
     s->win = NULL;
 
@@ -66,7 +66,7 @@ struct State *state_create(void)
 void state_initialise(struct State *s, WINDOW *win)
 {
     s->win = win;
-    state_set_mode(s, INPUT_CAPTURE);
+    state_set_mode(s, INPUT_MODE_CAPTURE);
 
     /* set up colour */
     enum UI_COLOUR colour = (has_colors() == TRUE)
@@ -169,13 +169,13 @@ struct UserInterface *state_ui(const struct State *s)
 }
 
 
-enum INPUTMODE state_mode(const struct State *s)
+enum INPUT_MODE state_mode(const struct State *s)
 {
     return s->mode;
 }
 
 
-void state_set_mode(struct State *s, enum INPUTMODE mode)
+void state_set_mode(struct State *s, enum INPUT_MODE mode)
 {
     s->mode = mode;
 }
@@ -274,11 +274,11 @@ enum UI_COLOUR state_colour_test(void)
 const char *state_mode_name(const struct State *s)
 {
     switch (state_mode(s)) {
-        case INPUT_NAVIGATE:
+        case INPUT_MODE_NAVIGATE:
             return modestr_navigate;
-        case INPUT_TERRAIN:
+        case INPUT_MODE_TERRAIN:
             return modestr_terrain;
-        case INPUT_COMMAND:
+        case INPUT_MODE_COMMAND:
             return modestr_command;
         default:
             return modestr_unknown;
@@ -288,11 +288,11 @@ const char *state_mode_name(const struct State *s)
 int state_mode_colour(const struct State *s)
 {
     switch (state_mode(s)) {
-        case INPUT_NAVIGATE:
+        case INPUT_MODE_NAVIGATE:
             return COLOR_WHITE;
-        case INPUT_TERRAIN:
+        case INPUT_MODE_TERRAIN:
             return COLOR_GREEN;
-        case INPUT_COMMAND:
+        case INPUT_MODE_COMMAND:
             return COLOR_RED;
         default:
             return COLOR_WHITE;

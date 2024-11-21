@@ -214,11 +214,29 @@ void draw_statusline(struct State *s)
     attron(COLOR_PAIR(state_mode_colour(s)));
     mvaddstr(r0, c0+1, state_mode_name(s));
     attroff(COLOR_PAIR(state_mode_colour(s)));
-    if (state_mode(s) == INPUT_COMMAND) {
-        addch(' ');
-        addch(':');
-        addstr(state_charbuf(s));
+
+    switch (state_mode(s)) {
+        case INPUT_MODE_COMMAND:
+            addch(' ');
+            addch(':');
+            addstr(state_charbuf(s));
+            break;
+        case INPUT_MODE_TERRAIN:
+            addch(' ');
+            attron(COLOR_PAIR(COLOR_YELLOW));
+            for (const char *c = terrain_statusline(); *c != '\0'; c++) {
+                if (*c == ' ') {
+                    attron(COLOR_PAIR(COLOR_YELLOW));
+                } else if (*c == ':') {
+                    attroff(COLOR_PAIR(COLOR_YELLOW));
+                }
+                addch(*c);
+            }
+            break;
+        default:
+            break;
     }
+
     return;
 }
 
