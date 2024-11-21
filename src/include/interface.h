@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "enum.h"
+#include "geometry.h"
 
 struct UserInterface;
 

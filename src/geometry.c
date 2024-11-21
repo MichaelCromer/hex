@@ -14,10 +14,15 @@ struct Geometry {
 };
 
 
-struct Geometry *geometry_create(float scale, float aspect, WINDOW *win)
+struct Geometry *geometry_create(void)
 {
     struct Geometry *g = malloc(sizeof(struct Geometry));
+    return g;
+}
 
+
+void geometry_initialise(struct Geometry *g, float scale, float aspect, WINDOW *win)
+{
     g->scale = scale;
     g->aspect = aspect;
     getmaxyx(win, g->rows, g->cols);
@@ -28,8 +33,8 @@ struct Geometry *geometry_create(float scale, float aspect, WINDOW *win)
     g->rmid = g->rows / 2;
     g->cmid = g->cols / 2;
 
-    return g;
 }
+
 
 void geometry_destroy(struct Geometry *g)
 {

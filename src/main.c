@@ -11,70 +11,7 @@
 #include "include/interface.h"
 #include "include/key.h"
 #include "include/terrain.h"
-
-struct StateManager {
-    bool quit;
-    bool await;
-    bool reticule;
-    char cmdbuf[1024];
-    key lastch;
-    enum INPUTMODE input_mode;
-    enum UI_COLOUR colours;
-
-    struct Geometry *geometry;
-    struct Map *map;
-    struct UserInterface *ui;
-};
-
-
-struct StateManager *state_create(void)
-{
-    struct StateManager *sm = malloc(sizeof(struct StateManager));
-
-    sm->quit = false;
-    sm->await = false;
-    sm->reticule = false;
-    sm->lastch = 0;
-    memset(sm->cmdbuf, 0, 1024);
-    sm->input_mode = INPUT_NONE;
-    sm->colours = COLOUR_NONE;
-
-    sm->geometry = NULL;
-    sm->map = NULL;
-    sm->ui = NULL;
-
-    return sm;
-}
-
-
-void state_destroy(struct StateManager *s)
-{
-    geometry_destroy(s->geometry);
-    map_destroy(s->map);
-    ui_destroy(s->ui);
-
-    free(s);
-    s = NULL;
-    return;
-}
-
-
-struct Geometry *state_geometry(const struct StateManager *sm)
-{
-    return sm->geometry;
-}
-
-
-struct Map *state_map(const struct StateManager *sm)
-{
-    return sm->map;
-}
-
-
-struct UserInterface *state_ui(const struct StateManager *sm)
-{
-    return sm->ui;
-}
+#include "include/state.h"
 
 
 const char *modestr_navigate = "NAV";
@@ -111,20 +48,20 @@ int mode_colour(enum INPUTMODE m)
 }
 
 
-void draw_statusline(struct StateManager *s)
+void draw_statusline(struct StateManager *sm)
 {
-    int r0 = geometry_rows(state_geometry(s))-1,
+    int r0 = geometry_rows(state_geometry(sm))-1,
         c0 = 0,
-        w  = geometry_cols(state_geometry(s))-1;
+        w  = geometry_cols(state_geometry(sm))-1;
 
     mvhline(r0, c0, ' ', w);
-    attron(COLOR_PAIR(mode_colour(s->input_mode)));
-    mvaddstr(r0, c0+1, modestr(s->input_mode));
-    attroff(COLOR_PAIR(mode_colour(s->input_mode)));
-    if (s->input_mode == INPUT_COMMAND) {
+    attron(COLOR_PAIR(mode_colour(state_mode(sm))));
+    mvaddstr(r0, c0+1, modestr(state_mode(sm)));
+    attroff(COLOR_PAIR(mode_colour(state_mode(sm))));
+    if (state_mode(sm) == INPUT_COMMAND) {
         addch(' ');
         addch(':');
-        addstr(s->cmdbuf);
+        addstr(state_charbuf(sm));
     }
     return;
 }
@@ -184,37 +121,7 @@ int initialise(void)
     curs_set(0);                /* disable cursor */
 
     state = state_create();
-    state->input_mode = INPUT_CAPTURE;
-
-    /* set up colours */
-    state->colours = (has_colors())
-        ? ((can_change_color()) ? COLOUR_MANY : COLOUR_SOME)
-        : COLOUR_NONE;
-
-    if (state->colours == COLOUR_SOME || state->colours == COLOUR_MANY) {
-        start_color();
-        init_pair(1, COLOR_RED, COLOR_BLACK);
-        init_pair(2, COLOR_GREEN, COLOR_BLACK);
-        init_pair(3, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(4, COLOR_BLUE, COLOR_BLACK);
-        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(6, COLOR_CYAN, COLOR_BLACK);
-        init_pair(7, COLOR_WHITE, COLOR_BLACK);
-    }
-
-
-    state->geometry = geometry_create(
-            GEOMETRY_DEFAULT_SCALE,
-            GEOMETRY_DEFAULT_ASPECT,
-            stdscr
-            );
-
-    state->ui = ui_create();
-    ui_initialise(state_ui(state), state_geometry(state));
-
-    state->map = map_create(hex_origin());
-    map_goto(state_map(state), coordinate_zero());
-
+    state_initialise(state);
     update_vars();
 
     return 0;
@@ -251,7 +158,7 @@ enum INPUTMODE input_parse_navigate(key ch)
             ui_toggle(state_ui(state), PANEL_TERRAIN);
             return INPUT_TERRAIN;
         case KEY_AWAIT_TERRAIN:
-            state->await=true;
+            state_set_await(state, true);
             return INPUT_TERRAIN;
         case KEY_TOGGLE_DETAIL:
             ui_toggle(state_ui(state), PANEL_DETAIL);
@@ -275,8 +182,8 @@ enum INPUTMODE input_parse_navigate(key ch)
 
 enum INPUTMODE input_parse_terrain(key ch)
 {
-    if (state->await) {
-        state->await = false;
+    if (state_await(state)) {
+        state_set_await(state, false);
         if (key_is_terrain(ch)) {
             map_paint(state_map(state), key_terrain(ch));
         }
@@ -316,24 +223,23 @@ enum INPUTMODE input_parse_terrain(key ch)
 enum INPUTMODE input_parse_command(key ch)
 {
     if (ch == KEY_ENTER || ch == '\n') {
-        if (state->cmdbuf[0] == KEY_TOGGLE_QUIT) {
-            state->quit = true;
+        char *buf = state_charbuf(state);
+        if (buf[0] == KEY_TOGGLE_QUIT) {
+            state_set_quit(state, true);
         }
-        memset(state->cmdbuf, 0, 1024);
+        state_reset_charbuf(state);
         update_vars();
         return INPUT_NAVIGATE;
     } else if (ch == KEY_BACKSPACE || ch == '\b' || ch == 127) {
-        int L = strlen(state->cmdbuf);
-        if (L <= 0) {
-            memset(state->cmdbuf, 0, 1024);
+        if (strlen(state_charbuf(state)) == 0) {
+            state_reset_charbuf(state);
             update_vars();
             return INPUT_NAVIGATE;
         }
-        state->cmdbuf[L-1] = 0;
+        state_reset_nextchar(state);
         update_vars();
     } else if (isprint(ch)) {
-        int L = strlen(state->cmdbuf);
-        state->cmdbuf[L] = ch;
+        state_set_nextchar(state, ch);
     }
 
     return INPUT_COMMAND;
@@ -344,7 +250,7 @@ void input_parse(key ch)
 {
     enum INPUTMODE next_mode = INPUT_NONE;
 
-    switch (state->input_mode) {
+    switch (state_mode(state)) {
         case INPUT_CAPTURE:
             next_mode = input_parse_capture();
             break;
@@ -361,7 +267,7 @@ void input_parse(key ch)
             break;
     }
 
-    state->input_mode = next_mode;
+    state_set_mode(state, next_mode);
     update_vars();
 }
 
@@ -370,11 +276,11 @@ int main(void)
 {
     initialise();
 
-    while (!state->quit) {
+    while (!state_quit(state)) {
         draw_screen(state_geometry(state), state_map(state), state_ui(state));
         draw_statusline(state);
-        state->lastch = getch();
-        input_parse(state->lastch);
+        state_set_currkey(state, getch());
+        input_parse(state_currkey(state));
     }
 
     cleanup();

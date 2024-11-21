@@ -47,7 +47,8 @@ void hex_create_neighbours(struct Hex **root, struct Hex *hex);
  ***************************************************/
 struct Map;
 
-struct Map *map_create(struct Hex *root);
+struct Map *map_create(void);
+void map_initialise(struct Map *m, struct Hex *root);
 void map_destroy(struct Map *m);
 struct Hex *map_find(const struct Map *m, const struct Coordinate *c);
 void map_goto(struct Map *m, const struct Coordinate *c);

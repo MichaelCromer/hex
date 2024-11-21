@@ -12,7 +12,8 @@
 
 struct Geometry;
 
-struct Geometry *geometry_create(float scale, float aspect, WINDOW *win);
+struct Geometry *geometry_create(void);
+void geometry_initialise(struct Geometry *g, float scale, float aspect, WINDOW *win);
 void geometry_destroy(struct Geometry *g);
 void geometry_set_scale(struct Geometry *g, float scale);
 void geometry_set_aspect(struct Geometry *g, float aspect);
