@@ -4,22 +4,35 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/interface.h"
-#include "include/key.h"
+#include "include/enum.h"
 #include "include/geometry.h"
 #include "include/grid.h"
+#include "include/interface.h"
+#include "include/key.h"
+#include "include/panel.h"
 #include "include/state.h"
+#include "include/terrain.h"
 
 #define STATE_CHARBUF_LEN 1024
+
+const char *modestr_navigate = "NAV";
+const char *modestr_terrain = "TRN";
+const char *modestr_command = "CMD";
+const char *modestr_unknown = "???";
+
 
 struct StateManager {
     bool quit;
     bool await;
     bool reticule;
+
     char charbuf[STATE_CHARBUF_LEN];
     char *nextchar;
+
     key currkey;
-    enum INPUTMODE input_mode;
+    enum INPUTMODE mode;
+
+    WINDOW *win;
     enum UI_COLOUR colour;
 
     struct Geometry *geometry;
@@ -38,8 +51,9 @@ struct StateManager *state_create(void)
     sm->currkey = 0;
     memset(sm->charbuf, 0, STATE_CHARBUF_LEN);
     sm->nextchar = sm->charbuf;
-    sm->input_mode = INPUT_NONE;
+    sm->mode = INPUT_NONE;
     sm->colour = COLOUR_NONE;
+    sm->win = NULL;
 
     sm->geometry = geometry_create();
     sm->ui = ui_create();
@@ -49,8 +63,9 @@ struct StateManager *state_create(void)
 }
 
 
-void state_initialise(struct StateManager *sm)
+void state_initialise(struct StateManager *sm, WINDOW *win)
 {
+    sm->win = win;
     state_set_mode(sm, INPUT_CAPTURE);
 
     /* set up colour */
@@ -74,10 +89,53 @@ void state_initialise(struct StateManager *sm)
             state_geometry(sm),
             GEOMETRY_DEFAULT_SCALE,
             GEOMETRY_DEFAULT_ASPECT,
-            stdscr);
+            win);
     ui_initialise(state_ui(sm), state_geometry(sm));
     map_initialise(state_map(sm), hex_origin());
 
+}
+
+
+void state_update(struct StateManager *sm)
+{
+    struct Hex *current_hex = map_curr(state_map(sm));
+
+    /* TODO this is ridiculous as written here */
+    struct Panel *hex_detail = ui_panel(state_ui(sm), PANEL_DETAIL);
+    char *coordinate = malloc(32); /* TODO def an appropriate length */
+    snprintf(coordinate, 32,
+            "    (%d, %d, %d)",
+            hex_p(current_hex),
+            hex_q(current_hex),
+            hex_r(current_hex)
+            );
+    panel_remove_line(hex_detail, 1);
+    panel_add_line(hex_detail, 1, coordinate);
+
+    char *terrain = malloc(32);
+    snprintf(terrain, 32,
+            "    Terrain: %s",
+            terrain_name(hex_terrain(current_hex))
+            );
+    panel_remove_line(hex_detail, 2);
+    panel_add_line(hex_detail, 2, terrain);
+
+    int seed = hex_seed(current_hex);
+    char *seedstr = malloc(32);
+    snprintf(seedstr, 32,
+            "  Seed: %d",
+            seed
+            );
+    panel_remove_line(hex_detail, 3);
+    panel_add_line(hex_detail, 3, seedstr);
+
+    free(coordinate);
+    free(terrain);
+    free(seedstr);
+    coordinate = NULL;
+    terrain = NULL;
+    seedstr = NULL;
+    return;
 }
 
 
@@ -113,13 +171,13 @@ struct UserInterface *state_ui(const struct StateManager *sm)
 
 enum INPUTMODE state_mode(const struct StateManager *sm)
 {
-    return sm->input_mode;
+    return sm->mode;
 }
 
 
 void state_set_mode(struct StateManager *sm, enum INPUTMODE mode)
 {
-    sm->input_mode = mode;
+    sm->mode = mode;
 }
 
 
@@ -210,4 +268,33 @@ enum UI_COLOUR state_colour_test(void)
     return (has_colors())
         ? ((can_change_color()) ? COLOUR_MANY : COLOUR_SOME)
         : COLOUR_NONE;
+}
+
+
+const char *state_mode_name(const struct StateManager *sm)
+{
+    switch (state_mode(sm)) {
+        case INPUT_NAVIGATE:
+            return modestr_navigate;
+        case INPUT_TERRAIN:
+            return modestr_terrain;
+        case INPUT_COMMAND:
+            return modestr_command;
+        default:
+            return modestr_unknown;
+    }
+}
+
+int state_mode_colour(const struct StateManager *sm)
+{
+    switch (state_mode(sm)) {
+        case INPUT_NAVIGATE:
+            return COLOR_WHITE;
+        case INPUT_TERRAIN:
+            return COLOR_GREEN;
+        case INPUT_COMMAND:
+            return COLOR_RED;
+        default:
+            return COLOR_WHITE;
+    }
 }

@@ -1,10 +1,15 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include <ncurses.h>
+
+#include "key.h"
+
 struct StateManager;
 
 struct StateManager *state_create(void);
-void state_initialise(struct StateManager *sm);
+void state_initialise(struct StateManager *sm, WINDOW *win);
+void state_update(struct StateManager *sm);
 void state_destroy(struct StateManager *s);
 struct Geometry *state_geometry(const struct StateManager *sm);
 struct Map *state_map(const struct StateManager *sm);
@@ -24,5 +29,7 @@ void state_set_quit(struct StateManager *sm, bool quit);
 key state_currkey(struct StateManager *sm);
 void state_set_currkey(struct StateManager *sm, key k);
 void state_set_mode(struct StateManager *sm, enum INPUTMODE mode);
+int state_mode_colour(const struct StateManager *sm);
+const char *state_mode_name(const struct StateManager *sm);
 
 #endif

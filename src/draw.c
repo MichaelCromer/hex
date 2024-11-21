@@ -3,6 +3,11 @@
 #include <math.h>
 
 #include "include/draw.h"
+#include "include/geometry.h"
+#include "include/grid.h"
+#include "include/interface.h"
+#include "include/panel.h"
+#include "include/state.h"
 #include "include/terrain.h"
 
 
@@ -190,7 +195,7 @@ void draw_map(struct Geometry *g, struct Map *map)
 
 void draw_ui(struct UserInterface *ui)
 {
-    for (int p=0; p<UI_NUM_PANELS; p++) {
+    for (int p=0; p<NUM_UI_PANELS; p++) {
         if (ui_show(ui, p)) {
             draw_panel(ui_panel(ui, p));
         }
@@ -199,14 +204,32 @@ void draw_ui(struct UserInterface *ui)
 }
 
 
-void draw_screen(struct Geometry *g, struct Map *map, struct UserInterface *ui)
+void draw_statusline(struct StateManager *sm)
 {
-    erase();
+    int r0 = geometry_rows(state_geometry(sm))-1,
+        c0 = 0,
+        w  = geometry_cols(state_geometry(sm))-1;
 
-    draw_map(g, map);
+    mvhline(r0, c0, ' ', w);
+    attron(COLOR_PAIR(state_mode_colour(sm)));
+    mvaddstr(r0, c0+1, state_mode_name(sm));
+    attroff(COLOR_PAIR(state_mode_colour(sm)));
+    if (state_mode(sm) == INPUT_COMMAND) {
+        addch(' ');
+        addch(':');
+        addstr(state_charbuf(sm));
+    }
+    return;
+}
+
+
+void draw_state(struct StateManager *sm)
+{
+    struct Geometry *g = state_geometry(sm);
+
+    draw_map(g, state_map(sm));
     draw_reticule(g);
-    draw_ui(ui);
-
-    refresh();
+    draw_ui(state_ui(sm));
+    draw_statusline(sm);
     return;
 }

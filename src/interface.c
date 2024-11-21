@@ -6,8 +6,8 @@
 
 
 struct UserInterface {
-    struct Panel *panel[UI_NUM_PANELS];
-    bool show[UI_NUM_PANELS];
+    struct Panel *panel[NUM_UI_PANELS];
+    bool show[NUM_UI_PANELS];
 };
 
 
@@ -18,7 +18,7 @@ struct UserInterface *ui_create(void)
         return NULL;
     }
 
-    for (int i=0; i<UI_NUM_PANELS; i++) {
+    for (int i=0; i<NUM_UI_PANELS; i++) {
         ui->panel[i] = NULL;
         ui->show[i] = false;
     }
@@ -41,7 +41,7 @@ void ui_initialise(struct UserInterface *ui, struct Geometry *g)
 
 void ui_destroy(struct UserInterface *ui)
 {
-    for (int i=0; i<UI_NUM_PANELS; i++) {
+    for (int i=0; i<NUM_UI_PANELS; i++) {
         struct Panel *panel = ui->panel[i];
         if (panel) {
             panel_destroy(panel);

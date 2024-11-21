@@ -9,7 +9,7 @@ enum UI_COLOUR {
 };
 
 
-#define UI_NUM_PANELS 3
+#define NUM_UI_PANELS 3
 enum UI_PANEL {
    PANEL_SPLASH,
    PANEL_TERRAIN,
