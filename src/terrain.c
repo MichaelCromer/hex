@@ -15,18 +15,19 @@ const char *terrain_jungle      = "Jungle";
 const char *terrain_swamp       = "Swamp";
 const char *terrain_tundra      = "Tundra";
 
-#define NUM_TERRAIN_CHOPTS 12
-const char *terrain_chopts_unknown      = "          ?*";
-const char *terrain_chopts_water        = "    ~~~~~~~~";
-const char *terrain_chopts_mountains    = "    ..^^^AAA";
-const char *terrain_chopts_plains       = "      ,,,;;t";
-const char *terrain_chopts_hills        = "      ,;nnnn";
-const char *terrain_chopts_forest       = "    ttttTT44";
-const char *terrain_chopts_desert       = "    ......nn";
-const char *terrain_chopts_jungle       = "    tT4&%$#@";
-const char *terrain_chopts_swamp        = "    iijj%~%~";
-const char *terrain_chopts_tundra       = "      ..o=-_";
+#define NUM_TERRAIN_CHOPTS 24
+const char *terrain_chopts_unknown      = "                     ??*";
+const char *terrain_chopts_water        = "         ~~~~~~~~~~~~~~~";
+const char *terrain_chopts_mountains    = "                ..^^^AAA";
+const char *terrain_chopts_plains       = "            ,,,,,,;;iitt";
+const char *terrain_chopts_hills        = "                 tT4nnnn";
+const char *terrain_chopts_forest       = "            ttttttTTTT44";
+const char *terrain_chopts_desert       = "            ..........nn";
+const char *terrain_chopts_jungle       = "       ttttt TTT 444 #%@";
+const char *terrain_chopts_swamp        = "                iijj%~%~";
+const char *terrain_chopts_tundra       = "                  ..o=-_";
 
+const char *terrain_hints = "q:watr w:mntn e:hill a:grss s:frst d:swmp z:dsrt x:jngl c:tndr";
 
 const char *terrain_name(enum TERRAIN t)
 {
@@ -116,4 +117,10 @@ int terrain_colour(enum TERRAIN t)
         default:
             return COLOR_WHITE;
     }
+}
+
+
+const char *terrain_statusline(void)
+{
+    return terrain_hints;
 }
