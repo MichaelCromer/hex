@@ -6,10 +6,10 @@
 #include "enum.h"
 
 #define         KEY_TOGGLE_QUIT 'q'
-#define      KEY_TOGGLE_COMMAND ':'
 #define      KEY_TOGGLE_TERRAIN 'T'
 #define       KEY_TOGGLE_DETAIL 'j'
 #define     KEY_TOGGLE_RETICULE 'x'
+#define      KEY_TOGGLE_COMMAND ':'
 
 #define       KEY_AWAIT_TERRAIN 't'
 

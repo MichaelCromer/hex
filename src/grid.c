@@ -6,10 +6,6 @@
 #include "include/grid.h"
 
 
-/*
- * Terrain lookups
- *
- */
 static int seed_count = 0; /* TODO change to time? */
 
 int seed_gen(const struct Coordinate *c)
@@ -305,14 +301,25 @@ void hex_create_neighbours(struct Hex **root, struct Hex *hex)
 
 /* MAP functions */
 
-struct Map *map_create(struct Hex *root)
+struct Map *map_create(void)
 {
     struct Map *m = malloc(sizeof(struct Map));
 
-    m->root = root;
+    m->root = NULL;
     m->curr = NULL;
 
     return m;
+}
+
+
+void map_initialise(struct Map *m, struct Hex *root)
+{
+    if (m->root) {
+        return;
+    }
+
+    m->root = root;
+    m->curr = root;
 }
 
 

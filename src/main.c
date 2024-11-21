@@ -11,17 +11,7 @@
 #include "include/interface.h"
 #include "include/key.h"
 #include "include/terrain.h"
-
-
-struct StateManager {
-    bool quit;
-    bool await;
-    bool reticule;
-    char cmdbuf[1024];
-    key lastch;
-    enum INPUTMODE input_mode;
-    enum UI_COLOUR colours;
-};
+#include "include/state.h"
 
 
 const char *modestr_navigate = "NAV";
@@ -58,61 +48,32 @@ int mode_colour(enum INPUTMODE m)
 }
 
 
-void draw_statusline(struct StateManager *s, struct Geometry *g)
+void draw_statusline(struct StateManager *sm)
 {
-    int r0 = geometry_rows(g)-1,
+    int r0 = geometry_rows(state_geometry(sm))-1,
         c0 = 0,
-        w  = geometry_cols(g)-1;
+        w  = geometry_cols(state_geometry(sm))-1;
 
     mvhline(r0, c0, ' ', w);
-    attron(COLOR_PAIR(mode_colour(s->input_mode)));
-    mvaddstr(r0, c0+1, modestr(s->input_mode));
-    attroff(COLOR_PAIR(mode_colour(s->input_mode)));
-    if (s->input_mode == INPUT_COMMAND) {
+    attron(COLOR_PAIR(mode_colour(state_mode(sm))));
+    mvaddstr(r0, c0+1, modestr(state_mode(sm)));
+    attroff(COLOR_PAIR(mode_colour(state_mode(sm))));
+    if (state_mode(sm) == INPUT_COMMAND) {
         addch(' ');
         addch(':');
-        addstr(s->cmdbuf);
+        addstr(state_charbuf(sm));
     }
     return;
 }
 
-
-struct StateManager *state_create(void)
-{
-    struct StateManager *s = malloc(sizeof(struct StateManager));
-
-    s->quit = false;
-    s->await = false;
-    s->reticule = false;
-    s->lastch = 0;
-    memset(s->cmdbuf, 0, 1024);
-    s->input_mode = INPUT_NONE;
-    s->colours = COLOUR_NONE;
-
-    return s;
-}
-
-
-void state_destroy(struct StateManager *s)
-{
-    free(s);
-    s = NULL;
-    return;
-}
-
-
-struct Map *map = NULL;
-struct Geometry *geometry = NULL;
-struct UserInterface *ui = NULL;
-struct StateManager *sm = NULL;
-
+struct StateManager *state = NULL;
 
 void update_vars(void)
 {
-    struct Hex *current_hex = map_curr(map);
+    struct Hex *current_hex = map_curr(state_map(state));
 
     /* TODO this is ridiculous as written here */
-    struct Panel *hex_detail = ui_panel(ui, PANEL_DETAIL);
+    struct Panel *hex_detail = ui_panel(state_ui(state), PANEL_DETAIL);
     char *coordinate = malloc(32); /* TODO def an appropriate length */
     snprintf(coordinate, 32,
             "    (%d, %d, %d)",
@@ -159,40 +120,8 @@ int initialise(void)
     intrflush(stdscr, FALSE);   /* interpret screen changes from ssigs correctly*/
     curs_set(0);                /* disable cursor */
 
-    sm = state_create();
-    sm->input_mode = INPUT_CAPTURE;
-
-    /* set up colours */
-    sm->colours = (has_colors())
-        ? ((can_change_color()) ? COLOUR_MANY : COLOUR_SOME)
-        : COLOUR_NONE;
-
-    if (sm->colours == COLOUR_SOME || sm->colours == COLOUR_MANY) {
-        start_color();
-        init_pair(1, COLOR_RED, COLOR_BLACK);
-        init_pair(2, COLOR_GREEN, COLOR_BLACK);
-        init_pair(3, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(4, COLOR_BLUE, COLOR_BLACK);
-        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(6, COLOR_CYAN, COLOR_BLACK);
-        init_pair(7, COLOR_WHITE, COLOR_BLACK);
-    }
-
-
-    /* TODO remove magic numbers and have a geometry_initialise that takes a screen */
-    int r0, c0;
-    getmaxyx(stdscr, r0, c0);
-    geometry = geometry_create(10, 0.66f, c0, r0); /* scale, aspect, cols, rows */
-    int rmid = geometry_rmid(geometry), cmid = geometry_cmid(geometry);;
-
-    /* TODO remove the jank, make it reference a geometry */
-    ui = ui_initialise();
-    panel_centre(ui_panel(ui, PANEL_SPLASH), rmid, cmid);
-    ui_toggle(ui, PANEL_SPLASH);
-
-    map = map_create(hex_origin());
-    map_goto(map, coordinate_zero());
-
+    state = state_create();
+    state_initialise(state);
     update_vars();
 
     return 0;
@@ -201,10 +130,7 @@ int initialise(void)
 
 void cleanup(void)
 {
-    ui_destroy(ui);
-    state_destroy(sm);
-    geometry_destroy(geometry);
-    map_destroy(map);
+    state_destroy(state);
 
     erase();
     endwin();
@@ -214,8 +140,8 @@ void cleanup(void)
 
 enum INPUTMODE input_parse_capture(void)
 {
-    if (ui_show(ui, PANEL_SPLASH)) {
-        ui_toggle(ui, PANEL_SPLASH);
+    if (ui_show(state_ui(state), PANEL_SPLASH)) {
+        ui_toggle(state_ui(state), PANEL_SPLASH);
     }
 
     return INPUT_NAVIGATE;
@@ -229,13 +155,13 @@ enum INPUTMODE input_parse_navigate(key ch)
         case KEY_TOGGLE_COMMAND:
             return INPUT_COMMAND;
         case KEY_TOGGLE_TERRAIN:
-            ui_toggle(ui, PANEL_TERRAIN);
+            ui_toggle(state_ui(state), PANEL_TERRAIN);
             return INPUT_TERRAIN;
         case KEY_AWAIT_TERRAIN:
-            sm->await=true;
+            state_set_await(state, true);
             return INPUT_TERRAIN;
         case KEY_TOGGLE_DETAIL:
-            ui_toggle(ui, PANEL_DETAIL);
+            ui_toggle(state_ui(state), PANEL_DETAIL);
             return INPUT_NAVIGATE;
         default:
             break;
@@ -245,7 +171,7 @@ enum INPUTMODE input_parse_navigate(key ch)
         enum DIRECTION d = key_direction(ch);
         int step_count = (key_is_special(ch)) ? 3 : 1;
         while (step_count) {
-            map_step(map, d);
+            map_step(state_map(state), d);
             step_count--;
         }
     }
@@ -256,28 +182,28 @@ enum INPUTMODE input_parse_navigate(key ch)
 
 enum INPUTMODE input_parse_terrain(key ch)
 {
-    if (sm->await) {
-        sm->await = false;
+    if (state_await(state)) {
+        state_set_await(state, false);
         if (key_is_terrain(ch)) {
-            map_paint(map, key_terrain(ch));
+            map_paint(state_map(state), key_terrain(ch));
         }
         return INPUT_NAVIGATE;
     }
     /* first handle direct selection */
 
     if (key_is_terrain(ch)) {
-        map_paint(map, key_terrain(ch));
+        map_paint(state_map(state), key_terrain(ch));
         return INPUT_TERRAIN;
     }
 
     if (key_is_direction(ch)) {
         enum DIRECTION d = key_direction(ch);
-        enum TERRAIN t = map_curr_terrain(map);
-        map_step(map, d);
+        enum TERRAIN t = map_curr_terrain(state_map(state));
+        map_step(state_map(state), d);
 
         if (key_is_special(ch)) {
             if (t != TERRAIN_UNKNOWN) {
-                map_paint(map, t);
+                map_paint(state_map(state), t);
             }
         }
         return INPUT_TERRAIN;
@@ -285,7 +211,7 @@ enum INPUTMODE input_parse_terrain(key ch)
 
     switch (ch) {
         case KEY_TOGGLE_TERRAIN:
-            ui_toggle(ui, PANEL_TERRAIN);
+            ui_toggle(state_ui(state), PANEL_TERRAIN);
             return INPUT_NAVIGATE;
         default:
             break;
@@ -297,24 +223,23 @@ enum INPUTMODE input_parse_terrain(key ch)
 enum INPUTMODE input_parse_command(key ch)
 {
     if (ch == KEY_ENTER || ch == '\n') {
-        if (sm->cmdbuf[0] == KEY_TOGGLE_QUIT) {
-            sm->quit = true;
+        char *buf = state_charbuf(state);
+        if (buf[0] == KEY_TOGGLE_QUIT) {
+            state_set_quit(state, true);
         }
-        memset(sm->cmdbuf, 0, 1024);
+        state_reset_charbuf(state);
         update_vars();
         return INPUT_NAVIGATE;
     } else if (ch == KEY_BACKSPACE || ch == '\b' || ch == 127) {
-        int L = strlen(sm->cmdbuf);
-        if (L <= 0) {
-            memset(sm->cmdbuf, 0, 1024);
+        if (strlen(state_charbuf(state)) == 0) {
+            state_reset_charbuf(state);
             update_vars();
             return INPUT_NAVIGATE;
         }
-        sm->cmdbuf[L-1] = 0;
+        state_reset_nextchar(state);
         update_vars();
     } else if (isprint(ch)) {
-        int L = strlen(sm->cmdbuf);
-        sm->cmdbuf[L] = ch;
+        state_set_nextchar(state, ch);
     }
 
     return INPUT_COMMAND;
@@ -325,7 +250,7 @@ void input_parse(key ch)
 {
     enum INPUTMODE next_mode = INPUT_NONE;
 
-    switch (sm->input_mode) {
+    switch (state_mode(state)) {
         case INPUT_CAPTURE:
             next_mode = input_parse_capture();
             break;
@@ -342,7 +267,7 @@ void input_parse(key ch)
             break;
     }
 
-    sm->input_mode = next_mode;
+    state_set_mode(state, next_mode);
     update_vars();
 }
 
@@ -351,13 +276,14 @@ int main(void)
 {
     initialise();
 
-    while (!sm->quit) {
-        draw_screen(geometry, map, ui);
-        draw_statusline(sm, geometry);
-        sm->lastch = getch();
-        input_parse(sm->lastch);
+    while (!state_quit(state)) {
+        draw_screen(state_geometry(state), state_map(state), state_ui(state));
+        draw_statusline(state);
+        state_set_currkey(state, getch());
+        input_parse(state_currkey(state));
     }
 
     cleanup();
     return 0;
 }
+
