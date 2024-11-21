@@ -4,22 +4,35 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/interface.h"
-#include "include/key.h"
+#include "include/enum.h"
 #include "include/geometry.h"
 #include "include/grid.h"
+#include "include/interface.h"
+#include "include/key.h"
+#include "include/panel.h"
 #include "include/state.h"
+#include "include/terrain.h"
 
 #define STATE_CHARBUF_LEN 1024
 
-struct StateManager {
+const char *modestr_navigate = "NAVIGATE";
+const char *modestr_terrain = "TERRAIN";
+const char *modestr_command = "COMMAND";
+const char *modestr_unknown = "???";
+
+
+struct State {
     bool quit;
     bool await;
     bool reticule;
+
     char charbuf[STATE_CHARBUF_LEN];
     char *nextchar;
+
     key currkey;
-    enum INPUTMODE input_mode;
+    enum INPUT_MODE mode;
+
+    WINDOW *win;
     enum UI_COLOUR colour;
 
     struct Geometry *geometry;
@@ -28,38 +41,40 @@ struct StateManager {
 };
 
 
-struct StateManager *state_create(void)
+struct State *state_create(void)
 {
-    struct StateManager *sm = malloc(sizeof(struct StateManager));
+    struct State *s = malloc(sizeof(struct State));
 
-    sm->quit = false;
-    sm->await = false;
-    sm->reticule = false;
-    sm->currkey = 0;
-    memset(sm->charbuf, 0, STATE_CHARBUF_LEN);
-    sm->nextchar = sm->charbuf;
-    sm->input_mode = INPUT_NONE;
-    sm->colour = COLOUR_NONE;
+    s->quit = false;
+    s->await = false;
+    s->reticule = false;
+    s->currkey = 0;
+    memset(s->charbuf, 0, STATE_CHARBUF_LEN);
+    s->nextchar = s->charbuf;
+    s->mode = INPUT_MODE_NONE;
+    s->colour = COLOUR_NONE;
+    s->win = NULL;
 
-    sm->geometry = geometry_create();
-    sm->ui = ui_create();
-    sm->map = map_create();
+    s->geometry = geometry_create();
+    s->ui = ui_create();
+    s->map = map_create();
 
-    return sm;
+    return s;
 }
 
 
-void state_initialise(struct StateManager *sm)
+void state_initialise(struct State *s, WINDOW *win)
 {
-    state_set_mode(sm, INPUT_CAPTURE);
+    s->win = win;
+    state_set_mode(s, INPUT_MODE_CAPTURE);
 
     /* set up colour */
     enum UI_COLOUR colour = (has_colors() == TRUE)
         ? ( (can_change_color() == TRUE) ? COLOUR_MANY : COLOUR_SOME)
         : COLOUR_NONE;
-    state_set_colour(sm, colour);
+    state_set_colour(s, colour);
 
-    if (state_colour(sm) == COLOUR_SOME || state_colour(sm) == COLOUR_MANY) {
+    if (state_colour(s) == COLOUR_SOME || state_colour(s) == COLOUR_MANY) {
         start_color();
         init_pair(1, COLOR_RED, COLOR_BLACK);
         init_pair(2, COLOR_GREEN, COLOR_BLACK);
@@ -71,17 +86,60 @@ void state_initialise(struct StateManager *sm)
     }
 
     geometry_initialise(
-            state_geometry(sm),
+            state_geometry(s),
             GEOMETRY_DEFAULT_SCALE,
             GEOMETRY_DEFAULT_ASPECT,
-            stdscr);
-    ui_initialise(state_ui(sm), state_geometry(sm));
-    map_initialise(state_map(sm), hex_origin());
+            win);
+    ui_initialise(state_ui(s), state_geometry(s));
+    map_initialise(state_map(s), hex_origin());
 
 }
 
 
-void state_destroy(struct StateManager *s)
+void state_update(struct State *s)
+{
+    struct Hex *current_hex = map_curr(state_map(s));
+
+    /* TODO this is ridiculous as written here */
+    struct Panel *hex_detail = ui_panel(state_ui(s), PANEL_DETAIL);
+    char *coordinate = malloc(32); /* TODO def an appropriate length */
+    snprintf(coordinate, 32,
+            "    (%d, %d, %d)",
+            hex_p(current_hex),
+            hex_q(current_hex),
+            hex_r(current_hex)
+            );
+    panel_remove_line(hex_detail, 1);
+    panel_add_line(hex_detail, 1, coordinate);
+
+    char *terrain = malloc(32);
+    snprintf(terrain, 32,
+            "    Terrain: %s",
+            terrain_name(hex_terrain(current_hex))
+            );
+    panel_remove_line(hex_detail, 2);
+    panel_add_line(hex_detail, 2, terrain);
+
+    int seed = hex_seed(current_hex);
+    char *seedstr = malloc(32);
+    snprintf(seedstr, 32,
+            "  Seed: %d",
+            seed
+            );
+    panel_remove_line(hex_detail, 3);
+    panel_add_line(hex_detail, 3, seedstr);
+
+    free(coordinate);
+    free(terrain);
+    free(seedstr);
+    coordinate = NULL;
+    terrain = NULL;
+    seedstr = NULL;
+    return;
+}
+
+
+void state_destroy(struct State *s)
 {
     geometry_destroy(s->geometry);
     map_destroy(s->map);
@@ -93,115 +151,115 @@ void state_destroy(struct StateManager *s)
 }
 
 
-struct Geometry *state_geometry(const struct StateManager *sm)
+struct Geometry *state_geometry(const struct State *s)
 {
-    return sm->geometry;
+    return s->geometry;
 }
 
 
-struct Map *state_map(const struct StateManager *sm)
+struct Map *state_map(const struct State *s)
 {
-    return sm->map;
+    return s->map;
 }
 
 
-struct UserInterface *state_ui(const struct StateManager *sm)
+struct UserInterface *state_ui(const struct State *s)
 {
-    return sm->ui;
+    return s->ui;
 }
 
 
-enum INPUTMODE state_mode(const struct StateManager *sm)
+enum INPUT_MODE state_mode(const struct State *s)
 {
-    return sm->input_mode;
+    return s->mode;
 }
 
 
-void state_set_mode(struct StateManager *sm, enum INPUTMODE mode)
+void state_set_mode(struct State *s, enum INPUT_MODE mode)
 {
-    sm->input_mode = mode;
+    s->mode = mode;
 }
 
 
 
-key state_currkey(struct StateManager *sm)
+key state_currkey(struct State *s)
 {
-    return sm->currkey;
+    return s->currkey;
 }
 
 
-void state_set_currkey(struct StateManager *sm, key k)
+void state_set_currkey(struct State *s, key k)
 {
-    sm->currkey = k;
+    s->currkey = k;
 }
 
 
-bool state_quit(struct StateManager *sm)
+bool state_quit(struct State *s)
 {
-    return sm->quit;
+    return s->quit;
 }
 
 
-void state_set_quit(struct StateManager *sm, bool quit)
+void state_set_quit(struct State *s, bool quit)
 {
-    sm->quit = quit;
+    s->quit = quit;
 }
 
 
-enum UI_COLOUR state_colour(struct StateManager *sm)
+enum UI_COLOUR state_colour(struct State *s)
 {
-    return sm->colour;
+    return s->colour;
 }
 
 
-void state_set_colour(struct StateManager *sm, enum UI_COLOUR colour)
+void state_set_colour(struct State *s, enum UI_COLOUR colour)
 {
-    sm->colour = colour;
+    s->colour = colour;
 }
 
 
-bool state_await(struct StateManager *sm)
+bool state_await(struct State *s)
 {
-    return sm->await;
+    return s->await;
 }
 
 
-void state_set_await(struct StateManager *sm, bool await)
+void state_set_await(struct State *s, bool await)
 {
-    sm->await = await;
+    s->await = await;
 }
 
 
-char *state_charbuf(struct StateManager *sm)
+char *state_charbuf(struct State *s)
 {
-    return sm->charbuf;
+    return s->charbuf;
 }
 
 
-void state_reset_charbuf(struct StateManager *sm)
+void state_reset_charbuf(struct State *s)
 {
-    memset(sm->charbuf, 0, STATE_CHARBUF_LEN);
-    sm->nextchar = sm->charbuf;
+    memset(s->charbuf, 0, STATE_CHARBUF_LEN);
+    s->nextchar = s->charbuf;
 }
 
 
-void state_reset_nextchar(struct StateManager *sm)
+void state_reset_nextchar(struct State *s)
 {
-    if (sm->nextchar == sm->charbuf) {
+    if (s->nextchar == s->charbuf) {
         return;
     }
-    sm->nextchar--;
-    *(sm->nextchar) = 0;
+    s->nextchar--;
+    *(s->nextchar) = 0;
 }
 
 
-void state_set_nextchar(struct StateManager *sm, char c)
+void state_set_nextchar(struct State *s, char c)
 {
-    if (sm->nextchar - sm->charbuf >= STATE_CHARBUF_LEN) {
+    if (s->nextchar - s->charbuf >= STATE_CHARBUF_LEN) {
         return;
     }
-    *(sm->nextchar) = c;
-    sm->nextchar++;
+    *(s->nextchar) = c;
+    s->nextchar++;
 }
 
 
@@ -210,4 +268,33 @@ enum UI_COLOUR state_colour_test(void)
     return (has_colors())
         ? ((can_change_color()) ? COLOUR_MANY : COLOUR_SOME)
         : COLOUR_NONE;
+}
+
+
+const char *state_mode_name(const struct State *s)
+{
+    switch (state_mode(s)) {
+        case INPUT_MODE_NAVIGATE:
+            return modestr_navigate;
+        case INPUT_MODE_TERRAIN:
+            return modestr_terrain;
+        case INPUT_MODE_COMMAND:
+            return modestr_command;
+        default:
+            return modestr_unknown;
+    }
+}
+
+int state_mode_colour(const struct State *s)
+{
+    switch (state_mode(s)) {
+        case INPUT_MODE_NAVIGATE:
+            return COLOR_WHITE;
+        case INPUT_MODE_TERRAIN:
+            return COLOR_GREEN;
+        case INPUT_MODE_COMMAND:
+            return COLOR_RED;
+        default:
+            return COLOR_WHITE;
+    }
 }

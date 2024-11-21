@@ -17,3 +17,4 @@
 [ ] grid.c L81  separate struct Tile containing all terrain-like data, for nullability 
 [ ] grid.c L411 a map-native implementation of map_insert 
 [ ] grid.c L440 a map-natrve implementation of map_create_neighbours 
+[ ] escape key exits from any mode to NAV

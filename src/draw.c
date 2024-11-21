@@ -3,6 +3,11 @@
 #include <math.h>
 
 #include "include/draw.h"
+#include "include/geometry.h"
+#include "include/grid.h"
+#include "include/interface.h"
+#include "include/panel.h"
+#include "include/state.h"
 #include "include/terrain.h"
 
 
@@ -190,7 +195,7 @@ void draw_map(struct Geometry *g, struct Map *map)
 
 void draw_ui(struct UserInterface *ui)
 {
-    for (int p=0; p<UI_NUM_PANELS; p++) {
+    for (int p=0; p<NUM_UI_PANELS; p++) {
         if (ui_show(ui, p)) {
             draw_panel(ui_panel(ui, p));
         }
@@ -199,14 +204,50 @@ void draw_ui(struct UserInterface *ui)
 }
 
 
-void draw_screen(struct Geometry *g, struct Map *map, struct UserInterface *ui)
+void draw_statusline(struct State *s)
 {
-    erase();
+    int r0 = geometry_rows(state_geometry(s))-1,
+        c0 = 0,
+        w  = geometry_cols(state_geometry(s))-1;
 
-    draw_map(g, map);
+    mvhline(r0, c0, ' ', w);
+    attron(COLOR_PAIR(state_mode_colour(s)));
+    mvaddstr(r0, c0+1, state_mode_name(s));
+    attroff(COLOR_PAIR(state_mode_colour(s)));
+
+    switch (state_mode(s)) {
+        case INPUT_MODE_COMMAND:
+            addch(' ');
+            addch(':');
+            addstr(state_charbuf(s));
+            break;
+        case INPUT_MODE_TERRAIN:
+            addch(' ');
+            attron(COLOR_PAIR(COLOR_YELLOW));
+            for (const char *c = terrain_statusline(); *c != '\0'; c++) {
+                if (*c == ' ') {
+                    attron(COLOR_PAIR(COLOR_YELLOW));
+                } else if (*c == ':') {
+                    attroff(COLOR_PAIR(COLOR_YELLOW));
+                }
+                addch(*c);
+            }
+            break;
+        default:
+            break;
+    }
+
+    return;
+}
+
+
+void draw_state(struct State *s)
+{
+    struct Geometry *g = state_geometry(s);
+
+    draw_map(g, state_map(s));
     draw_reticule(g);
-    draw_ui(ui);
-
-    refresh();
+    draw_ui(state_ui(s));
+    draw_statusline(s);
     return;
 }
