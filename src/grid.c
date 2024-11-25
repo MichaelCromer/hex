@@ -343,7 +343,7 @@ void map_destroy(struct Map *m)
 }
 
 
-struct Coordinate *map_coordinate(const struct Map *m)
+struct Coordinate *map_curr_coordinate(const struct Map *m)
 {
     return m->curr->coordinate;
 }
@@ -358,6 +358,12 @@ enum TERRAIN map_curr_terrain(const struct Map *m)
 struct Hex *map_curr(const struct Map *m)
 {
     return m->curr;
+}
+
+
+void map_set_terrain(struct Map *m, enum TERRAIN t)
+{
+    hex_set_terrain(map_curr(m), t);
 }
 
 
@@ -425,7 +431,7 @@ void map_insert(struct Map *m, struct Hex *h)
 
 void map_step(struct Map *m, enum DIRECTION d)
 {
-    struct Coordinate *target = coordinate_duplicate(m->curr->coordinate);
+    struct Coordinate *target = coordinate_duplicate(map_curr_coordinate(m));
     coordinate_shift(target, d);
     map_goto(m, target);
     coordinate_destroy(target);
@@ -445,18 +451,13 @@ struct Hex *map_neighbour(struct Map *m, enum DIRECTION d)
 
 
 /* TODO a map-natrve implementation of map_create_neighbours */
-void map_create_neighbours(struct Map *m)
+void map_create_neighbours(struct Map *m, struct Coordinate *c)
 {
-    hex_create_neighbours(&(m->root), m->curr);
-    return;
-}
-
-
-/* paint terrain, creates neighbours if not already */
-void map_paint(struct Map *m, enum TERRAIN t)
-{
-    if (map_curr_terrain(m) == TERRAIN_UNKNOWN) {
-        map_create_neighbours(m);
+    struct Hex *target = map_find(m, c);
+    if (!target) {
+        return;
     }
-    hex_set_terrain(m->curr, t);
+
+    hex_create_neighbours(&(m->root), target);
+    return;
 }

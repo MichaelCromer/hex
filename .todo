@@ -18,3 +18,5 @@
 [ ] grid.c L411 a map-native implementation of map_insert 
 [ ] grid.c L440 a map-natrve implementation of map_create_neighbours 
 [ ] escape key exits from any mode to NAV
+[ ] add state mode colour and other ui info into the ui struct
+[ ] make state charbuf its own commandline parsing struct

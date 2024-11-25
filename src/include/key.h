@@ -6,12 +6,14 @@
 #include "enum.h"
 
 #define         KEY_TOGGLE_QUIT 'q'
-#define      KEY_TOGGLE_TERRAIN 'T'
+
+#define        KEY_MODE_TERRAIN 'T'
+#define  KEY_MODE_AWAIT_TERRAIN 't'
+#define        KEY_MODE_COMMAND ':'
+
 #define       KEY_TOGGLE_DETAIL 'j'
 #define     KEY_TOGGLE_RETICULE 'x'
-#define      KEY_TOGGLE_COMMAND ':'
 
-#define       KEY_AWAIT_TERRAIN 't'
 
 #define                  KEY_EE 'k'
 #define                  KEY_NE 'i'
@@ -40,10 +42,13 @@
 
 typedef int key;
 
-enum DIRECTION key_direction(char ch);
-bool key_is_direction(char ch);
-bool key_is_special(char ch);
-enum TERRAIN key_terrain(char ch);
-enum TERRAIN key_is_terrain(char ch);
+bool key_is_direction(key k);
+bool key_is_special(key k);
+bool key_is_terrain(key k);
+bool key_is_mode(key k);
+
+enum DIRECTION key_direction(key k);
+enum TERRAIN key_terrain(key k);
+enum INPUT_MODE key_mode(key k);
 
 #endif

@@ -9,7 +9,7 @@ struct State;
 
 struct State *state_create(void);
 void state_initialise(struct State *s, WINDOW *win);
-void state_update(struct State *s);
+void state_update(struct State *s, key c);
 void state_destroy(struct State *s);
 struct Geometry *state_geometry(const struct State *s);
 struct Map *state_map(const struct State *s);

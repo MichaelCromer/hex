@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/action.h"
 #include "include/enum.h"
 #include "include/geometry.h"
 #include "include/grid.h"
@@ -96,45 +97,26 @@ void state_initialise(struct State *s, WINDOW *win)
 }
 
 
-void state_update(struct State *s)
+void state_update(struct State *s, key c)
 {
-    struct Hex *current_hex = map_curr(state_map(s));
+    switch (state_mode(s)) {
+        case INPUT_MODE_CAPTURE:
+            action_capture(s, c);
+            break;
+        case INPUT_MODE_NAVIGATE:
+            action_navigate(s, c);
+            break;
+        case INPUT_MODE_TERRAIN:
+            action_terrain(s, c);
+            break;
+        case INPUT_MODE_COMMAND:
+            action_command(s, c);
+            break;
+        case INPUT_MODE_NONE:
+        default:
+            break;
+    }
 
-    /* TODO this is ridiculous as written here */
-    struct Panel *hex_detail = ui_panel(state_ui(s), PANEL_DETAIL);
-    char *coordinate = malloc(32); /* TODO def an appropriate length */
-    snprintf(coordinate, 32,
-            "    (%d, %d, %d)",
-            hex_p(current_hex),
-            hex_q(current_hex),
-            hex_r(current_hex)
-            );
-    panel_remove_line(hex_detail, 1);
-    panel_add_line(hex_detail, 1, coordinate);
-
-    char *terrain = malloc(32);
-    snprintf(terrain, 32,
-            "    Terrain: %s",
-            terrain_name(hex_terrain(current_hex))
-            );
-    panel_remove_line(hex_detail, 2);
-    panel_add_line(hex_detail, 2, terrain);
-
-    int seed = hex_seed(current_hex);
-    char *seedstr = malloc(32);
-    snprintf(seedstr, 32,
-            "  Seed: %d",
-            seed
-            );
-    panel_remove_line(hex_detail, 3);
-    panel_add_line(hex_detail, 3, seedstr);
-
-    free(coordinate);
-    free(terrain);
-    free(seedstr);
-    coordinate = NULL;
-    terrain = NULL;
-    seedstr = NULL;
     return;
 }
 
