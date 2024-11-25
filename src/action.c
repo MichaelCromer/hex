@@ -5,22 +5,24 @@
 #include "include/interface.h"
 
 
-void action_move(struct Map *m, enum DIRECTION d, int steps)
+void action_move(struct State *s, enum DIRECTION d, int steps)
 {
     for (int i = steps; i > 0; i--) {
-        map_step(m, d);
+        map_step(state_map(s), d);
     }
 
+    ui_update_detail(state_ui(s), map_curr(state_map(s)));
     return;
 }
 
 
-void action_paint(struct Map *m, enum TERRAIN t)
+void action_paint(struct State *s, enum TERRAIN t)
 {
-    if (map_curr_terrain(m) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
-        map_create_neighbours(m, map_curr_coordinate(m));
+    if (map_curr_terrain(state_map(s)) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
+        map_create_neighbours(state_map(s), map_curr_coordinate(state_map(s)));
     }
-    map_set_terrain(m, t);
+    map_set_terrain(state_map(s), t);
+    ui_update_detail(state_ui(s), map_curr(state_map(s)));
 }
 
 
@@ -41,7 +43,7 @@ void action_capture(struct State *s, key k)
 void action_navigate(struct State *s, key k)
 {
     if (key_is_direction(k)) {
-        action_move(state_map(s), key_direction(k), (key_is_special(k)) ? 3 : 1);
+        action_move(s, key_direction(k), (key_is_special(k)) ? 3 : 1);
         return;
     }
 
@@ -62,6 +64,14 @@ void action_navigate(struct State *s, key k)
         return;
     }
 
+    switch (k) {
+        case KEY_TOGGLE_DETAIL:
+            ui_toggle(state_ui(s), PANEL_DETAIL);
+            return;
+        default:
+            break;
+    }
+
     return;
 }
 
@@ -71,25 +81,25 @@ void action_terrain(struct State *s, key k)
     if (state_await(s)) {
         state_set_await(s, false);
         if (key_is_terrain(k)) {
-            action_paint(state_map(s), key_terrain(k));
+            action_paint(s, key_terrain(k));
         }
         state_set_mode(s, INPUT_MODE_NAVIGATE);
         return;
     }
 
     if (key_is_terrain(k)) {
-        action_paint(state_map(s), key_terrain(k));
+        action_paint(s, key_terrain(k));
         return;
     }
 
     if (key_is_direction(k)) {
         enum DIRECTION d = key_direction(k);
         enum TERRAIN t = map_curr_terrain(state_map(s));
-        action_move(state_map(s), d, 1);
+        action_move(s, d, 1);
 
         if (key_is_special(k)) {
             if (t != TERRAIN_UNKNOWN) {
-                action_paint(state_map(s), t);
+                action_paint(s, t);
             }
         }
     }

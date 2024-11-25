@@ -3,9 +3,9 @@
 #include "include/key.h"
 
 
-enum DIRECTION key_direction(char ch)
+enum DIRECTION key_direction(key k)
 {
-    switch (tolower(ch)) {
+    switch (tolower(k)) {
         case KEY_EE:
             return EAST;
         case KEY_NE:
@@ -19,14 +19,15 @@ enum DIRECTION key_direction(char ch)
         case KEY_SE:
             return SOUTHEAST;
         default:
-            return DIRECTION_NONE;
+            break;
     }
+    return DIRECTION_NONE;
 }
 
 
-bool key_is_direction(char ch)
+bool key_is_direction(key k)
 {
-    switch (tolower(ch)) {
+    switch (tolower(k)) {
         case KEY_EE:
         case KEY_NE:
         case KEY_NW:
@@ -35,14 +36,15 @@ bool key_is_direction(char ch)
         case KEY_SE:
             return true;
         default:
-            return false;
+            break;
     }
+    return false;
 }
 
 
-bool key_is_special(char ch)
+bool key_is_special(key k)
 {
-    switch (ch) {
+    switch (k) {
         case KEY_EE_SPECIAL:
         case KEY_NE_SPECIAL:
         case KEY_NW_SPECIAL:
@@ -51,14 +53,15 @@ bool key_is_special(char ch)
         case KEY_SE_SPECIAL:
             return true;
         default:
-            return false;
+            break;
     }
+    return false;
 }
 
 
-enum TERRAIN key_terrain(char ch)
+enum TERRAIN key_terrain(key k)
 {
-    switch (ch) {
+    switch (k) {
         case KEY_TERRAIN_UNKNOWN:
             return TERRAIN_UNKNOWN;
         case KEY_TERRAIN_WATER:
@@ -80,14 +83,15 @@ enum TERRAIN key_terrain(char ch)
         case KEY_TERRAIN_TUNDRA:
             return TERRAIN_TUNDRA;
         default:
-            return TERRAIN_NONE;
+            break;
     }
+    return TERRAIN_NONE;
 }
 
 
-enum TERRAIN key_is_terrain(char ch)
+bool key_is_terrain(key k)
 {
-    switch (ch) {
+    switch (k) {
         case KEY_TERRAIN_UNKNOWN:
         case KEY_TERRAIN_WATER:
         case KEY_TERRAIN_MOUNTAINS:
@@ -100,6 +104,36 @@ enum TERRAIN key_is_terrain(char ch)
         case KEY_TERRAIN_TUNDRA:
             return true;
         default:
-            return false;
+            break;
     }
+    return false;
+}
+
+
+bool key_is_mode(key k)
+{
+    switch (k) {
+        case KEY_MODE_COMMAND:
+        case KEY_MODE_AWAIT_TERRAIN:
+        case KEY_MODE_TERRAIN:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+
+enum INPUT_MODE key_mode(key k)
+{
+    switch (k) {
+        case KEY_MODE_COMMAND:
+            return INPUT_MODE_COMMAND;
+        case KEY_MODE_AWAIT_TERRAIN:
+        case KEY_MODE_TERRAIN:
+            return INPUT_MODE_NAVIGATE;
+        default:
+            break;
+    }
+    return INPUT_MODE_NONE;
 }

@@ -1,7 +1,10 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "include/geometry.h"
+#include "include/grid.h"
 #include "include/panel.h"
+#include "include/terrain.h"
 #include "include/interface.h"
 
 
@@ -34,6 +37,30 @@ void ui_initialise(struct UserInterface *ui, struct Geometry *g)
     ui->panel[PANEL_DETAIL] = panel_hex_detail();
     panel_centre(ui->panel[PANEL_SPLASH], geometry_rmid(g), geometry_cmid(g));
     ui->show[PANEL_SPLASH] = true;
+
+    return;
+}
+
+
+void ui_update_detail(struct UserInterface *ui, struct Hex *h)
+{
+    struct Panel *detail = ui_panel(ui, PANEL_DETAIL);
+    char buf[32];
+
+    panel_remove_line(detail, 1);
+    memset(buf, 0 ,32);
+    snprintf(buf, 32, "    (%d, %d, %d)", hex_p(h), hex_q(h), hex_r(h));
+    panel_add_line(detail, 1, buf);
+
+    panel_remove_line(detail, 2);
+    memset(buf, 0 ,32);
+    snprintf(buf, 32, "    Terrain: %s", terrain_name(hex_terrain(h)));
+    panel_add_line(detail, 2, buf);
+
+    panel_remove_line(detail, 3);
+    memset(buf, 0 ,32);
+    snprintf(buf, 32, "  Seed: %d", hex_seed(h));
+    panel_add_line(detail, 3, buf);
 
     return;
 }

@@ -54,8 +54,10 @@ struct Hex *map_find(const struct Map *m, const struct Coordinate *c);
 void map_goto(struct Map *m, const struct Coordinate *c);
 void map_insert(struct Map *m, struct Hex *h);
 struct Hex *map_curr(const struct Map *m);
+void map_set_terrain(struct Map *m, enum TERRAIN t);
 void map_step(struct Map *m, enum DIRECTION d);
-void map_paint(struct Map *m, enum TERRAIN t);
 enum TERRAIN map_curr_terrain(const struct Map *m);
+void map_create_neighbours(struct Map *m, struct Coordinate *c);
+struct Coordinate *map_curr_coordinate(const struct Map *m);
 
 #endif
