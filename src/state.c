@@ -30,7 +30,7 @@ struct State {
     char charbuf[STATE_CHARBUF_LEN];
     char *nextchar;
 
-    key currkey;
+    enum KEY currkey;
     enum INPUT_MODE mode;
 
     WINDOW *win;
@@ -97,26 +97,33 @@ void state_initialise(struct State *s, WINDOW *win)
 }
 
 
-void state_update(struct State *s, key c)
+void state_update(struct State *s)
 {
-    switch (state_mode(s)) {
-        case INPUT_MODE_CAPTURE:
-            action_capture(s, c);
-            break;
-        case INPUT_MODE_NAVIGATE:
-            action_navigate(s, c);
-            break;
-        case INPUT_MODE_TERRAIN:
-            action_terrain(s, c);
-            break;
-        case INPUT_MODE_COMMAND:
-            action_command(s, c);
-            break;
-        case INPUT_MODE_NONE:
-        default:
-            break;
+    int c = wgetch(state_window(s));
+    enum KEY k = key_parse(state_mode(s), c);
+
+    if (state_mode(s) == INPUT_MODE_COMMAND) {
+        /* do command stuff here */
+    }
+    
+    if (key_is_move(k)) {
+        if (key_is_drag(k)) {
+            action_drag(s, key_direction(k));
+        } else {
+            action_move(s, key_direction(k), key_move_amount(k));
+        }
+    } else if (key_is_paint(k)) {
+        action_paint(s, key_terrain(k));
+    } else if (key_is_mode(k)) {
+        if (key_is_await(k)) {
+            state_set_await(s, true);
+        }
+        state_set_mode(s, key_mode(k));
     }
 
+    if (state_await(s)) {
+        state_set_await(s, false);
+    }
     return;
 }
 
@@ -164,13 +171,13 @@ void state_set_mode(struct State *s, enum INPUT_MODE mode)
 
 
 
-key state_currkey(struct State *s)
+enum KEY state_currkey(struct State *s)
 {
     return s->currkey;
 }
 
 
-void state_set_currkey(struct State *s, key k)
+void state_set_currkey(struct State *s, enum KEY k)
 {
     s->currkey = k;
 }
@@ -279,4 +286,10 @@ int state_mode_colour(const struct State *s)
         default:
             return COLOR_WHITE;
     }
+}
+
+
+WINDOW *state_window(const struct State *s)
+{
+    return s->win;
 }

@@ -34,7 +34,7 @@ int main(void)
         draw_state(s);
         refresh();
 
-        state_update(s, getch());
+        state_update(s);
     }
 
     state_destroy(s);

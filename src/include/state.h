@@ -9,7 +9,7 @@ struct State;
 
 struct State *state_create(void);
 void state_initialise(struct State *s, WINDOW *win);
-void state_update(struct State *s, key c);
+void state_update(struct State *s);
 void state_destroy(struct State *s);
 struct Geometry *state_geometry(const struct State *s);
 struct Map *state_map(const struct State *s);
@@ -26,10 +26,10 @@ bool state_await(struct State *s);
 void state_set_await(struct State *s, bool await);
 bool state_quit(struct State *s);
 void state_set_quit(struct State *s, bool quit);
-key state_currkey(struct State *s);
-void state_set_currkey(struct State *s, key k);
-void state_set_mode(struct State *s, enum INPUT_MODE mode);
+enum KEY state_currkey(struct State *s);
+void state_set_currkey(struct State *s, enum KEY k);
 int state_mode_colour(const struct State *s);
 const char *state_mode_name(const struct State *s);
+WINDOW *state_window(const struct State *s);
 
 #endif
