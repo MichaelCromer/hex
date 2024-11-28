@@ -121,6 +121,7 @@ void action_command(struct State *s, key k)
 
         /* send command to be parsed */
         case KEY_ENTER:
+        case 27:
         case '\n':
             if (*(state_charbuf(s)) == KEY_TOGGLE_QUIT) {
                 state_set_quit(s, true);

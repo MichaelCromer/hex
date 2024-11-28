@@ -12,6 +12,7 @@ void initialise(void)
     keypad(stdscr, TRUE);       /* capture special keys                             */
     intrflush(stdscr, FALSE);   /* interpret screen changes from ssigs correctly    */
     curs_set(0);                /* disable cursor                                   */
+    ESCDELAY = 10;
 }
 
 
@@ -34,7 +35,7 @@ int main(void)
         draw_state(s);
         refresh();
 
-        state_update(s, getch());
+        state_update(s);
     }
 
     state_destroy(s);

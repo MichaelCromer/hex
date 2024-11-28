@@ -97,8 +97,10 @@ void state_initialise(struct State *s, WINDOW *win)
 }
 
 
-void state_update(struct State *s, key c)
+void state_update(struct State *s)
 {
+    int c = wgetch(state_window(s));
+
     switch (state_mode(s)) {
         case INPUT_MODE_CAPTURE:
             action_capture(s, c);
@@ -203,6 +205,12 @@ void state_set_colour(struct State *s, enum UI_COLOUR colour)
 bool state_await(struct State *s)
 {
     return s->await;
+}
+
+
+WINDOW *state_window(struct State *s)
+{
+    return s->win;
 }
 
 

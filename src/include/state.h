@@ -9,7 +9,7 @@ struct State;
 
 struct State *state_create(void);
 void state_initialise(struct State *s, WINDOW *win);
-void state_update(struct State *s, key c);
+void state_update(struct State *s);
 void state_destroy(struct State *s);
 struct Geometry *state_geometry(const struct State *s);
 struct Map *state_map(const struct State *s);
@@ -23,6 +23,7 @@ void state_set_nextchar(struct State *s, char c);
 enum UI_COLOUR state_colour(struct State *s);
 void state_set_colour(struct State *s, enum UI_COLOUR colour);
 bool state_await(struct State *s);
+WINDOW *state_window(struct State *s);
 void state_set_await(struct State *s, bool await);
 bool state_quit(struct State *s);
 void state_set_quit(struct State *s, bool quit);
