@@ -75,6 +75,12 @@ void commandline_destroy(struct Commandline *c)
 }
 
 
+size_t commandline_len(struct Commandline *c)
+{
+    return c->len;
+}
+
+
 const char *commandline_str(struct Commandline *c)
 {
     return c->buffer;
@@ -87,7 +93,8 @@ void commandline_putch(struct Commandline *c, char ch)
         return;
     }
 
-    c->buffer[++(c->len)] = ch;
+    c->buffer[(c->len)] = ch;
+    (c->len)++;
 }
 
 
@@ -97,7 +104,8 @@ char commandline_popch(struct Commandline *c)
         return '\0';
     }
     char ch = c->buffer[(c->len)-1];
-    c->buffer[(c->len)--] = '\0';
+    (c->len)--;
+    c->buffer[(c->len)] = '\0';
     return ch;
 }
 

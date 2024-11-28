@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "include/action.h"
+#include "include/commandline.h"
 #include "include/interface.h"
 
 
@@ -117,16 +118,21 @@ void action_terrain(struct State *s, key k)
 
 void action_command(struct State *s, key k)
 {
+    struct Command *c = NULL;
     switch (k) {
 
         /* send command to be parsed */
         case KEY_ENTER:
         case 27:
         case '\n':
-            if (*(state_charbuf(s)) == KEY_TOGGLE_QUIT) {
-                state_set_quit(s, true);
+            c = commandline_parse(state_commandline(s));
+            switch (command_type(c)) {
+                case COMMAND_TYPE_QUIT:
+                    state_set_quit(s, true);
+                default:
+                    break;
             }
-            state_reset_charbuf(s);
+            commandline_reset(state_commandline(s));
             state_set_mode(s, INPUT_MODE_NAVIGATE);
             return;
 
@@ -134,16 +140,16 @@ void action_command(struct State *s, key k)
         case KEY_BACKSPACE:
         case '\b':
         case 127:
-            if (strlen(state_charbuf(s)) == 0) {
-                state_reset_charbuf(s);
+            if (commandline_len(state_commandline(s)) <= 0) {
+                commandline_reset(state_commandline(s));
                 state_set_mode(s, INPUT_MODE_NAVIGATE);
             }
-            state_reset_nextchar(s);
+            commandline_popch(state_commandline(s));
             return;
 
         /* add char to buffer */
         default:
-            state_set_nextchar(s, k);
+            commandline_putch(state_commandline(s), state_currkey(s));
             break;
     }
 

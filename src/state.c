@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "include/action.h"
+#include "include/commandline.h"
 #include "include/enum.h"
 #include "include/geometry.h"
 #include "include/grid.h"
@@ -27,9 +28,6 @@ struct State {
     bool await;
     bool reticule;
 
-    char charbuf[STATE_CHARBUF_LEN];
-    char *nextchar;
-
     key currkey;
     enum INPUT_MODE mode;
 
@@ -39,6 +37,7 @@ struct State {
     struct Geometry *geometry;
     struct Map *map;
     struct UserInterface *ui;
+    struct Commandline *cmd;
 };
 
 
@@ -50,8 +49,6 @@ struct State *state_create(void)
     s->await = false;
     s->reticule = false;
     s->currkey = 0;
-    memset(s->charbuf, 0, STATE_CHARBUF_LEN);
-    s->nextchar = s->charbuf;
     s->mode = INPUT_MODE_NONE;
     s->colour = COLOUR_NONE;
     s->win = NULL;
@@ -59,6 +56,7 @@ struct State *state_create(void)
     s->geometry = geometry_create();
     s->ui = ui_create();
     s->map = map_create();
+    s->cmd = commandline_create();
 
     return s;
 }
@@ -99,20 +97,20 @@ void state_initialise(struct State *s, WINDOW *win)
 
 void state_update(struct State *s)
 {
-    int c = wgetch(state_window(s));
+    state_set_currkey(s, wgetch(state_window(s)));
 
     switch (state_mode(s)) {
         case INPUT_MODE_CAPTURE:
-            action_capture(s, c);
+            action_capture(s, state_currkey(s));
             break;
         case INPUT_MODE_NAVIGATE:
-            action_navigate(s, c);
+            action_navigate(s, state_currkey(s));
             break;
         case INPUT_MODE_TERRAIN:
-            action_terrain(s, c);
+            action_terrain(s, state_currkey(s));
             break;
         case INPUT_MODE_COMMAND:
-            action_command(s, c);
+            action_command(s, state_currkey(s));
             break;
         case INPUT_MODE_NONE:
         default:
@@ -128,6 +126,7 @@ void state_destroy(struct State *s)
     geometry_destroy(s->geometry);
     map_destroy(s->map);
     ui_destroy(s->ui);
+    commandline_destroy(s->cmd);
 
     free(s);
     s = NULL;
@@ -153,6 +152,12 @@ struct UserInterface *state_ui(const struct State *s)
 }
 
 
+struct Commandline *state_commandline(const struct State *s)
+{
+    return s->cmd;
+}
+
+
 enum INPUT_MODE state_mode(const struct State *s)
 {
     return s->mode;
@@ -163,7 +168,6 @@ void state_set_mode(struct State *s, enum INPUT_MODE mode)
 {
     s->mode = mode;
 }
-
 
 
 key state_currkey(struct State *s)
@@ -217,39 +221,6 @@ WINDOW *state_window(struct State *s)
 void state_set_await(struct State *s, bool await)
 {
     s->await = await;
-}
-
-
-char *state_charbuf(struct State *s)
-{
-    return s->charbuf;
-}
-
-
-void state_reset_charbuf(struct State *s)
-{
-    memset(s->charbuf, 0, STATE_CHARBUF_LEN);
-    s->nextchar = s->charbuf;
-}
-
-
-void state_reset_nextchar(struct State *s)
-{
-    if (s->nextchar == s->charbuf) {
-        return;
-    }
-    s->nextchar--;
-    *(s->nextchar) = 0;
-}
-
-
-void state_set_nextchar(struct State *s, char c)
-{
-    if (s->nextchar - s->charbuf >= STATE_CHARBUF_LEN) {
-        return;
-    }
-    *(s->nextchar) = c;
-    s->nextchar++;
 }
 
 

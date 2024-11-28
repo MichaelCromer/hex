@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include <math.h>
 
+#include "include/commandline.h"
 #include "include/draw.h"
 #include "include/geometry.h"
 #include "include/grid.h"
@@ -219,7 +220,7 @@ void draw_statusline(struct State *s)
         case INPUT_MODE_COMMAND:
             addch(' ');
             addch(':');
-            addstr(state_charbuf(s));
+            addstr(commandline_str(state_commandline(s)));
             break;
         case INPUT_MODE_TERRAIN:
             addch(' ');
