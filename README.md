@@ -18,10 +18,10 @@ executable is `./build/hex` for you to use as you see fit.
 [X] navigate tiles
 [X] paint terrain
 [X] simple colours and ui
+[X] 'command-line' interaction mode (for meta controls; quit/write/edit/help/etc)
 
 ### IN PROGRESS
 
-[ ] 'command-line' interaction mode (for meta controls; quit/write/edit/help/etc)
 [ ] save/load map files
 
 ### Roadmap to 1.0
@@ -35,11 +35,13 @@ Definite targets
 [ ] paint roads and rivers w/appropriate interaction mode
     - along hex edges for rivers
     - between hex centres/through hex edges for roads
+    - requires thoughtful approach to data structure -- per-tile booleans simple, but 6x
+    memory usage; per-edge coordinate storage simpler, but requires Coordinate
+    reimplementation
 [ ] expanded commands and options
     - '?' for contextual help/commands, :h[elp] for more in-depth help viewer
     - repeat/undo last action
-    - place 'location'
-
+    - place 'location' (town, dungeon, feature)
 [ ] full/adaptive colour
 
 ### Midterm Goals
@@ -47,10 +49,11 @@ Definite targets
 Subject to change
 
 [ ] minimap overlay option
-[ ] deep map zoom (using logtree structure)
+[ ] map layer changes (using logtree structure) for rapid traversal
 [ ] naming of map features / customisable map data
+[ ] placing of map marks / jump-to locations
 [ ] searchable locations
-[ ] single tile focus
+[ ] single tile focus deep zoom
 [ ] set/goto map marks
 
 ### Longterm Goals
