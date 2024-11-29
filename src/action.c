@@ -107,6 +107,7 @@ void action_terrain(struct State *s, key k)
 
     switch (k) {
         case KEY_MODE_TERRAIN:
+        case KEY_ESCAPE:
             state_set_mode(s, INPUT_MODE_NAVIGATE);
             return;
         default:
@@ -120,10 +121,13 @@ void action_command(struct State *s, key k)
 {
     struct Command *c = NULL;
     switch (k) {
+        case KEY_ESCAPE:
+            commandline_reset(state_commandline(s));
+            state_set_mode(s, INPUT_MODE_NAVIGATE);
+            return;
 
         /* send command to be parsed */
         case KEY_ENTER:
-        case 27:
         case '\n':
             c = commandline_parse(state_commandline(s));
             switch (command_type(c)) {
@@ -134,6 +138,7 @@ void action_command(struct State *s, key k)
             }
             commandline_reset(state_commandline(s));
             state_set_mode(s, INPUT_MODE_NAVIGATE);
+            command_destroy(c);
             return;
 
         /* delete character from command line */
