@@ -37,7 +37,7 @@ void action_capture(struct State *s, key k)
         ui_toggle(state_ui(s), PANEL_SPLASH);
     }
 
-    state_set_mode(s, INPUT_MODE_NAVIGATE);
+    state_set_mode(s, MODE_NAVIGATE);
 }
 
 
@@ -51,13 +51,13 @@ void action_navigate(struct State *s, key k)
     if (key_is_mode(k)) {
         switch (k) {
             case KEY_MODE_COMMAND:
-                state_set_mode(s, INPUT_MODE_COMMAND);
+                state_set_mode(s, MODE_COMMAND);
                 break;
             case KEY_MODE_AWAIT_TERRAIN:
                 state_set_await(s, true);
                 /* fall through */
             case KEY_MODE_TERRAIN:
-                state_set_mode(s, INPUT_MODE_TERRAIN);
+                state_set_mode(s, MODE_TERRAIN);
                 break;
             default:
                 break;
@@ -84,7 +84,7 @@ void action_terrain(struct State *s, key k)
         if (key_is_terrain(k)) {
             action_paint(s, key_terrain(k));
         }
-        state_set_mode(s, INPUT_MODE_NAVIGATE);
+        state_set_mode(s, MODE_NAVIGATE);
         return;
     }
 
@@ -108,7 +108,7 @@ void action_terrain(struct State *s, key k)
     switch (k) {
         case KEY_MODE_TERRAIN:
         case KEY_ESCAPE:
-            state_set_mode(s, INPUT_MODE_NAVIGATE);
+            state_set_mode(s, MODE_NAVIGATE);
             return;
         default:
             break;
@@ -123,7 +123,7 @@ void action_command(struct State *s, key k)
     switch (k) {
         case KEY_ESCAPE:
             commandline_reset(state_commandline(s));
-            state_set_mode(s, INPUT_MODE_NAVIGATE);
+            state_set_mode(s, MODE_NAVIGATE);
             return;
 
         /* send command to be parsed */
@@ -131,13 +131,13 @@ void action_command(struct State *s, key k)
         case '\n':
             c = commandline_parse(state_commandline(s));
             switch (command_type(c)) {
-                case COMMAND_TYPE_QUIT:
+                case COMMAND_QUIT:
                     state_set_quit(s, true);
                 default:
                     break;
             }
             commandline_reset(state_commandline(s));
-            state_set_mode(s, INPUT_MODE_NAVIGATE);
+            state_set_mode(s, MODE_NAVIGATE);
             command_destroy(c);
             return;
 
@@ -147,7 +147,7 @@ void action_command(struct State *s, key k)
         case 127:
             if (commandline_len(state_commandline(s)) <= 0) {
                 commandline_reset(state_commandline(s));
-                state_set_mode(s, INPUT_MODE_NAVIGATE);
+                state_set_mode(s, MODE_NAVIGATE);
             }
             commandline_popch(state_commandline(s));
             return;

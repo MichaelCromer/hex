@@ -141,32 +141,32 @@ const char *modestr_unknown  = "???";
 /*  MODE : Functions */
 
 
-const char *mode_name(enum INPUT_MODE m)
+const char *mode_name(enum MODE m)
 {
     switch (m) {
-        case INPUT_MODE_NAVIGATE:
+        case MODE_NAVIGATE:
             return modestr_navigate;
-        case INPUT_MODE_TERRAIN:
+        case MODE_TERRAIN:
             return modestr_terrain;
-        case INPUT_MODE_ROAD:
+        case MODE_ROAD:
             return modestr_road;
-        case INPUT_MODE_COMMAND:
+        case MODE_COMMAND:
             return modestr_command;
         default:
             return modestr_unknown;
     }
 }
 
-int mode_colour(enum INPUT_MODE m)
+int mode_colour(enum MODE m)
 {
     switch (m) {
-        case INPUT_MODE_NAVIGATE:
+        case MODE_NAVIGATE:
             return COLOR_WHITE;
-        case INPUT_MODE_TERRAIN:
+        case MODE_TERRAIN:
             return COLOR_GREEN;
-        case INPUT_MODE_COMMAND:
+        case MODE_COMMAND:
             return COLOR_RED;
-        case INPUT_MODE_ROAD:
+        case MODE_ROAD:
             return COLOR_YELLOW;
         default:
             return COLOR_WHITE;

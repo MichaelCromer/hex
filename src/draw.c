@@ -154,11 +154,11 @@ void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 
     for (int y=0; y<(n_ver/2); y++) {
         /* pair results in (-1, 2, -1) */
-        coordinate_shift(edge, (y % 2) ? SOUTHWEST : SOUTHEAST);
+        coordinate_shift(edge, (y % 2) ? DIRECTION_SW : DIRECTION_SE);
     }
     for (int x=0; x<(n_hor/2); x++) {
         /* single results in (-1, 0, 1) */
-        coordinate_shift(edge, WEST);
+        coordinate_shift(edge, DIRECTION_WW);
     }
 
     for (int y=0; y<n_ver; y++) {
@@ -172,9 +172,9 @@ void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
                 dr = round(geometry_scale(g) * geometry_aspect(g) * (v - v0));
                 wdraw_hex(win, g, chart, geometry_rmid(g) + dr, geometry_cmid(g) + dc);
             }
-            coordinate_shift(target, EAST);
+            coordinate_shift(target, DIRECTION_EE);
         }
-        coordinate_shift(edge, (y % 2) ? NORTHEAST : NORTHWEST);
+        coordinate_shift(edge, (y % 2) ? DIRECTION_NE : DIRECTION_NW);
     }
 
     coordinate_destroy(edge);
@@ -210,12 +210,12 @@ void wdraw_statusline(WINDOW *win, struct State *s)
     attroff(COLOR_PAIR(mode_colour(state_mode(s))));
 
     switch (state_mode(s)) {
-        case INPUT_MODE_COMMAND:
+        case MODE_COMMAND:
             addch(' ');
             addch(':');
             addstr(commandline_str(state_commandline(s)));
             break;
-        case INPUT_MODE_TERRAIN:
+        case MODE_TERRAIN:
             addch(' ');
             attron(COLOR_PAIR(COLOR_YELLOW));
             for (const char *c = terrain_statusline(); *c != '\0'; c++) {

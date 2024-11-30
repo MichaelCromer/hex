@@ -76,22 +76,22 @@ const struct Coordinate *coordinate_delta(enum DIRECTION d)
 {
     const struct Coordinate *delta = NULL;
     switch (d) {
-        case EAST:
+        case DIRECTION_EE:
             delta = &COORDINATE_DELTA_EE;
             break;
-        case NORTHEAST:
+        case DIRECTION_NE:
             delta = &COORDINATE_DELTA_NE;
             break;
-        case NORTHWEST:
+        case DIRECTION_NW:
             delta = &COORDINATE_DELTA_NW;
             break;
-        case WEST:
+        case DIRECTION_WW:
             delta = &COORDINATE_DELTA_WW;
             break;
-        case SOUTHWEST:
+        case DIRECTION_SW:
             delta = &COORDINATE_DELTA_SW;
             break;
-        case SOUTHEAST:
+        case DIRECTION_SE:
             delta = &COORDINATE_DELTA_SE;
             break;
         default:

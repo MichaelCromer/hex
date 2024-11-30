@@ -17,16 +17,16 @@ enum UI_PANEL {
 };
 
 
-enum INPUT_MODE {
-    INPUT_MODE_NONE,
-    INPUT_MODE_CAPTURE,
-    INPUT_MODE_NAVIGATE,
-    INPUT_MODE_TERRAIN,
-    INPUT_MODE_ROAD,
-    INPUT_MODE_COMMAND
+enum MODE {
+    MODE_NONE,
+    MODE_CAPTURE,
+    MODE_NAVIGATE,
+    MODE_TERRAIN,
+    MODE_ROAD,
+    MODE_COMMAND
 };
-const char *mode_name(enum INPUT_MODE m);
-int mode_colour(enum INPUT_MODE m);
+const char *mode_name(enum MODE m);
+int mode_colour(enum MODE m);
 
 
 #define NUM_TERRAIN 9
@@ -52,13 +52,13 @@ const char *terrain_statusline(void);
 
 #define NUM_DIRECTIONS 6
 enum DIRECTION {
-    EAST,
-    NORTHEAST,
-    NORTHWEST,
-    WEST,
-    SOUTHWEST,
-    SOUTHEAST,
-    DIRECTION_NONE
+    DIRECTION_EE,
+    DIRECTION_NE,
+    DIRECTION_NW,
+    DIRECTION_WW,
+    DIRECTION_SW,
+    DIRECTION_SE,
+    DIRECTION_XX
 };
 
 
@@ -76,15 +76,13 @@ enum CHILDREN {
 };
 
 
-enum COMMAND_TYPE {
-    COMMAND_TYPE_NONE,
-    COMMAND_TYPE_ERROR,
-    COMMAND_TYPE_QUIT,
-    COMMAND_TYPE_WRITE,
-    COMMAND_TYPE_EDIT,
+enum COMMAND {
+    COMMAND_NONE,
+    COMMAND_ERROR,
+    COMMAND_QUIT,
+    COMMAND_WRITE,
+    COMMAND_EDIT,
 };
 
-
-enum DIRECTION direction_opposite(enum DIRECTION d);
 
 #endif 

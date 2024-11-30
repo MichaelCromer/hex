@@ -21,7 +21,7 @@ struct State {
     bool reticule;
 
     key currkey;
-    enum INPUT_MODE mode;
+    enum MODE mode;
 
     WINDOW *win;
     enum UI_COLOUR colour;
@@ -41,7 +41,7 @@ struct State *state_create(void)
     s->await = false;
     s->reticule = false;
     s->currkey = 0;
-    s->mode = INPUT_MODE_NONE;
+    s->mode = MODE_NONE;
     s->colour = COLOUR_NONE;
     s->win = NULL;
 
@@ -57,7 +57,7 @@ struct State *state_create(void)
 void state_initialise(struct State *s, WINDOW *win)
 {
     s->win = win;
-    state_set_mode(s, INPUT_MODE_CAPTURE);
+    state_set_mode(s, MODE_CAPTURE);
 
     /* set up colour */
     enum UI_COLOUR colour = (has_colors() == TRUE)
@@ -91,19 +91,19 @@ void state_update(struct State *s)
     state_set_currkey(s, wgetch(state_window(s)));
 
     switch (state_mode(s)) {
-        case INPUT_MODE_CAPTURE:
+        case MODE_CAPTURE:
             action_capture(s, state_currkey(s));
             break;
-        case INPUT_MODE_NAVIGATE:
+        case MODE_NAVIGATE:
             action_navigate(s, state_currkey(s));
             break;
-        case INPUT_MODE_TERRAIN:
+        case MODE_TERRAIN:
             action_terrain(s, state_currkey(s));
             break;
-        case INPUT_MODE_COMMAND:
+        case MODE_COMMAND:
             action_command(s, state_currkey(s));
             break;
-        case INPUT_MODE_NONE:
+        case MODE_NONE:
         default:
             break;
     }
@@ -149,13 +149,13 @@ struct Commandline *state_commandline(const struct State *s)
 }
 
 
-enum INPUT_MODE state_mode(const struct State *s)
+enum MODE state_mode(const struct State *s)
 {
     return s->mode;
 }
 
 
-void state_set_mode(struct State *s, enum INPUT_MODE mode)
+void state_set_mode(struct State *s, enum MODE mode)
 {
     s->mode = mode;
 }

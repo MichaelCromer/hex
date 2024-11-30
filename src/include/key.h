@@ -49,6 +49,6 @@ bool key_is_mode(key k);
 
 enum DIRECTION key_direction(key k);
 enum TERRAIN key_terrain(key k);
-enum INPUT_MODE key_mode(key k);
+enum MODE key_mode(key k);
 
 #endif
