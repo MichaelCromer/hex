@@ -1,3 +1,4 @@
+[X] grid.c L81  separate struct Tile containing all terrain-like data, for nullability
 [X] make state charbuf its own commandline parsing struct
 [X] Migrate panel and draw to use windows/screens (dubious now)
 [X] escape key exits from any mode to NAV
@@ -16,7 +17,6 @@
 [ ] UX remember last placed terrain
 [ ] UX drag-paint doesn't update last placed terrain?
 [ ] update splash (should only load when no filename passed as cmdline option)
-[ ] grid.c L81  separate struct Tile containing all terrain-like data, for nullability
 [ ] grid.c L411 a map-native implementation of map_insert
 [ ] grid.c L440 a map-natrve implementation of map_create_neighbours
 [ ] add state mode colour and other ui info into the ui struct

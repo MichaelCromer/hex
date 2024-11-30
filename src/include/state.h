@@ -12,7 +12,7 @@ void state_initialise(struct State *s, WINDOW *win);
 void state_update(struct State *s);
 void state_destroy(struct State *s);
 struct Geometry *state_geometry(const struct State *s);
-struct Map *state_map(const struct State *s);
+struct Atlas *state_atlas(const struct State *s);
 struct UserInterface *state_ui(const struct State *s);
 struct Commandline *state_commandline(const struct State *s);
 enum INPUT_MODE state_mode(const struct State *s);

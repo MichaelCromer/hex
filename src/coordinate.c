@@ -1,18 +1,10 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "include/coordinate.h"
 
-/*
- *  struct Coordinate
- *
- *  (p, q, r) give position in hexagonal grid using cube coordinates
- *      => (p + q + r) == 0
- *
- *  m gives 'magnitude', or degree in nonary tree
- *
- */
 
 struct Coordinate {
     int p, q, r;
@@ -23,7 +15,7 @@ struct Coordinate {
  *      Coordinate Functions
  */
 
-const struct Coordinate COORDINATE_ZERO = {0,0,0,0};
+const struct Coordinate COORDINATE_ORIGIN = {0,0,0,0};
 const struct Coordinate COORDINATE_DELTA_EE = {1,0,-1,0};
 const struct Coordinate COORDINATE_DELTA_NE = {1,-1,0,0};
 const struct Coordinate COORDINATE_DELTA_NW = {0,-1,1,0};
@@ -35,9 +27,6 @@ const struct Coordinate COORDINATE_DELTA_SE = {0,1,-1,0};
 struct Coordinate *coordinate_create(int p, int q, int r, int m)
 {
     struct Coordinate *c = malloc(sizeof(struct Coordinate));
-    if (c == NULL) {
-        return NULL;
-    }
 
     c->p = p;
     c->q = q;
@@ -51,34 +40,67 @@ struct Coordinate *coordinate_create(int p, int q, int r, int m)
 void coordinate_destroy(struct Coordinate *c)
 {
     free(c);
-    c = NULL;
 }
 
 
-void coordinate_copy(const struct Coordinate *c, struct Coordinate *a)
+void coordinate_copy(const struct Coordinate *c0, struct Coordinate *c1)
 {
-    a->p = c->p;
-    a->q = c->q;
-    a->r = c->r;
-    a->m = c->m;
+    if (!c0 || !c1) {
+        return;
+    }
+    c1->p = c0->p;
+    c1->q = c0->q;
+    c1->r = c0->r;
+    c1->m = c0->m;
 }
 
 
 struct Coordinate *coordinate_duplicate(const struct Coordinate *c)
 {
-    struct Coordinate *d = coordinate_create(0,0,0,0);
-    if (!d) {
+    if (!c) {
         return NULL;
     }
+    struct Coordinate *d = coordinate_create(0,0,0,0);
     coordinate_copy(c, d);
     return d;
 }
 
 
-const struct Coordinate *coordinate_zero(void)
+const struct Coordinate *coordinate_origin(void)
 {
-    return &COORDINATE_ZERO;
+    return &COORDINATE_ORIGIN;
 }
+
+
+const struct Coordinate *coordinate_delta(enum DIRECTION d)
+{
+    const struct Coordinate *delta = NULL;
+    switch (d) {
+        case EAST:
+            delta = &COORDINATE_DELTA_EE;
+            break;
+        case NORTHEAST:
+            delta = &COORDINATE_DELTA_NE;
+            break;
+        case NORTHWEST:
+            delta = &COORDINATE_DELTA_NW;
+            break;
+        case WEST:
+            delta = &COORDINATE_DELTA_WW;
+            break;
+        case SOUTHWEST:
+            delta = &COORDINATE_DELTA_SW;
+            break;
+        case SOUTHEAST:
+            delta = &COORDINATE_DELTA_SE;
+            break;
+        default:
+            delta = &COORDINATE_ORIGIN;
+            break;
+    }
+    return delta;
+}
+
 
 
 /* coordinate_lift(struct Coordinate *c, unsigned int m)
@@ -113,6 +135,14 @@ void coordinate_parent(const struct Coordinate *c, struct Coordinate *p)
 }
 
 
+struct Coordinate *coordinate_create_parent(const struct Coordinate *c)
+{
+    struct Coordinate *p = coordinate_duplicate(coordinate_origin());
+    coordinate_parent(c, p);
+    return p;
+}
+
+
 bool coordinate_equals(const struct Coordinate *c0, const struct Coordinate *c1)
 {
     return ((c0->p == c1->p) &&
@@ -122,14 +152,11 @@ bool coordinate_equals(const struct Coordinate *c0, const struct Coordinate *c1)
            );
 }
 
-/* coordinate_related(const struct Coordinate *c1, const struct Coordinate *c2)
- *
- *  determine if c1 and c2 are related within the layer hierarchy
- */
+
 bool coordinate_related(const struct Coordinate *c1, const struct Coordinate *c2)
 {
-    struct Coordinate lower = COORDINATE_ZERO;
-    struct Coordinate upper = COORDINATE_ZERO;
+    struct Coordinate lower = COORDINATE_ORIGIN;
+    struct Coordinate upper = COORDINATE_ORIGIN;
     coordinate_copy( (c1->m <  c2->m) ? c1 : c2, &lower);
     coordinate_copy( (c1->m >= c2->m) ? c1 : c2, &upper);
 
@@ -139,35 +166,68 @@ bool coordinate_related(const struct Coordinate *c1, const struct Coordinate *c2
 }
 
 
-void coordinate_common_ancestor(
-        const struct Coordinate *c1,
-        const struct Coordinate *c2,
-        struct Coordinate *a)
+struct Coordinate *coordinate_create_ancestor(
+        const struct Coordinate *c0, 
+        const struct Coordinate *c1)
 {
-    if (coordinate_related(c1, c2)) {
-        coordinate_copy((c1->m > c2->m) ? c1 : c2, a);
-        return;
-    }
-
-    struct Coordinate tmp1 = COORDINATE_ZERO;
-    struct Coordinate tmp2 = COORDINATE_ZERO;
-    coordinate_copy(c1, &tmp1);
-    coordinate_copy(c2, &tmp2);
-
-    while (!coordinate_equals(&tmp1, &tmp2)) {
-        struct Coordinate *lower = (tmp1.m < tmp2.m) ? &tmp1 : &tmp2;
-        coordinate_lift_by(lower, 1);
-    }
-
-    coordinate_copy(&tmp1, a);
-    return;
+    struct Coordinate *a = coordinate_duplicate(coordinate_origin());
+    coordinate_common_ancestor(c0, c1, a);
+    return a;
 }
 
 
-/* coordinate_index(const struct Coordinate *c)
- *
- *  get the 'transverse index' of the coordinate in its parent's children array
- */
+void coordinate_common_ancestor(
+        const struct Coordinate *c0,
+        const struct Coordinate *c1,
+        struct Coordinate *a)
+{
+    struct Coordinate *tmp0 = coordinate_duplicate(c0);
+    struct Coordinate *tmp1 = coordinate_duplicate(c1);
+    struct Coordinate *lower = NULL;
+
+    while (!coordinate_equals(tmp0, tmp1)) {
+        lower = (tmp0->m < tmp1->m) ? tmp0 : tmp1;
+        coordinate_lift_by(lower, 1);
+    }
+
+    coordinate_copy(lower, a);
+
+    coordinate_destroy(tmp0);
+    coordinate_destroy(tmp1);
+    tmp0 = NULL;
+    tmp1 = NULL;
+}
+
+
+int *coordinate_lineage(const struct Coordinate *U, const struct Coordinate *L)
+{
+    int dm = coordinate_m(U) - coordinate_m(L);
+
+    if (dm < 0) {
+        return NULL;
+    }
+
+    int *lineage = malloc((dm+1) * sizeof(int));
+    memset(lineage, 0, (dm+1) * sizeof(int));
+    lineage[0] = dm;
+
+    struct Coordinate *c = coordinate_duplicate(L);
+    for (int i = 1; i <= dm; i++) {
+        lineage[dm-i] = coordinate_index(c);
+        coordinate_lift_by(c, 1);
+    }
+
+    if (!coordinate_equals(U, c)) {
+        free(lineage);
+        lineage = NULL;
+    }
+
+    coordinate_destroy(c);
+    c = NULL;
+    return lineage;
+}
+
+
 int coordinate_index(const struct Coordinate *c)
 {
     return (((3*c->p + c->q) % 9) + 9) % 9;
@@ -204,37 +264,6 @@ void coordinate_add(
 }
 
 
-const struct Coordinate *coordinate_delta(enum DIRECTION d)
-{
-    const struct Coordinate *delta;
-    switch (d) {
-        case EAST:
-            delta = &COORDINATE_DELTA_EE;
-            break;
-        case NORTHEAST:
-            delta = &COORDINATE_DELTA_NE;
-            break;
-        case NORTHWEST:
-            delta = &COORDINATE_DELTA_NW;
-            break;
-        case WEST:
-            delta = &COORDINATE_DELTA_WW;
-            break;
-        case SOUTHWEST:
-            delta = &COORDINATE_DELTA_SW;
-            break;
-        case SOUTHEAST:
-            delta = &COORDINATE_DELTA_SE;
-            break;
-        default:
-            delta = &COORDINATE_ZERO;
-            break;
-    }
-
-    return delta;
-}
-
-
 void coordinate_shift(struct Coordinate *c, enum DIRECTION d)
 {
     const struct Coordinate *delta = coordinate_delta(d);
@@ -246,7 +275,7 @@ void coordinate_shift(struct Coordinate *c, enum DIRECTION d)
 }
 
 
-unsigned int coordinate_magnitude(const struct Coordinate *c)
+unsigned int coordinate_m(const struct Coordinate *c)
 {
     return c->m;
 }

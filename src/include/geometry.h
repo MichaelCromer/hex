@@ -24,8 +24,8 @@ int geometry_cols(struct Geometry *g);
 float geometry_scale(struct Geometry *g);
 float geometry_slope(struct Geometry *g);
 float geometry_aspect(struct Geometry *g);
-int geometry_hex_h(struct Geometry *g);
-int geometry_hex_w(struct Geometry *g);
+int geometry_tile_h(struct Geometry *g);
+int geometry_tile_w(struct Geometry *g);
 
 
 #endif

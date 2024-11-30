@@ -9,21 +9,21 @@
 void action_move(struct State *s, enum DIRECTION d, int steps)
 {
     for (int i = steps; i > 0; i--) {
-        map_step(state_map(s), d);
+        atlas_step(state_atlas(s), d);
     }
 
-    ui_update_detail(state_ui(s), map_curr(state_map(s)));
+    ui_update_detail(state_ui(s), atlas_curr(state_atlas(s)));
     return;
 }
 
 
 void action_paint(struct State *s, enum TERRAIN t)
 {
-    if (map_curr_terrain(state_map(s)) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
-        map_create_neighbours(state_map(s), map_curr_coordinate(state_map(s)));
+    if (atlas_terrain(state_atlas(s)) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
+        atlas_create_neighbours(state_atlas(s));
     }
-    map_set_terrain(state_map(s), t);
-    ui_update_detail(state_ui(s), map_curr(state_map(s)));
+    atlas_set_terrain(state_atlas(s), t);
+    ui_update_detail(state_ui(s), atlas_curr(state_atlas(s)));
 }
 
 
@@ -95,7 +95,7 @@ void action_terrain(struct State *s, key k)
 
     if (key_is_direction(k)) {
         enum DIRECTION d = key_direction(k);
-        enum TERRAIN t = map_curr_terrain(state_map(s));
+        enum TERRAIN t = atlas_terrain(state_atlas(s));
         action_move(s, d, 1);
 
         if (key_is_special(k)) {

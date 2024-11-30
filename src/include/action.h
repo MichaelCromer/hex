@@ -2,7 +2,7 @@
 #define ACTION_H
 
 #include "enum.h"
-#include "grid.h"
+#include "atlas.h"
 #include "state.h"
 
 void action_move(struct State *s, enum DIRECTION d, int steps);

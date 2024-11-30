@@ -157,7 +157,7 @@ void panel_centre(struct Panel *p, int r, int c)
 struct Panel *panel_splash(void)
 {
     struct Panel *splash = panel_create(0, 0, 5);
-    panel_add_line(splash, 0, "Welcome to hex");
+    panel_add_line(splash, 0, "Welcome to chart");
     panel_add_line(splash, 1, "Use u,i,h,l,n,m to navigate tiles");
     panel_add_line(splash, 2, "Use j to interact with the current tile");
     panel_add_line(splash, 3, "Shift-q to exit.");
@@ -180,11 +180,11 @@ struct Panel *panel_terrain_selector(void)//int rmid, int cmid)
 
 struct Panel *panel_hex_detail(void)
 {
-    struct Panel *hex_detail = panel_create(2, 2, 4);
-    panel_add_line(hex_detail, 0, "Currently at: ");
-    panel_add_line(hex_detail, 1, "    (p, q, r)");
-    panel_add_line(hex_detail, 2, "    TERRAIN: NONE");
-    panel_add_line(hex_detail, 3, "  SEED: 0");
+    struct Panel *chart_detail = panel_create(2, 2, 4);
+    panel_add_line(chart_detail, 0, "Currently at: ");
+    panel_add_line(chart_detail, 1, "    (p, q, r)");
+    panel_add_line(chart_detail, 2, "    TERRAIN: NONE");
+    panel_add_line(chart_detail, 3, "  SEED: 0");
 
-    return hex_detail;
+    return chart_detail;
 }

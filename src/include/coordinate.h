@@ -12,14 +12,19 @@ struct Coordinate;
 struct Coordinate *coordinate_create(int p, int q, int r, int m);
 struct Coordinate *coordinate_duplicate(const struct Coordinate *c);
 void coordinate_destroy(struct Coordinate *c);
+struct Coordinate *coordinate_create_ancestor(
+        const struct Coordinate *c0, 
+        const struct Coordinate *c1);
+struct Coordinate *coordinate_create_parent(const struct Coordinate *c);
+int *coordinate_lineage(const struct Coordinate *u, const struct Coordinate *l);
 
 /* constants */
-const struct Coordinate *coordinate_zero(void);
+const struct Coordinate *coordinate_origin(void);
 const struct Coordinate *coordinate_delta(enum DIRECTION d);
 
 /* getters */
 int coordinate_index(const struct Coordinate *c);
-unsigned int coordinate_magnitude(const struct Coordinate *c);
+unsigned int coordinate_m(const struct Coordinate *c);
 int coordinate_p(const struct Coordinate *c);
 int coordinate_q(const struct Coordinate *c);
 int coordinate_r(const struct Coordinate *c);
