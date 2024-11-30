@@ -4,12 +4,13 @@
 
 #include "include/commandline.h"
 #include "include/draw.h"
+#include "include/enum.h"
 #include "include/geometry.h"
 #include "include/atlas.h"
 #include "include/interface.h"
 #include "include/panel.h"
 #include "include/state.h"
-#include "include/terrain.h"
+#include "include/tile.h"
 
 
 /*
@@ -116,7 +117,6 @@ int wdraw_hex(WINDOW *win, struct Geometry *g, struct Chart *chart, int r0, int 
     char ch = 0;
 
     enum TERRAIN t = chart_terrain(chart);
-    int s = chart_seed(chart);
 
     attron(COLOR_PAIR(terrain_colour(t)));
     for (int c = -w_half; c <= w_half; c++) {
@@ -125,7 +125,7 @@ int wdraw_hex(WINDOW *win, struct Geometry *g, struct Chart *chart, int r0, int 
                 : floor((w_half-c)*geometry_slope(g));
 
         for (int r = -(h_half + dh)+1; r <= (h_half + dh); r++) {
-            ch = terrain_getch(t, c, r, s);
+            ch = tile_getch(chart_tile(chart), c, r);
             mvwaddch(win, r0 + r, c0 + c, ch);
         }
     }

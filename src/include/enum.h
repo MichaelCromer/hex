@@ -28,6 +28,7 @@ enum INPUT_MODE {
 
 
 #define NUM_TERRAIN 9
+#define NUM_TERRAIN_CHOPTS 24
 enum TERRAIN {
     TERRAIN_NONE,
     TERRAIN_UNKNOWN,
@@ -41,6 +42,10 @@ enum TERRAIN {
     TERRAIN_SWAMP,
     TERRAIN_TUNDRA
 };
+const char *terrain_name(enum TERRAIN t);
+const char *terrain_chopts(enum TERRAIN t);
+int terrain_colour(enum TERRAIN t);
+const char *terrain_statusline(void);
 
 
 #define NUM_DIRECTIONS 6

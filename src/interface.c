@@ -4,7 +4,6 @@
 #include "include/geometry.h"
 #include "include/atlas.h"
 #include "include/panel.h"
-#include "include/terrain.h"
 #include "include/interface.h"
 
 

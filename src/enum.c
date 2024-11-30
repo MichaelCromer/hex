@@ -1,9 +1,6 @@
 #include <ncurses.h>
-#include <stddef.h>
 
-#include "include/terrain.h"
-#include "include/tile.h"
-#include "include/atlas.h"
+#include "include/enum.h"
 
 const char *terrain_unknown     = "Unknown";
 const char *terrain_water       = "Water";
@@ -16,7 +13,6 @@ const char *terrain_jungle      = "Jungle";
 const char *terrain_swamp       = "Swamp";
 const char *terrain_tundra      = "Tundra";
 
-#define NUM_TERRAIN_CHOPTS 24
 const char *terrain_chopts_unknown      = "                     ??*";
 const char *terrain_chopts_water        = "         ~~~~~~~~~~~~~~~";
 const char *terrain_chopts_mountains    = "                ..^^^AAA";
@@ -82,15 +78,6 @@ const char *terrain_chopts(enum TERRAIN t)
         default:
             return terrain_chopts_unknown;
     }
-}
-
-
-char terrain_getch(enum TERRAIN t, int x, int y, int seed)
-{
-    const char *chopts = terrain_chopts(t);
-    int offset = (int)t;
-
-    return chopts[prng(x, y, seed + offset, NUM_TERRAIN_CHOPTS)];
 }
 
 

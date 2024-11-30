@@ -23,5 +23,6 @@ bool tile_road(const struct Tile *t, enum DIRECTION d);
 void tile_set_road(struct Tile *t, enum DIRECTION d, bool b);
 bool tile_river(const struct Tile *t, enum DIRECTION d);
 void tile_set_river(struct Tile *t, enum DIRECTION d, bool b);
+char tile_getch(struct Tile *tile, int x, int y);
 
 #endif

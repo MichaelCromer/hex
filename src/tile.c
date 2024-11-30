@@ -111,3 +111,11 @@ void tile_set_river(struct Tile *tile, enum DIRECTION d, bool b)
 }
 
 
+char tile_getch(struct Tile *tile, int x, int y)
+{
+    const char *chopts = terrain_chopts(tile_terrain(tile));
+    int offset = (int)tile_terrain(tile);
+
+    return chopts[prng(x, y, tile->seed + offset, NUM_TERRAIN_CHOPTS)];
+}
+

@@ -13,9 +13,6 @@
 #include "include/key.h"
 #include "include/panel.h"
 #include "include/state.h"
-#include "include/terrain.h"
-
-#define STATE_CHARBUF_LEN 1024
 
 const char *modestr_navigate = "NAVIGATE";
 const char *modestr_terrain  = "TERRAIN";
