@@ -8,11 +8,12 @@
 #define              KEY_ESCAPE 27
 #define        KEY_MODE_TERRAIN 'T'
 #define  KEY_MODE_AWAIT_TERRAIN 't'
+#define           KEY_MODE_ROAD 'R'
+#define     KEY_MODE_AWAIT_ROAD 'r'
 #define        KEY_MODE_COMMAND ':'
 
 #define       KEY_TOGGLE_DETAIL 'j'
 #define     KEY_TOGGLE_RETICULE 'x'
-
 
 #define                  KEY_EE 'k'
 #define                  KEY_NE 'i'

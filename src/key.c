@@ -116,6 +116,8 @@ bool key_is_mode(key k)
         case KEY_MODE_COMMAND:
         case KEY_MODE_AWAIT_TERRAIN:
         case KEY_MODE_TERRAIN:
+        case KEY_MODE_AWAIT_ROAD:
+        case KEY_MODE_ROAD:
             return true;
         default:
             break;

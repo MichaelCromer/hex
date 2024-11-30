@@ -18,9 +18,10 @@
 #define STATE_CHARBUF_LEN 1024
 
 const char *modestr_navigate = "NAVIGATE";
-const char *modestr_terrain = "TERRAIN";
-const char *modestr_command = "COMMAND";
-const char *modestr_unknown = "???";
+const char *modestr_terrain  = "TERRAIN";
+const char *modestr_command  = "COMMAND";
+const char *modestr_road     = "ROADS";
+const char *modestr_unknown  = "???";
 
 
 struct State {
@@ -238,6 +239,8 @@ const char *state_mode_name(const struct State *s)
             return modestr_navigate;
         case INPUT_MODE_TERRAIN:
             return modestr_terrain;
+        case INPUT_MODE_ROAD:
+            return modestr_road;
         case INPUT_MODE_COMMAND:
             return modestr_command;
         default:
@@ -254,6 +257,8 @@ int state_mode_colour(const struct State *s)
             return COLOR_GREEN;
         case INPUT_MODE_COMMAND:
             return COLOR_RED;
+        case INPUT_MODE_ROAD:
+            return COLOR_YELLOW;
         default:
             return COLOR_WHITE;
     }
