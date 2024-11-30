@@ -8,7 +8,7 @@
 #include "include/commandline.h"
 #include "include/enum.h"
 #include "include/geometry.h"
-#include "include/grid.h"
+#include "include/atlas.h"
 #include "include/interface.h"
 #include "include/key.h"
 #include "include/panel.h"
@@ -35,7 +35,7 @@ struct State {
     enum UI_COLOUR colour;
 
     struct Geometry *geometry;
-    struct Map *map;
+    struct Atlas *atlas;
     struct UserInterface *ui;
     struct Commandline *cmd;
 };
@@ -55,7 +55,7 @@ struct State *state_create(void)
 
     s->geometry = geometry_create();
     s->ui = ui_create();
-    s->map = map_create();
+    s->atlas = atlas_create();
     s->cmd = commandline_create();
 
     return s;
@@ -90,8 +90,7 @@ void state_initialise(struct State *s, WINDOW *win)
             GEOMETRY_DEFAULT_ASPECT,
             win);
     ui_initialise(state_ui(s), state_geometry(s));
-    map_initialise(state_map(s), hex_origin());
-
+    atlas_initialise(state_atlas(s), chart_create_origin());
 }
 
 
@@ -124,7 +123,7 @@ void state_update(struct State *s)
 void state_destroy(struct State *s)
 {
     geometry_destroy(s->geometry);
-    map_destroy(s->map);
+    atlas_destroy(s->atlas);
     ui_destroy(s->ui);
     commandline_destroy(s->cmd);
 
@@ -140,9 +139,9 @@ struct Geometry *state_geometry(const struct State *s)
 }
 
 
-struct Map *state_map(const struct State *s)
+struct Atlas *state_atlas(const struct State *s)
 {
-    return s->map;
+    return s->atlas;
 }
 
 

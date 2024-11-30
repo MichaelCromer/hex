@@ -2,7 +2,8 @@
 #include <stddef.h>
 
 #include "include/terrain.h"
-#include "include/grid.h"
+#include "include/tile.h"
+#include "include/atlas.h"
 
 const char *terrain_unknown     = "Unknown";
 const char *terrain_water       = "Water";
@@ -89,7 +90,7 @@ char terrain_getch(enum TERRAIN t, int x, int y, int seed)
     const char *chopts = terrain_chopts(t);
     int offset = (int)t;
 
-    return chopts[seed_prng(x, y, seed + offset, NUM_TERRAIN_CHOPTS)];
+    return chopts[prng(x, y, seed + offset, NUM_TERRAIN_CHOPTS)];
 }
 
 

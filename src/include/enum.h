@@ -54,6 +54,20 @@ enum DIRECTION {
 };
 
 
+#define NUM_CHILDREN 9
+enum CHILDREN {
+    CHILD0,
+    CHILD1,
+    CHILD2,
+    CHILD3,
+    CHILD4,
+    CHILD5,
+    CHILD6,
+    CHILD7,
+    CHILD8
+};
+
+
 enum COMMAND_TYPE {
     COMMAND_TYPE_NONE,
     COMMAND_TYPE_ERROR,
@@ -62,5 +76,7 @@ enum COMMAND_TYPE {
     COMMAND_TYPE_EDIT,
 };
 
+
+enum DIRECTION direction_opposite(enum DIRECTION d);
 
 #endif 
