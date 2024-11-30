@@ -32,6 +32,7 @@ void atlas_destroy(struct Atlas *m);
 struct Chart *atlas_root(const struct Atlas *m);
 struct Chart *atlas_curr(const struct Atlas *m);
 struct Coordinate *atlas_coordinate(const struct Atlas *atlas);
+struct Tile *atlas_tile(const struct Atlas *atlas);
 enum TERRAIN atlas_terrain(const struct Atlas *m);
 void atlas_set_terrain(struct Atlas *m, enum TERRAIN t);
 void atlas_goto(struct Atlas *atlas, const struct Coordinate *c);

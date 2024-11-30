@@ -1,6 +1,8 @@
 #ifndef ENUM_H
 #define ENUM_H
 
+#include <stdbool.h>
+
 
 enum UI_COLOUR {
     COLOUR_NONE,
@@ -47,6 +49,7 @@ enum TERRAIN {
 const char *terrain_name(enum TERRAIN t);
 const char *terrain_chopts(enum TERRAIN t);
 int terrain_colour(enum TERRAIN t);
+bool terrain_impassable(enum TERRAIN t);
 const char *terrain_statusline(void);
 
 
@@ -60,6 +63,7 @@ enum DIRECTION {
     DIRECTION_SE,
     DIRECTION_XX
 };
+enum DIRECTION direction_opposite(enum DIRECTION d);
 
 
 #define NUM_CHILDREN 9

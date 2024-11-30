@@ -239,6 +239,12 @@ struct Coordinate *atlas_coordinate(const struct Atlas *atlas)
 }
 
 
+struct Tile *atlas_tile(const struct Atlas *atlas)
+{
+    return chart_tile(atlas_curr(atlas));
+}
+
+
 enum TERRAIN atlas_terrain(const struct Atlas *atlas)
 {
     return chart_terrain(atlas_curr(atlas));

@@ -4,6 +4,7 @@
 #include "include/action.h"
 #include "include/commandline.h"
 #include "include/interface.h"
+#include "include/tile.h"
 
 
 void action_move(struct State *s, enum DIRECTION d, int steps)
@@ -17,13 +18,29 @@ void action_move(struct State *s, enum DIRECTION d, int steps)
 }
 
 
-void action_paint(struct State *s, enum TERRAIN t)
+void action_paint_terrain(struct State *s, enum TERRAIN t)
 {
     if (atlas_terrain(state_atlas(s)) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
         atlas_create_neighbours(state_atlas(s));
     }
     atlas_set_terrain(state_atlas(s), t);
     ui_update_detail(state_ui(s), atlas_curr(state_atlas(s)));
+}
+
+
+void action_paint_road(struct State *s, enum DIRECTION d)
+{
+    if (terrain_impassable(atlas_terrain(state_atlas(s)))) {
+        return;
+    }
+    struct Tile *tile = atlas_tile(state_atlas(s));
+    action_move(s, d, 1);
+    if (terrain_impassable(atlas_terrain(state_atlas(s)))) {
+        return;
+    }
+    tile_set_road(tile, d, true);
+    tile = atlas_tile(state_atlas(s));
+    tile_set_road(tile, direction_opposite(d), true);
 }
 
 
@@ -88,14 +105,14 @@ void action_terrain(struct State *s, key k)
     if (state_await(s)) {
         state_set_await(s, false);
         if (key_is_terrain(k)) {
-            action_paint(s, key_terrain(k));
+            action_paint_terrain(s, key_terrain(k));
         }
         state_set_mode(s, MODE_NAVIGATE);
         return;
     }
 
     if (key_is_terrain(k)) {
-        action_paint(s, key_terrain(k));
+        action_paint_terrain(s, key_terrain(k));
         return;
     }
 
@@ -106,7 +123,7 @@ void action_terrain(struct State *s, key k)
 
         if (key_is_special(k)) {
             if (t != TERRAIN_UNKNOWN) {
-                action_paint(s, t);
+                action_paint_terrain(s, t);
             }
         }
     }
@@ -172,8 +189,19 @@ void action_road(struct State *s, key k)
 {
     if (state_await(s)) {
         state_set_await(s, false);
+        if (key_is_direction(k)) {
+            action_paint_road(s, key_direction(k));
+        }
         state_set_mode(s, MODE_NAVIGATE);
         return;
+    }
+
+    if (key_is_direction(k)) {
+        if (key_is_special(k)) {
+            action_paint_road(s, key_direction(k));
+        } else {
+            action_move(s, key_direction(k), 1);
+        }
     }
 
     switch (k) {

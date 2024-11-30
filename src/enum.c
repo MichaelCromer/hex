@@ -4,6 +4,18 @@
 
 
 /*******************************************************************************
+ *  DIRECTION
+ ******************************************************************************/
+
+/*  DIRECTION : Functions */
+
+enum DIRECTION direction_opposite(enum DIRECTION d)
+{
+    return (d + (NUM_DIRECTIONS / 2)) % NUM_DIRECTIONS;
+}
+
+
+/*******************************************************************************
  *  TERRAIN
  ******************************************************************************/
 
@@ -114,8 +126,22 @@ int terrain_colour(enum TERRAIN t)
         case TERRAIN_TUNDRA:
             return COLOR_CYAN;
         default:
-            return COLOR_WHITE;
+            break;
     }
+    return COLOR_WHITE;
+}
+
+
+bool terrain_impassable(enum TERRAIN t)
+{
+    switch (t) {
+        case TERRAIN_UNKNOWN:
+        case TERRAIN_WATER:
+            return true;
+        default:
+            break;
+    }
+    return false;
 }
 
 
