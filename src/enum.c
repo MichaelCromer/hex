@@ -2,6 +2,13 @@
 
 #include "include/enum.h"
 
+
+/*******************************************************************************
+ *  TERRAIN
+ ******************************************************************************/
+
+/*  TERRAIN : Constants */
+
 const char *terrain_unknown     = "Unknown";
 const char *terrain_water       = "Water";
 const char *terrain_mountains   = "Mountains";
@@ -25,6 +32,10 @@ const char *terrain_chopts_swamp        = "                iijj%~%~";
 const char *terrain_chopts_tundra       = "                  ..o=-_";
 
 const char *terrain_hints = "q:water w:mountain e:hills a:plains s:forest d:swamp z:desert x:jungle c:tundra";
+
+
+/*  TERRAIN : Functions */
+
 
 const char *terrain_name(enum TERRAIN t)
 {
@@ -111,4 +122,53 @@ int terrain_colour(enum TERRAIN t)
 const char *terrain_statusline(void)
 {
     return terrain_hints;
+}
+
+
+/*******************************************************************************
+ *  MODE
+ ******************************************************************************/
+
+/*  MODE : Constants */
+
+const char *modestr_navigate = "NAVIGATE";
+const char *modestr_terrain  = "TERRAIN";
+const char *modestr_command  = "COMMAND";
+const char *modestr_road     = "ROADS";
+const char *modestr_unknown  = "???";
+
+
+/*  MODE : Functions */
+
+
+const char *mode_name(enum INPUT_MODE m)
+{
+    switch (m) {
+        case INPUT_MODE_NAVIGATE:
+            return modestr_navigate;
+        case INPUT_MODE_TERRAIN:
+            return modestr_terrain;
+        case INPUT_MODE_ROAD:
+            return modestr_road;
+        case INPUT_MODE_COMMAND:
+            return modestr_command;
+        default:
+            return modestr_unknown;
+    }
+}
+
+int mode_colour(enum INPUT_MODE m)
+{
+    switch (m) {
+        case INPUT_MODE_NAVIGATE:
+            return COLOR_WHITE;
+        case INPUT_MODE_TERRAIN:
+            return COLOR_GREEN;
+        case INPUT_MODE_COMMAND:
+            return COLOR_RED;
+        case INPUT_MODE_ROAD:
+            return COLOR_YELLOW;
+        default:
+            return COLOR_WHITE;
+    }
 }

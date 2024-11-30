@@ -14,12 +14,6 @@
 #include "include/panel.h"
 #include "include/state.h"
 
-const char *modestr_navigate = "NAVIGATE";
-const char *modestr_terrain  = "TERRAIN";
-const char *modestr_command  = "COMMAND";
-const char *modestr_road     = "ROADS";
-const char *modestr_unknown  = "???";
-
 
 struct State {
     bool quit;
@@ -228,35 +222,3 @@ enum UI_COLOUR state_colour_test(void)
         : COLOUR_NONE;
 }
 
-
-const char *state_mode_name(const struct State *s)
-{
-    switch (state_mode(s)) {
-        case INPUT_MODE_NAVIGATE:
-            return modestr_navigate;
-        case INPUT_MODE_TERRAIN:
-            return modestr_terrain;
-        case INPUT_MODE_ROAD:
-            return modestr_road;
-        case INPUT_MODE_COMMAND:
-            return modestr_command;
-        default:
-            return modestr_unknown;
-    }
-}
-
-int state_mode_colour(const struct State *s)
-{
-    switch (state_mode(s)) {
-        case INPUT_MODE_NAVIGATE:
-            return COLOR_WHITE;
-        case INPUT_MODE_TERRAIN:
-            return COLOR_GREEN;
-        case INPUT_MODE_COMMAND:
-            return COLOR_RED;
-        case INPUT_MODE_ROAD:
-            return COLOR_YELLOW;
-        default:
-            return COLOR_WHITE;
-    }
-}

@@ -205,9 +205,9 @@ void wdraw_statusline(WINDOW *win, struct State *s)
         w  = geometry_cols(state_geometry(s))-1;
 
     mvwhline(win, r0, c0, ' ', w);
-    attron(COLOR_PAIR(state_mode_colour(s)));
-    mvwaddstr(win, r0, c0+1, state_mode_name(s));
-    attroff(COLOR_PAIR(state_mode_colour(s)));
+    attron(COLOR_PAIR(mode_colour(state_mode(s))));
+    mvwaddstr(win, r0, c0+1, mode_name(state_mode(s)));
+    attroff(COLOR_PAIR(mode_colour(state_mode(s))));
 
     switch (state_mode(s)) {
         case INPUT_MODE_COMMAND:

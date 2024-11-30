@@ -25,6 +25,8 @@ enum INPUT_MODE {
     INPUT_MODE_ROAD,
     INPUT_MODE_COMMAND
 };
+const char *mode_name(enum INPUT_MODE m);
+int mode_colour(enum INPUT_MODE m);
 
 
 #define NUM_TERRAIN 9
