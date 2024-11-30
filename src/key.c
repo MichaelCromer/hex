@@ -122,18 +122,3 @@ bool key_is_mode(key k)
     }
     return false;
 }
-
-
-enum INPUT_MODE key_mode(key k)
-{
-    switch (k) {
-        case KEY_MODE_COMMAND:
-            return INPUT_MODE_COMMAND;
-        case KEY_MODE_AWAIT_TERRAIN:
-        case KEY_MODE_TERRAIN:
-            return INPUT_MODE_NAVIGATE;
-        default:
-            break;
-    }
-    return INPUT_MODE_NONE;
-}
