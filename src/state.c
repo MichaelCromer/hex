@@ -88,21 +88,24 @@ void state_initialise(struct State *s, WINDOW *win)
 
 void state_update(struct State *s)
 {
-    state_set_currkey(s, wgetch(state_window(s)));
+    key k = wgetch(state_window(s));
+    state_set_currkey(s, k);
 
     switch (state_mode(s)) {
         case MODE_CAPTURE:
-            action_capture(s, state_currkey(s));
+            action_capture(s, k);
             break;
         case MODE_NAVIGATE:
-            action_navigate(s, state_currkey(s));
+            action_navigate(s, k);
             break;
         case MODE_TERRAIN:
-            action_terrain(s, state_currkey(s));
+            action_terrain(s, k);
             break;
         case MODE_COMMAND:
-            action_command(s, state_currkey(s));
+            action_command(s, k);
             break;
+        case MODE_ROAD:
+            action_road(s, k);
         case MODE_NONE:
         default:
             break;

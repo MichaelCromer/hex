@@ -59,6 +59,12 @@ void action_navigate(struct State *s, key k)
             case KEY_MODE_TERRAIN:
                 state_set_mode(s, MODE_TERRAIN);
                 break;
+            case KEY_MODE_AWAIT_ROAD:
+                state_set_await(s, true);
+                /* fall through */
+            case KEY_MODE_ROAD:
+                state_set_mode(s, MODE_ROAD);
+                break;
             default:
                 break;
         }
@@ -158,5 +164,25 @@ void action_command(struct State *s, key k)
             break;
     }
 
+    return;
+}
+
+
+void action_road(struct State *s, key k)
+{
+    if (state_await(s)) {
+        state_set_await(s, false);
+        state_set_mode(s, MODE_NAVIGATE);
+        return;
+    }
+
+    switch (k) {
+        case KEY_MODE_ROAD:
+        case KEY_ESCAPE:
+            state_set_mode(s, MODE_NAVIGATE);
+            return;
+        default:
+            break;
+    }
     return;
 }
