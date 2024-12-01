@@ -9,6 +9,7 @@ struct Chart;
 struct Chart *chart_create(const struct Coordinate *c);
 struct Chart *chart_create_ancestor(struct Chart *hex1, struct Chart *hex2);
 struct Chart *chart_create_origin(void);
+struct Chart **chart_children(const struct Chart *chart);
 struct Chart *chart_child(const struct Chart *chart, enum CHILDREN c);
 void chart_set_child(struct Chart *chart, enum CHILDREN c, struct Chart *child);
 void chart_destroy(struct Chart *chart);

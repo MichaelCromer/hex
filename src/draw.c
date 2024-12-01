@@ -109,14 +109,14 @@ void wdraw_reticule(WINDOW *win, struct Geometry *g)
 }
 
 
-int wdraw_hex(WINDOW *win, struct Geometry *g, struct Chart *chart, int r0, int c0)
+int wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int c0)
 {
     int w_half = (geometry_tile_w(g)+1) / 2,
         h_half = (geometry_tile_h(g)+1) / 2;
     int dh = 0;
     char ch = 0;
 
-    enum TERRAIN t = chart_terrain(chart);
+    enum TERRAIN t = tile_terrain(tile);
 
     attron(COLOR_PAIR(terrain_colour(t)));
     for (int c = -w_half; c <= w_half; c++) {
@@ -125,7 +125,7 @@ int wdraw_hex(WINDOW *win, struct Geometry *g, struct Chart *chart, int r0, int 
                 : floor((w_half-c)*geometry_slope(g));
 
         for (int r = -(h_half + dh)+1; r <= (h_half + dh); r++) {
-            ch = tile_getch(chart_tile(chart), c, r);
+            ch = tile_getch(tile, c, r);
             mvwaddch(win, r0 + r, c0 + c, ch);
         }
     }
@@ -134,52 +134,93 @@ int wdraw_hex(WINDOW *win, struct Geometry *g, struct Chart *chart, int r0, int 
 }
 
 
+void wdraw_chart(
+        WINDOW *win, 
+        struct Geometry *g, 
+        struct Chart *chart, 
+        float u0, 
+        float v0)
+{
+    /* recurse down the chart to find the tiles at the bottom and print them
+     * send the right integer character coordinates */
+    if (!chart) {
+        return;
+    }
+    if (chart_children(chart)) {
+        for (int i = 0; i < NUM_CHILDREN; i++) {
+            wdraw_chart(win, g, chart_child(chart, i), u0, v0);
+        }
+    }
+    if (!chart_tile(chart)) {
+        return;
+    }
+    float u = chart_u(chart), v = chart_v(chart);
+    int dc = round(geometry_scale(g) * (u - u0));
+    int dr = round(geometry_scale(g) * geometry_aspect(g) * (v - v0));
+    wdraw_tile(win, g, chart_tile(chart), geometry_rmid(g) + dr, geometry_cmid(g) + dc);
+}
+
+
+void wdraw_atlas_at(
+        WINDOW *win, 
+        struct Geometry *g, 
+        struct Atlas *atlas, 
+        struct Coordinate *c)
+{
+    struct Chart *chart = atlas_find(atlas, c);
+    if (!chart && coordinate_m(c)) {
+        struct Coordinate *ch = coordinate_create_origin();
+        for (int i = 0; i < NUM_CHILDREN; i++) {
+            coordinate_child(c, i, ch);
+            wdraw_atlas_at(win, g, atlas, ch);
+        }
+        coordinate_destroy(ch);
+        return;
+    }
+    struct Chart *centre = atlas_curr(atlas);
+    wdraw_chart(win, g, chart, chart_u(centre), chart_v(centre));
+}
+
+
 void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 {
-    struct Chart *centre = atlas_curr(atlas);
+    /* find the smallest chart that is guaranteed to contain all the tiles of interest
+     * send this chart to wdraw_chart with centre offset calculated
+     * or send its children recursively, etc
+     * */
 
-    /* calculate the number of hexes that fit to screen */
+    struct Chart *centre = atlas_curr(atlas);
+    struct Coordinate *c = chart_coordinate(centre);
+
+    /* TODO move this calculation to Geometry struct */
     int n_hor = round( geometry_cols(g) / (1.00f * geometry_tile_w(g))) + 1,
         n_ver = round( geometry_rows(g) / (0.75f * geometry_tile_h(g))) + 1;
 
-    /* set up variables for checking the geometry of each chart */
-    float u0 = chart_u(centre),
-          v0 = chart_v(centre);
-    float u = 0, v = 0;
-    int dr = 0, dc = 0;
+    struct Coordinate *c_E = coordinate_duplicate(c),
+                      *c_W = coordinate_duplicate(c),
+                      *c_N = coordinate_duplicate(c),
+                      *c_S = coordinate_duplicate(c);
 
-    struct Coordinate *edge = coordinate_duplicate(chart_coordinate(centre)),
-                      *target = coordinate_duplicate(coordinate_origin());
-    struct Chart *chart = NULL;
+    coordinate_nshift(c_W, DIRECTION_WW, n_hor/2);
+    coordinate_nshift(c_E, DIRECTION_EE, n_hor/2);
+    coordinate_nshift(c_N, DIRECTION_NW, n_ver/4);
+    coordinate_nshift(c_N, DIRECTION_NE, n_ver/4);
+    coordinate_nshift(c_S, DIRECTION_SW, n_ver/4);
+    coordinate_nshift(c_S, DIRECTION_SE, n_ver/4);
 
-    for (int y=0; y<(n_ver/2); y++) {
-        /* pair results in (-1, 2, -1) */
-        coordinate_shift(edge, (y % 2) ? DIRECTION_SW : DIRECTION_SE);
-    }
-    for (int x=0; x<(n_hor/2); x++) {
-        /* single results in (-1, 0, 1) */
-        coordinate_shift(edge, DIRECTION_WW);
-    }
+    struct Coordinate *tmp1 = coordinate_create_ancestor(c_E, c_W);
+    struct Coordinate *tmp2 = coordinate_create_ancestor(c_N, c_S);
+    struct Coordinate *a    = coordinate_create_ancestor(tmp1, tmp2);
 
-    for (int y=0; y<n_ver; y++) {
-        coordinate_copy(edge, target);
-        for (int x=0; x<n_hor; x++) {
-            chart = atlas_find(atlas, target);
-            if (chart) {
-                u = chart_u(chart);
-                v = chart_v(chart);
-                dc = round(geometry_scale(g) * (u - u0));
-                dr = round(geometry_scale(g) * geometry_aspect(g) * (v - v0));
-                wdraw_hex(win, g, chart, geometry_rmid(g) + dr, geometry_cmid(g) + dc);
-            }
-            coordinate_shift(target, DIRECTION_EE);
-        }
-        coordinate_shift(edge, (y % 2) ? DIRECTION_NE : DIRECTION_NW);
-    }
+    wdraw_atlas_at(win, g, atlas, a);
 
-    coordinate_destroy(edge);
-    coordinate_destroy(target);
-    return;
+    coordinate_destroy(c_E);
+    coordinate_destroy(c_W);
+    coordinate_destroy(c_N);
+    coordinate_destroy(c_S);
+    coordinate_destroy(tmp1);
+    coordinate_destroy(tmp2);
+    coordinate_destroy(a);
 }
 
 /*
@@ -189,7 +230,7 @@ void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 
 void wdraw_ui(WINDOW *win, struct UserInterface *ui)
 {
-    for (int p=0; p<NUM_UI_PANELS; p++) {
+    for (int p = 0; p < NUM_UI_PANELS; p++) {
         if (ui_show(ui, p)) {
             wdraw_panel(win, ui_panel(ui, p));
         }

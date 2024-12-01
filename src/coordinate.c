@@ -72,6 +72,12 @@ const struct Coordinate *coordinate_origin(void)
 }
 
 
+struct Coordinate *coordinate_create_origin(void)
+{
+    return coordinate_duplicate(coordinate_origin());
+}
+
+
 const struct Coordinate *coordinate_delta(enum DIRECTION d)
 {
     const struct Coordinate *delta = NULL;
@@ -102,11 +108,6 @@ const struct Coordinate *coordinate_delta(enum DIRECTION d)
 }
 
 
-
-/* coordinate_lift(struct Coordinate *c, unsigned int m)
- *
- *  lift a coordinate into the mth layer
- */
 void coordinate_lift_to(struct Coordinate *c, unsigned int m)
 {
     while (c->m < m) {
@@ -115,15 +116,31 @@ void coordinate_lift_to(struct Coordinate *c, unsigned int m)
         c->r = -(c->p + c->q);
         c->m = c->m + 1;
     }
-
-    return;
 }
 
 
 void coordinate_lift_by(struct Coordinate *c, unsigned int m)
 {
-    for (unsigned int i=0; i<m; i++) {
+    for (unsigned int i = 0; i < m; i++) {
         coordinate_lift_to(c, c->m + 1);
+    }
+}
+
+
+void coordinate_drop_to(struct Coordinate *c, enum CHILDREN i, unsigned int m)
+{
+    while (coordinate_m(c) > m) {
+        c->p = (3 * c->p) + ((4 < i && i < 8) ? -1 : ((1 < i && i < 5) ? 1 : 0));
+        c->q = (3 * c->q) + ((i % 3 == 2) ? -1 : (int)(i % 3));
+        c->r = -(c->p + c->q);
+        c->m = c->m - 1;
+    }
+}
+
+void coordinate_drop_by(struct Coordinate *c, enum CHILDREN ch, unsigned int m)
+{
+    for (unsigned int i = 0; i < m; i++) {
+        coordinate_drop_to(c, ch, coordinate_m(c) - 1);
     }
 }
 
@@ -135,9 +152,18 @@ void coordinate_parent(const struct Coordinate *c, struct Coordinate *p)
 }
 
 
+void coordinate_child(const struct Coordinate *c, 
+        enum CHILDREN i, 
+        struct Coordinate *ch)
+{
+    coordinate_copy(c, ch);
+    coordinate_drop_by(ch, i, 1);
+}
+
+
 struct Coordinate *coordinate_create_parent(const struct Coordinate *c)
 {
-    struct Coordinate *p = coordinate_duplicate(coordinate_origin());
+    struct Coordinate *p = coordinate_create_origin();
     coordinate_parent(c, p);
     return p;
 }
@@ -170,20 +196,20 @@ struct Coordinate *coordinate_create_ancestor(
         const struct Coordinate *c0, 
         const struct Coordinate *c1)
 {
-    struct Coordinate *a = coordinate_duplicate(coordinate_origin());
+    struct Coordinate *a = coordinate_create_origin();
     coordinate_common_ancestor(c0, c1, a);
     return a;
 }
 
 
 void coordinate_common_ancestor(
-        const struct Coordinate *c0,
+        const struct Coordinate *c0, 
         const struct Coordinate *c1,
         struct Coordinate *a)
 {
     struct Coordinate *tmp0 = coordinate_duplicate(c0);
     struct Coordinate *tmp1 = coordinate_duplicate(c1);
-    struct Coordinate *lower = NULL;
+    struct Coordinate *lower = (tmp0->m < tmp1->m) ? tmp0 : tmp1;
 
     while (!coordinate_equals(tmp0, tmp1)) {
         lower = (tmp0->m < tmp1->m) ? tmp0 : tmp1;
@@ -191,11 +217,8 @@ void coordinate_common_ancestor(
     }
 
     coordinate_copy(lower, a);
-
     coordinate_destroy(tmp0);
     coordinate_destroy(tmp1);
-    tmp0 = NULL;
-    tmp1 = NULL;
 }
 
 
@@ -228,7 +251,7 @@ int *coordinate_lineage(const struct Coordinate *U, const struct Coordinate *L)
 }
 
 
-int coordinate_index(const struct Coordinate *c)
+enum CHILDREN coordinate_index(const struct Coordinate *c)
 {
     return (((3*c->p + c->q) % 9) + 9) % 9;
 }
@@ -270,8 +293,15 @@ void coordinate_shift(struct Coordinate *c, enum DIRECTION d)
     c->p += delta->p;
     c->q += delta->q;
     c->r += delta->r;
+}
 
-    return;
+
+void coordinate_nshift(struct Coordinate *c, enum DIRECTION d, int n)
+{
+    const struct Coordinate *delta = coordinate_delta(d);
+    c->p += n * delta->p;
+    c->q += n * delta->q;
+    c->r += n * delta->r;
 }
 
 
