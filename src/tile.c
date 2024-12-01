@@ -7,16 +7,18 @@
 
 static unsigned int count = 0;
 
-
 unsigned int lcg(unsigned int n)
 {
-    return 16645265*n + 1013904223;
+    return 1664525 * n + 1013904223;
 }
-
 
 unsigned int puid()
 {
-    return lcg(count++) * lcg(time(NULL));
+    if (count == 0) {
+        count = (unsigned int)time(NULL);
+    }
+    count = lcg(count);
+    return count;
 }
 
 
@@ -26,7 +28,8 @@ unsigned int prng(
         const unsigned int seed, 
         const unsigned int max)
 {
-    return ((((x * 73856093) ^ (y * 19349963) ^ (seed * 83492791)) % max) + max) % max;
+    unsigned int val = (unsigned int) seed ^ (x * 9973 + y * 1009);
+    return lcg(val) % max;
 }
 
 
