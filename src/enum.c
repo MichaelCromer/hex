@@ -161,6 +161,7 @@ const char *modestr_navigate = "NAVIGATE";
 const char *modestr_terrain  = "TERRAIN";
 const char *modestr_command  = "COMMAND";
 const char *modestr_road     = "ROADS";
+const char *modestr_river    = "RIVERS";
 const char *modestr_unknown  = "???";
 
 
@@ -176,6 +177,8 @@ const char *mode_name(enum MODE m)
             return modestr_terrain;
         case MODE_ROAD:
             return modestr_road;
+        case MODE_RIVER:
+            return modestr_river;
         case MODE_COMMAND:
             return modestr_command;
         default:
@@ -194,6 +197,8 @@ int mode_colour(enum MODE m)
             return COLOR_RED;
         case MODE_ROAD:
             return COLOR_YELLOW;
+        case MODE_RIVER:
+            return COLOR_CYAN;
         default:
             return COLOR_WHITE;
     }

@@ -25,6 +25,7 @@ enum MODE {
     MODE_NAVIGATE,
     MODE_TERRAIN,
     MODE_ROAD,
+    MODE_RIVER,
     MODE_COMMAND
 };
 const char *mode_name(enum MODE m);
