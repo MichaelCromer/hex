@@ -1,3 +1,5 @@
+[X] grid.c L440 a map-natrve implementation of map_create_neighbours
+[X] grid.c L411 a map-native implementation of map_insert
 [X] grid.c L81  separate struct Tile containing all terrain-like data, for nullability
 [X] make state charbuf its own commandline parsing struct
 [X] Migrate panel and draw to use windows/screens (dubious now)
@@ -17,7 +19,7 @@
 [ ] UX remember last placed terrain
 [ ] UX drag-paint doesn't update last placed terrain?
 [ ] update splash (should only load when no filename passed as cmdline option)
-[ ] grid.c L411 a map-native implementation of map_insert
-[ ] grid.c L440 a map-natrve implementation of map_create_neighbours
 [ ] add state mode colour and other ui info into the ui struct
 [ ] unknown terrain only drawn in terrain painting mode
+[ ] map zoom with plus minus keys
+[ ] remember last interaction mode and have await return back there

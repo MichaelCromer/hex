@@ -15,52 +15,52 @@ executable is `./build/hex` for you to use as you see fit.
 
 ### DONE
 
-[X] navigate tiles
-[X] paint terrain
-[X] simple colours and ui
-[X] 'command-line' interaction mode (for meta controls; quit/write/edit/help/etc)
+ - [X] navigate tiles
+ - [X] paint terrain
+ - [X] simple colours and ui
+ - [X] commandline [quit]
 
 ### IN PROGRESS
 
-[ ] save/load map files
+ - [ ] save/load map files
+ - [ ] paint roads and rivers
+     - - [ ] along hex edges for rivers
+     - - [X] between hex centres/through hex edges for roads
+     - - [X] per-tile booleans for road; allows 1/2 length
 
 ### Roadmap to 1.0
 
 Definite targets
 
-[ ] consistent UI/UX
-    - the problem with Panel -- when to use, and where to place them?
-    - what data to show all the time in statusline?
-    - what should 'j' and 'J' do in various modes?
-[ ] paint roads and rivers w/appropriate interaction mode
-    - along hex edges for rivers
-    - between hex centres/through hex edges for roads
-    - requires thoughtful approach to data structure -- per-tile booleans simple, but 6x
-    memory usage; per-edge coordinate storage simpler, but requires Coordinate
-    reimplementation
-[ ] expanded commands and options
-    - '?' for contextual help/commands, :h[elp] for more in-depth help viewer
-    - repeat/undo last action
-    - place 'location' (town, dungeon, feature)
-[ ] full/adaptive colour
+ - [ ] consistent UI/UX
+     - - [ ] panels on the left for map detail info, panels on the right for help
+     - - [ ] statusline shows mode-appropriate hints
+     - - [ ] 'j' _always_ toggles view of tile detail
+     - - [ ] directional keys _always_ move the reticule
+     - - [ ] 'await'-style modes return to previous mode afterwards
+ - [ ] expanded commands and options
+     - - [ ] '?' for contextual help/commands, :h[elp] for more in-depth help viewer
+     - - [ ] repeat/undo last action
+     - - [ ] place 'location' (town, dungeon, feature)
+ - [ ] full/adaptive colour
 
 ### Midterm Goals
 
 Subject to change
 
-[ ] minimap overlay option
-[ ] map layer changes (using logtree structure) for rapid traversal
-[ ] naming of map features / customisable map data
-[ ] placing of map marks / jump-to locations
-[ ] searchable locations
-[ ] single tile focus deep zoom
-[ ] set/goto map marks
+ - [ ] minimap overlay option [looking doubtful if next point happens]
+ - [ ] map layer changes using logtree structure for rapid traversal
+ - [ ] naming of map features / customisable map data
+ - [ ] placing of map marks / jump-to locations
+ - [ ] searchable locations
+ - [ ] single tile focus deep zoom
+ - [ ] set/goto map marks
 
 ### Longterm Goals
 
 Completely uncertain
 
-[ ] `hex --crawl` option for 'player' mode
-[ ] location zoom. dungeon/settlement layout painting
-[ ] other fantasy ttrpg elements: items, monsters, npcs?
-[ ] calendar, seasons
+ - [ ] `hex --crawl` option for 'player' mode
+ - [ ] location zoom. dungeon/settlement layout painting
+ - [ ] other fantasy ttrpg elements: items, monsters, npcs?
+ - [ ] calendar, seasons
