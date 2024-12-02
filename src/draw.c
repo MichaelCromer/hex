@@ -62,6 +62,39 @@ void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
 }
 
 
+void wdraw_road(WINDOW *win, struct Geometry *g, int r0, int c0, enum DIRECTION d)
+{
+    float dc = 0, dr = 0, S = geometry_scale(g);
+    switch (d) {
+        case DIRECTION_EE:
+            dc = ROOT3 * S;
+            break;
+        case DIRECTION_NE:
+            dc = ROOT3 * S / 2;
+            dr = 3 * S / 2;
+            break;
+        case DIRECTION_NW:
+            dc = -1 * ROOT3 * S / 2;
+            dr = 3 * S / 2;
+            break;
+        case DIRECTION_WW:
+            dc = -1 * ROOT3 * S;
+            break;
+        case DIRECTION_SW:
+            dc = -1 * ROOT3 * S / 2;
+            dr = -3 * S / 2;
+            break;
+        case DIRECTION_SE:
+            dc = ROOT3 * S / 2;
+            dr = -3 * S / 2;
+            break;
+        default:
+            break;
+    }
+    wdraw_line(win, r0, c0, r0 + round(dr), c0 + round(dc), '=');
+}
+
+
 /*
  *      DRAW 02 - Panels
  */
