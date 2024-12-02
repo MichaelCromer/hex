@@ -52,6 +52,12 @@ struct Chart *chart_create_origin(void)
 }
 
 
+struct Chart **chart_children(const struct Chart *chart)
+{
+    return chart->children;
+}
+
+
 struct Chart *chart_child(const struct Chart *chart, enum CHILDREN c)
 {
     if (!chart || !chart->children) {
@@ -227,15 +233,21 @@ struct Chart *atlas_root(const struct Atlas *m)
 }
 
 
-struct Chart *atlas_curr(const struct Atlas *m)
+struct Chart *atlas_curr(const struct Atlas *atlas)
 {
-    return m->curr;
+    return atlas->curr;
 }
 
 
 struct Coordinate *atlas_coordinate(const struct Atlas *atlas)
 {
     return chart_coordinate(atlas_curr(atlas));
+}
+
+
+struct Tile *atlas_tile(const struct Atlas *atlas)
+{
+    return chart_tile(atlas_curr(atlas));
 }
 
 
@@ -287,7 +299,7 @@ struct Chart *atlas_find(const struct Atlas *atlas, const struct Coordinate *c)
 
     struct Coordinate *r = chart_coordinate(atlas_root(atlas));
 
-    if (!coordinate_related(r, c)) {
+    if (!coordinate_related(r, c) || (coordinate_m(c) > coordinate_m(r))) {
         return NULL;
     }
 
@@ -335,7 +347,7 @@ void atlas_insert(struct Atlas *atlas, struct Chart *new)
 
 void atlas_create_neighbours(struct Atlas *atlas)
 {
-    struct Coordinate *n = coordinate_duplicate(coordinate_origin());
+    struct Coordinate *n = coordinate_create_origin();
     struct Chart *neighbour = NULL;
 
     for (int i = 0; i < NUM_DIRECTIONS; i++) {

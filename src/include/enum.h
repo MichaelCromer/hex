@@ -1,6 +1,8 @@
 #ifndef ENUM_H
 #define ENUM_H
 
+#include <stdbool.h>
+
 
 enum UI_COLOUR {
     COLOUR_NONE,
@@ -17,16 +19,20 @@ enum UI_PANEL {
 };
 
 
-enum INPUT_MODE {
-    INPUT_MODE_NONE,
-    INPUT_MODE_CAPTURE,
-    INPUT_MODE_NAVIGATE,
-    INPUT_MODE_TERRAIN,
-    INPUT_MODE_COMMAND
+enum MODE {
+    MODE_NONE,
+    MODE_CAPTURE,
+    MODE_NAVIGATE,
+    MODE_TERRAIN,
+    MODE_ROAD,
+    MODE_COMMAND
 };
+const char *mode_name(enum MODE m);
+int mode_colour(enum MODE m);
 
 
 #define NUM_TERRAIN 9
+#define NUM_TERRAIN_CHOPTS 24
 enum TERRAIN {
     TERRAIN_NONE,
     TERRAIN_UNKNOWN,
@@ -40,18 +46,24 @@ enum TERRAIN {
     TERRAIN_SWAMP,
     TERRAIN_TUNDRA
 };
+const char *terrain_name(enum TERRAIN t);
+const char *terrain_chopts(enum TERRAIN t);
+int terrain_colour(enum TERRAIN t);
+bool terrain_impassable(enum TERRAIN t);
+const char *terrain_statusline(void);
 
 
 #define NUM_DIRECTIONS 6
 enum DIRECTION {
-    EAST,
-    NORTHEAST,
-    NORTHWEST,
-    WEST,
-    SOUTHWEST,
-    SOUTHEAST,
-    DIRECTION_NONE
+    DIRECTION_EE,
+    DIRECTION_NE,
+    DIRECTION_NW,
+    DIRECTION_WW,
+    DIRECTION_SW,
+    DIRECTION_SE,
+    DIRECTION_XX
 };
+enum DIRECTION direction_opposite(enum DIRECTION d);
 
 
 #define NUM_CHILDREN 9
@@ -68,15 +80,13 @@ enum CHILDREN {
 };
 
 
-enum COMMAND_TYPE {
-    COMMAND_TYPE_NONE,
-    COMMAND_TYPE_ERROR,
-    COMMAND_TYPE_QUIT,
-    COMMAND_TYPE_WRITE,
-    COMMAND_TYPE_EDIT,
+enum COMMAND {
+    COMMAND_NONE,
+    COMMAND_ERROR,
+    COMMAND_QUIT,
+    COMMAND_WRITE,
+    COMMAND_EDIT,
 };
 
-
-enum DIRECTION direction_opposite(enum DIRECTION d);
 
 #endif 

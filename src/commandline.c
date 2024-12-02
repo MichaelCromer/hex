@@ -9,12 +9,12 @@
 
 
 struct Command {
-    enum COMMAND_TYPE type;
+    enum COMMAND type;
     char *data;
 };
 
 
-struct Command *command_create(enum COMMAND_TYPE type, char *data)
+struct Command *command_create(enum COMMAND type, char *data)
 {
     struct Command *c = malloc(sizeof(struct Command));
     c->type = type;
@@ -24,7 +24,7 @@ struct Command *command_create(enum COMMAND_TYPE type, char *data)
 }
 
 
-enum COMMAND_TYPE command_type(const struct Command *c)
+enum COMMAND command_type(const struct Command *c)
 {
     return c->type;
 }
@@ -146,7 +146,7 @@ char *commandline_curr(struct Commandline *c)
 }
 
 
-enum COMMAND_TYPE commandline_parse_type(struct Commandline *c)
+enum COMMAND commandline_parse_type(struct Commandline *c)
 {
     char *c0 = commandline_curr(c);
     while (isspace(*c0) && (*c0 != '\0')) {
@@ -161,14 +161,14 @@ enum COMMAND_TYPE commandline_parse_type(struct Commandline *c)
     size_t L = c1 - c0;
 
     if (L == 0) {
-        return COMMAND_TYPE_NONE;
+        return COMMAND_NONE;
     }
 
     if ((L <= strlen(COMMAND_WORD_QUIT)) && (strncmp(COMMAND_WORD_QUIT, c0, L) == 0)) {
-        return COMMAND_TYPE_QUIT;
+        return COMMAND_QUIT;
     }
 
-    return COMMAND_TYPE_ERROR;
+    return COMMAND_ERROR;
 }
 
 
@@ -200,17 +200,17 @@ struct Command *commandline_parse(struct Commandline *c)
 {
     commandline_start(c);
 
-    enum COMMAND_TYPE t = commandline_parse_type(c);
+    enum COMMAND t = commandline_parse_type(c);
     
     switch (t) {
-        case COMMAND_TYPE_QUIT:
-        case COMMAND_TYPE_ERROR:
+        case COMMAND_QUIT:
+        case COMMAND_ERROR:
             return command_create(t, NULL);
-        case COMMAND_TYPE_EDIT:
-        case COMMAND_TYPE_WRITE:
+        case COMMAND_EDIT:
+        case COMMAND_WRITE:
         default:
             break;
     }
 
-    return command_create(COMMAND_TYPE_NONE, NULL);
+    return command_create(COMMAND_NONE, NULL);
 }

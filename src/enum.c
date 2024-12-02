@@ -1,9 +1,25 @@
 #include <ncurses.h>
-#include <stddef.h>
 
-#include "include/terrain.h"
-#include "include/tile.h"
-#include "include/atlas.h"
+#include "include/enum.h"
+
+
+/*******************************************************************************
+ *  DIRECTION
+ ******************************************************************************/
+
+/*  DIRECTION : Functions */
+
+enum DIRECTION direction_opposite(enum DIRECTION d)
+{
+    return (d + (NUM_DIRECTIONS / 2)) % NUM_DIRECTIONS;
+}
+
+
+/*******************************************************************************
+ *  TERRAIN
+ ******************************************************************************/
+
+/*  TERRAIN : Constants */
 
 const char *terrain_unknown     = "Unknown";
 const char *terrain_water       = "Water";
@@ -16,7 +32,6 @@ const char *terrain_jungle      = "Jungle";
 const char *terrain_swamp       = "Swamp";
 const char *terrain_tundra      = "Tundra";
 
-#define NUM_TERRAIN_CHOPTS 24
 const char *terrain_chopts_unknown      = "                     ??*";
 const char *terrain_chopts_water        = "         ~~~~~~~~~~~~~~~";
 const char *terrain_chopts_mountains    = "                ..^^^AAA";
@@ -29,6 +44,10 @@ const char *terrain_chopts_swamp        = "                iijj%~%~";
 const char *terrain_chopts_tundra       = "                  ..o=-_";
 
 const char *terrain_hints = "q:water w:mountain e:hills a:plains s:forest d:swamp z:desert x:jungle c:tundra";
+
+
+/*  TERRAIN : Functions */
+
 
 const char *terrain_name(enum TERRAIN t)
 {
@@ -85,15 +104,6 @@ const char *terrain_chopts(enum TERRAIN t)
 }
 
 
-char terrain_getch(enum TERRAIN t, int x, int y, int seed)
-{
-    const char *chopts = terrain_chopts(t);
-    int offset = (int)t;
-
-    return chopts[prng(x, y, seed + offset, NUM_TERRAIN_CHOPTS)];
-}
-
-
 int terrain_colour(enum TERRAIN t)
 {
     switch (t) {
@@ -116,12 +126,75 @@ int terrain_colour(enum TERRAIN t)
         case TERRAIN_TUNDRA:
             return COLOR_CYAN;
         default:
-            return COLOR_WHITE;
+            break;
     }
+    return COLOR_WHITE;
+}
+
+
+bool terrain_impassable(enum TERRAIN t)
+{
+    switch (t) {
+        case TERRAIN_UNKNOWN:
+        case TERRAIN_WATER:
+            return true;
+        default:
+            break;
+    }
+    return false;
 }
 
 
 const char *terrain_statusline(void)
 {
     return terrain_hints;
+}
+
+
+/*******************************************************************************
+ *  MODE
+ ******************************************************************************/
+
+/*  MODE : Constants */
+
+const char *modestr_navigate = "NAVIGATE";
+const char *modestr_terrain  = "TERRAIN";
+const char *modestr_command  = "COMMAND";
+const char *modestr_road     = "ROADS";
+const char *modestr_unknown  = "???";
+
+
+/*  MODE : Functions */
+
+
+const char *mode_name(enum MODE m)
+{
+    switch (m) {
+        case MODE_NAVIGATE:
+            return modestr_navigate;
+        case MODE_TERRAIN:
+            return modestr_terrain;
+        case MODE_ROAD:
+            return modestr_road;
+        case MODE_COMMAND:
+            return modestr_command;
+        default:
+            return modestr_unknown;
+    }
+}
+
+int mode_colour(enum MODE m)
+{
+    switch (m) {
+        case MODE_NAVIGATE:
+            return COLOR_WHITE;
+        case MODE_TERRAIN:
+            return COLOR_GREEN;
+        case MODE_COMMAND:
+            return COLOR_RED;
+        case MODE_ROAD:
+            return COLOR_YELLOW;
+        default:
+            return COLOR_WHITE;
+    }
 }

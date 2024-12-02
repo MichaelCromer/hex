@@ -6,8 +6,8 @@
 struct Command;
 struct Commandline;
 
-struct Command *command_create(enum COMMAND_TYPE type, char *data);
-enum COMMAND_TYPE command_type(const struct Command *c);
+struct Command *command_create(enum COMMAND type, char *data);
+enum COMMAND command_type(const struct Command *c);
 const char *command_str(const struct Command *c);
 void command_destroy(struct Command *c);
 
@@ -23,7 +23,7 @@ char *commandline_end(struct Commandline *c);
 char *commandline_next(struct Commandline *c);
 char *commandline_prev(struct Commandline *c);
 char *commandline_curr(struct Commandline *c);
-enum COMMAND_TYPE commandline_parse_type(struct Commandline *c);
+enum COMMAND commandline_parse_type(struct Commandline *c);
 char *commandline_parse_data(struct Commandline *c);
 struct Command *commandline_parse(struct Commandline *c);
 

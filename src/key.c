@@ -7,21 +7,21 @@ enum DIRECTION key_direction(key k)
 {
     switch (tolower(k)) {
         case KEY_EE:
-            return EAST;
+            return DIRECTION_EE;
         case KEY_NE:
-            return NORTHEAST;
+            return DIRECTION_NE;
         case KEY_NW:
-            return NORTHWEST;
+            return DIRECTION_NW;
         case KEY_WW:
-            return WEST;
+            return DIRECTION_WW;
         case KEY_SW:
-            return SOUTHWEST;
+            return DIRECTION_SW;
         case KEY_SE:
-            return SOUTHEAST;
+            return DIRECTION_SE;
         default:
             break;
     }
-    return DIRECTION_NONE;
+    return DIRECTION_XX;
 }
 
 
@@ -116,24 +116,11 @@ bool key_is_mode(key k)
         case KEY_MODE_COMMAND:
         case KEY_MODE_AWAIT_TERRAIN:
         case KEY_MODE_TERRAIN:
+        case KEY_MODE_AWAIT_ROAD:
+        case KEY_MODE_ROAD:
             return true;
         default:
             break;
     }
     return false;
-}
-
-
-enum INPUT_MODE key_mode(key k)
-{
-    switch (k) {
-        case KEY_MODE_COMMAND:
-            return INPUT_MODE_COMMAND;
-        case KEY_MODE_AWAIT_TERRAIN:
-        case KEY_MODE_TERRAIN:
-            return INPUT_MODE_NAVIGATE;
-        default:
-            break;
-    }
-    return INPUT_MODE_NONE;
 }
