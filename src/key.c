@@ -118,6 +118,8 @@ bool key_is_mode(key k)
         case KEY_MODE_TERRAIN:
         case KEY_MODE_AWAIT_ROAD:
         case KEY_MODE_ROAD:
+        case KEY_MODE_AWAIT_RIVER:
+        case KEY_MODE_RIVER:
             return true;
         default:
             break;
