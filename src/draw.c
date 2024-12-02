@@ -52,9 +52,9 @@ void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
     if (!L) {
         return;
     }
-    float dr = (float)(R / (2.0f * L)), dc = (float)(C / (2.0f * L));
+    float dr = (float)(R / L), dc = (float)(C / L);
     float r = 0, c = 0;
-    for (int i = 0; i <= 2*L; i++) {
+    for (int i = 0; i <= L+1; i++) {
         mvwaddch(win, r0 + round(r), c0 + round(c), ch);
         r += dr;
         c += dc;
@@ -64,34 +64,36 @@ void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
 
 void wdraw_road(WINDOW *win, struct Geometry *g, int r0, int c0, enum DIRECTION d)
 {
-    float dc = 0, dr = 0, S = geometry_scale(g);
+    float dr = 0, dc = 0,
+          Sr = geometry_scale(g) / 2,
+          Sc = geometry_scale(g) * geometry_aspect(g) / 2;
     switch (d) {
         case DIRECTION_EE:
-            dc = ROOT3 * S;
+            dr = ROOT3 * Sr;
             break;
         case DIRECTION_NE:
-            dc = ROOT3 * S / 2;
-            dr = 3 * S / 2;
+            dr = ROOT3 * Sr / 2;
+            dc = -3 * Sc / 2;
             break;
         case DIRECTION_NW:
-            dc = -1 * ROOT3 * S / 2;
-            dr = 3 * S / 2;
+            dr = -1 * ROOT3 * Sr / 2;
+            dc = -3 * Sc / 2;
             break;
         case DIRECTION_WW:
-            dc = -1 * ROOT3 * S;
+            dr = -1 * ROOT3 * Sr;
             break;
         case DIRECTION_SW:
-            dc = -1 * ROOT3 * S / 2;
-            dr = -3 * S / 2;
+            dr = -1 * ROOT3 * Sr / 2;
+            dc = 3 * Sc / 2;
             break;
         case DIRECTION_SE:
-            dc = ROOT3 * S / 2;
-            dr = -3 * S / 2;
+            dr = ROOT3 * Sr / 2;
+            dc = 3 * Sc / 2;
             break;
         default:
             break;
     }
-    wdraw_line(win, r0, c0, r0 + round(dr), c0 + round(dc), '=');
+    wdraw_line(win, r0, c0, r0 + round(dc), c0 + round(dr), '#');
 }
 
 
@@ -182,7 +184,7 @@ void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int 
 
     attron(COLOR_PAIR(COLOR_YELLOW));
 
-    for (int i = 0; i < NUM_DIRECTIONS / 2; i++) {
+    for (int i = 0; i < NUM_DIRECTIONS; i++) {
         if (tile_road(tile, i)) {
             wdraw_road(win, g, r0, c0, i);
         }
