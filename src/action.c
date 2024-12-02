@@ -30,12 +30,10 @@ void action_paint_terrain(struct State *s, enum TERRAIN t)
 
 void action_paint_road(struct State *s, enum DIRECTION d)
 {
-    if (terrain_impassable(atlas_terrain(state_atlas(s)))) {
-        return;
-    }
     struct Tile *tile = atlas_tile(state_atlas(s));
     action_move(s, d, 1);
-    if (terrain_impassable(atlas_terrain(state_atlas(s)))) {
+    if (terrain_impassable(tile_terrain(tile))
+            || terrain_impassable(atlas_terrain(state_atlas(s)))) {
         return;
     }
     tile_set_road(tile, d, true);
