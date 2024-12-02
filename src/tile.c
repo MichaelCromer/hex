@@ -99,6 +99,27 @@ void tile_set_road(struct Tile *tile, enum DIRECTION d, bool b)
 }
 
 
+void tile_toggle_road(struct Tile *tile, enum DIRECTION d)
+{
+    if (!tile) {
+        return;
+    }
+    tile->roads[d] = !tile->roads[d];
+}
+
+
+void tile_clear_roads(struct Tile *tile)
+{
+    if (!tile) {
+        return;
+    }
+
+    for (int i = 0; i < NUM_DIRECTIONS; i++) {
+        tile_set_road(tile, i, false);
+    }
+}
+
+
 bool tile_river(const struct Tile *tile, enum DIRECTION d)
 {
     return tile->rivers[d];

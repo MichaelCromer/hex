@@ -24,6 +24,9 @@ void action_paint_terrain(struct State *s, enum TERRAIN t)
         atlas_create_neighbours(state_atlas(s));
     }
     atlas_set_terrain(state_atlas(s), t);
+    if (terrain_impassable(t)) {
+        tile_clear_roads(atlas_tile(state_atlas(s)));
+    }
     ui_update_detail(state_ui(s), atlas_curr(state_atlas(s)));
 }
 
@@ -32,13 +35,12 @@ void action_paint_road(struct State *s, enum DIRECTION d)
 {
     struct Tile *tile = atlas_tile(state_atlas(s));
     action_move(s, d, 1);
-    if (terrain_impassable(tile_terrain(tile))
-            || terrain_impassable(atlas_terrain(state_atlas(s)))) {
-        return;
+    if (!terrain_impassable(tile_terrain(tile))) {
+        tile_toggle_road(tile, d);
     }
-    tile_set_road(tile, d, true);
-    tile = atlas_tile(state_atlas(s));
-    tile_set_road(tile, direction_opposite(d), true);
+    if (!terrain_impassable(atlas_terrain(state_atlas(s)))) {
+        tile_toggle_road(atlas_tile(state_atlas(s)), direction_opposite(d));
+    }
 }
 
 
