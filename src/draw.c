@@ -158,7 +158,7 @@ void wdraw_reticule(WINDOW *win, struct Geometry *g)
 }
 
 
-int wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int c0)
+void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int c0)
 {
     int w_half = (geometry_tile_w(g)+1) / 2,
         h_half = (geometry_tile_h(g)+1) / 2;
@@ -179,7 +179,16 @@ int wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int c
         }
     }
     attroff(COLOR_PAIR(terrain_colour(t)));
-    return 0;
+
+    attron(COLOR_PAIR(COLOR_YELLOW));
+
+    for (int i = 0; i < NUM_DIRECTIONS / 2; i++) {
+        if (tile_road(tile, i)) {
+            wdraw_road(win, g, r0, c0, i);
+        }
+    }
+
+    attroff(COLOR_PAIR(COLOR_YELLOW));
 }
 
 
