@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <ncurses.h>
 #include <math.h>
 
@@ -135,10 +134,10 @@ int wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int c
 
 
 void wdraw_chart(
-        WINDOW *win, 
-        struct Geometry *g, 
-        struct Chart *chart, 
-        float u0, 
+        WINDOW *win,
+        struct Geometry *g,
+        struct Chart *chart,
+        float u0,
         float v0)
 {
     /* recurse down the chart to find the tiles at the bottom and print them
@@ -162,9 +161,9 @@ void wdraw_chart(
 
 
 void wdraw_atlas_at(
-        WINDOW *win, 
-        struct Geometry *g, 
-        struct Atlas *atlas, 
+        WINDOW *win,
+        struct Geometry *g,
+        struct Atlas *atlas,
         struct Coordinate *c)
 {
     struct Chart *chart = atlas_find(atlas, c);
@@ -184,9 +183,8 @@ void wdraw_atlas_at(
 
 void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 {
-    /* find the smallest chart that is guaranteed to contain all the tiles of interest
-     * send this chart to wdraw_chart with centre offset calculated
-     * or send its children recursively, etc
+    /* find the smallest coordinate that is guaranteed to contain the window
+     * send this coordinate to wdraw_atlas_at
      * */
 
     struct Chart *centre = atlas_curr(atlas);
@@ -235,7 +233,6 @@ void wdraw_ui(WINDOW *win, struct UserInterface *ui)
             wdraw_panel(win, ui_panel(ui, p));
         }
     }
-    return;
 }
 
 
@@ -271,8 +268,6 @@ void wdraw_statusline(WINDOW *win, struct State *s)
         default:
             break;
     }
-
-    return;
 }
 
 
