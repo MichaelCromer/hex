@@ -45,6 +45,23 @@ void wdraw_box(WINDOW *win, int r0, int c0, int w, int h, char bg)
 }
 
 
+void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
+{
+    int R = (r1 - r0), C = (c1 - c0);
+    float L = (float)sqrt(R*R + C*C);
+    if (!L) {
+        return;
+    }
+    float dr = (float)(R / (2.0f * L)), dc = (float)(C / (2.0f * L));
+    float r = 0, c = 0;
+    for (int i = 0; i <= 2*L; i++) {
+        mvwaddch(win, r0 + round(r), c0 + round(c), ch);
+        r += dr;
+        c += dc;
+    }
+}
+
+
 /*
  *      DRAW 02 - Panels
  */
