@@ -20,27 +20,39 @@ void action_move(struct State *s, enum DIRECTION d, int steps)
 
 void action_paint_terrain(struct State *s, enum TERRAIN t)
 {
-    if (atlas_terrain(state_atlas(s)) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
-        atlas_create_neighbours(state_atlas(s));
+    struct Atlas *atlas = state_atlas(s);
+
+    if (atlas_terrain(atlas) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
+        atlas_create_neighbours(atlas);
     }
-    atlas_set_terrain(state_atlas(s), t);
+    atlas_set_terrain(atlas, t);
     if (terrain_impassable(t)) {
-        tile_clear_roads(atlas_tile(state_atlas(s)));
+        struct Tile *tile = atlas_tile(atlas);
+        struct Tile *neighbour = NULL;
+        for (int i = 0; i < NUM_DIRECTIONS; i++) {
+            if (!tile_road(tile, i)) {
+                continue;
+            }
+            neighbour = chart_tile(atlas_neighbour(atlas, i));
+            tile_set_road(neighbour, direction_opposite(i), false);
+        }
+        tile_clear_roads(atlas_tile(atlas));
     }
-    ui_update_detail(state_ui(s), atlas_curr(state_atlas(s)));
+    ui_update_detail(state_ui(s), atlas_curr(atlas));
 }
 
 
 void action_paint_road(struct State *s, enum DIRECTION d)
 {
-    struct Tile *tile = atlas_tile(state_atlas(s));
+    struct Atlas *atlas = state_atlas(s);
+    struct Tile *tile = atlas_tile(atlas);
     action_move(s, d, 1);
-    if (!terrain_impassable(tile_terrain(tile))) {
-        tile_toggle_road(tile, d);
+    if (terrain_impassable(tile_terrain(tile))
+            || terrain_impassable(atlas_terrain(atlas))) {
+        return;
     }
-    if (!terrain_impassable(atlas_terrain(state_atlas(s)))) {
-        tile_toggle_road(atlas_tile(state_atlas(s)), direction_opposite(d));
-    }
+    tile_toggle_road(tile, d);
+    tile_toggle_road(atlas_tile(atlas), direction_opposite(d));
 }
 
 
