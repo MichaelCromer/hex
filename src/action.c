@@ -82,6 +82,12 @@ void action_navigate(struct State *s, key k)
             case KEY_MODE_ROAD:
                 state_set_mode(s, MODE_ROAD);
                 break;
+            case KEY_MODE_AWAIT_RIVER:
+                state_set_await(s, true);
+                /* fall through */
+            case KEY_MODE_RIVER:
+                state_set_mode(s, MODE_RIVER);
+                break;
             default:
                 break;
         }
@@ -212,5 +218,23 @@ void action_road(struct State *s, key k)
         default:
             break;
     }
-    return;
+}
+
+
+void action_river(struct State *s, key k)
+{
+    if (state_await(s)) {
+        state_set_await(s, false);
+        state_set_mode(s, MODE_NAVIGATE);
+        return;
+    }
+
+    switch (k) {
+        case KEY_MODE_RIVER:
+        case KEY_ESCAPE:
+            state_set_mode(s, MODE_NAVIGATE);
+            return;
+        default:
+            break;
+    }
 }
