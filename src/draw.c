@@ -67,6 +67,7 @@ void wdraw_road(WINDOW *win, struct Geometry *g, int r0, int c0, enum DIRECTION 
     float dr = 0, dc = 0,
           Sr = geometry_scale(g) / 2,
           Sc = geometry_scale(g) * geometry_aspect(g) / 2;
+
     switch (d) {
         case DIRECTION_EE:
             dr = ROOT3 * Sr;
@@ -94,6 +95,56 @@ void wdraw_road(WINDOW *win, struct Geometry *g, int r0, int c0, enum DIRECTION 
             break;
     }
     wdraw_line(win, r0, c0, r0 + round(dc), c0 + round(dr), '#');
+}
+
+
+void wdraw_river(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d)
+{
+    int r0 = 0, c0 = 0, r1 = 0, c1 = 0;
+    float Sr = geometry_scale(g) / 2,
+          Sc = geometry_scale(g) * geometry_aspect(g) / 2;
+
+    switch (d) {
+        case DIRECTION_EE:
+            r0 = r + round(ROOT3 * Sr);
+            c0 = c + round(Sc);
+            r1 = r + round(ROOT3 * Sr);
+            c1 = c - round(Sc);
+            break;
+        case DIRECTION_NE:
+            r0 = r + round(ROOT3 * Sr);
+            c0 = c - round(Sc);
+            r1 = r;
+            c1 = c - round(2 * Sc);
+            break;
+        case DIRECTION_NW:
+            r0 = r;
+            c0 = c - round(2 * Sc);
+            r0 = r - round(ROOT3 * Sr);
+            c0 = c - round(Sc);
+            break;
+        case DIRECTION_WW:
+            r0 = r - round(ROOT3 * Sr);
+            c0 = c - round(Sc);
+            r1 = r - round(ROOT3 * Sr);
+            c1 = c + round(Sc);
+            break;
+        case DIRECTION_SW:
+            r0 = r - round(ROOT3 * Sr);
+            c0 = c + round(Sc);
+            r1 = r;
+            c1 = c + round(2 * Sc);
+            break;
+        case DIRECTION_SE:
+            r0 = r;
+            c0 = c + round(2 * Sc);
+            r1 = r + round(ROOT3 * Sr);
+            c1 = c + round(Sc);
+            break;
+        default:
+            break;
+    }
+    wdraw_line(win, r0, c0, r1, c1, '~');
 }
 
 
@@ -183,14 +234,20 @@ void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int 
     attroff(COLOR_PAIR(terrain_colour(t)));
 
     attron(COLOR_PAIR(COLOR_YELLOW));
-
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         if (tile_road(tile, i)) {
             wdraw_road(win, g, r0, c0, i);
         }
     }
-
     attroff(COLOR_PAIR(COLOR_YELLOW));
+
+    attron(COLOR_PAIR(COLOR_CYAN));
+    for (int i = 0; i < NUM_DIRECTIONS; i++) {
+        if (tile_river(tile, i)) {
+            wdraw_river(win, g, r0, c0, i);
+        }
+    }
+    attroff(COLOR_PAIR(COLOR_CYAN));
 }
 
 
