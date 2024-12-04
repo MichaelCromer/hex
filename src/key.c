@@ -113,6 +113,7 @@ bool key_is_terrain(key k)
 bool key_is_mode(key k)
 {
     switch (k) {
+        case KEY_ESCAPE:
         case KEY_MODE_COMMAND:
         case KEY_MODE_AWAIT_TERRAIN:
         case KEY_MODE_TERRAIN:
@@ -121,6 +122,32 @@ bool key_is_mode(key k)
             return true;
         default:
             break;
+    }
+    return false;
+}
+
+
+enum MODE key_mode(key k)
+{
+    switch (k) {
+        case KEY_MODE_COMMAND: return MODE_COMMAND;
+        case KEY_MODE_AWAIT_TERRAIN: return MODE_AWAIT_TERRAIN;
+        case KEY_MODE_TERRAIN: return MODE_TERRAIN;
+        case KEY_MODE_AWAIT_ROAD: return MODE_AWAIT_ROAD;
+        case KEY_MODE_ROAD: return MODE_ROAD;
+        default: break;
+    }
+    return MODE_NONE;
+}
+
+
+bool key_is_await(key k)
+{
+    switch (k) {
+        case KEY_MODE_AWAIT_TERRAIN:
+        case KEY_MODE_AWAIT_ROAD:
+            return true;
+        default: break;
     }
     return false;
 }
