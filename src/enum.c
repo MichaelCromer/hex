@@ -157,11 +157,13 @@ const char *terrain_statusline(void)
 
 /*  MODE : Constants */
 
-const char *modestr_navigate = "NAVIGATE";
-const char *modestr_terrain  = "TERRAIN";
-const char *modestr_command  = "COMMAND";
-const char *modestr_road     = "ROADS";
-const char *modestr_unknown  = "???";
+const char *modestr_navigate        = "[NAVIGATE]";
+const char *modestr_terrain         = "[TERRAIN]";
+const char *modestr_command         = "[COMMAND]";
+const char *modestr_road            = "[ROADS]";
+const char *modestr_await_terrain   = "(terrain)";
+const char *modestr_await_road      = "(roads)";
+const char *modestr_unknown         = "???";
 
 
 /*  MODE : Functions */
@@ -174,27 +176,57 @@ const char *mode_name(enum MODE m)
             return modestr_navigate;
         case MODE_TERRAIN:
             return modestr_terrain;
+        case MODE_AWAIT_TERRAIN:
+            return modestr_await_terrain;
+        case MODE_AWAIT_ROAD:
+            return modestr_await_road;
         case MODE_ROAD:
             return modestr_road;
         case MODE_COMMAND:
             return modestr_command;
         default:
-            return modestr_unknown;
+            break;
     }
+    return modestr_unknown;
 }
 
 int mode_colour(enum MODE m)
 {
     switch (m) {
-        case MODE_NAVIGATE:
-            return COLOR_WHITE;
         case MODE_TERRAIN:
+        case MODE_AWAIT_TERRAIN:
             return COLOR_GREEN;
-        case MODE_COMMAND:
-            return COLOR_RED;
         case MODE_ROAD:
+        case MODE_AWAIT_ROAD:
             return COLOR_YELLOW;
-        default:
-            return COLOR_WHITE;
+        case MODE_COMMAND: return COLOR_RED;
+        case MODE_NAVIGATE: return COLOR_WHITE;
+        default: break;
     }
+    return COLOR_WHITE;
+}
+
+
+bool mode_is_await(enum MODE m)
+{
+    switch (m) {
+        case MODE_AWAIT_ROAD:
+        case MODE_AWAIT_TERRAIN:
+            return true;
+        default: break;
+    }
+    return false;;
+}
+
+
+enum MODE mode_drop_await(enum MODE m)
+{
+    switch (m) {
+        case MODE_AWAIT_ROAD:
+            return MODE_ROAD;
+        case MODE_AWAIT_TERRAIN:
+            return MODE_TERRAIN;
+        default: break;
+    }
+    return m;;
 }

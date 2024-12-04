@@ -304,8 +304,17 @@ void wdraw_statusline(WINDOW *win, struct State *s)
         w  = geometry_cols(state_geometry(s))-1;
 
     mvwhline(win, r0, c0, ' ', w);
+    wmove(win, r0, c0+1);
+
+    if (state_await(s)) {
+        attron(COLOR_PAIR(mode_colour(state_lastmode(s))));
+        waddstr(win, mode_name(state_lastmode(s)));
+        attroff(COLOR_PAIR(mode_colour(state_lastmode(s))));
+        addch(' ');
+    }
+
     attron(COLOR_PAIR(mode_colour(state_mode(s))));
-    mvwaddstr(win, r0, c0+1, mode_name(state_mode(s)));
+    waddstr(win, mode_name(state_mode(s)));
     attroff(COLOR_PAIR(mode_colour(state_mode(s))));
 
     switch (state_mode(s)) {
@@ -315,6 +324,7 @@ void wdraw_statusline(WINDOW *win, struct State *s)
             addstr(commandline_str(state_commandline(s)));
             break;
         case MODE_TERRAIN:
+        case MODE_AWAIT_TERRAIN:
             addch(' ');
             attron(COLOR_PAIR(COLOR_YELLOW));
             for (const char *c = terrain_statusline(); *c != '\0'; c++) {

@@ -16,7 +16,9 @@ struct Atlas *state_atlas(const struct State *s);
 struct UserInterface *state_ui(const struct State *s);
 struct Commandline *state_commandline(const struct State *s);
 enum MODE state_mode(const struct State *s);
-void state_set_mode(struct State *s, enum MODE mode);
+enum MODE state_lastmode(const struct State *state);
+void state_push_mode(struct State *s, enum MODE mode);
+void state_pop_mode(struct State *state);
 char *state_charbuf(struct State *s);
 void state_reset_charbuf(struct State *s);
 void state_reset_nextchar(struct State *s);
@@ -25,13 +27,9 @@ enum UI_COLOUR state_colour(struct State *s);
 void state_set_colour(struct State *s, enum UI_COLOUR colour);
 bool state_await(struct State *s);
 WINDOW *state_window(struct State *s);
-void state_set_await(struct State *s, bool await);
 bool state_quit(struct State *s);
 void state_set_quit(struct State *s, bool quit);
 key state_currkey(struct State *s);
 void state_set_currkey(struct State *s, key k);
-void state_set_mode(struct State *s, enum MODE mode);
-int state_mode_colour(const struct State *s);
-const char *state_mode_name(const struct State *s);
 
 #endif
