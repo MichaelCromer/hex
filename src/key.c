@@ -119,6 +119,8 @@ bool key_is_mode(key k)
         case KEY_MODE_TERRAIN:
         case KEY_MODE_AWAIT_ROAD:
         case KEY_MODE_ROAD:
+        case KEY_MODE_AWAIT_RIVER:
+        case KEY_MODE_RIVER:
             return true;
         default:
             break;
@@ -135,6 +137,8 @@ enum MODE key_mode(key k)
         case KEY_MODE_TERRAIN: return MODE_TERRAIN;
         case KEY_MODE_AWAIT_ROAD: return MODE_AWAIT_ROAD;
         case KEY_MODE_ROAD: return MODE_ROAD;
+        case KEY_MODE_AWAIT_RIVER: return MODE_AWAIT_RIVER;
+        case KEY_MODE_RIVER: return MODE_RIVER;
         default: break;
     }
     return MODE_NONE;

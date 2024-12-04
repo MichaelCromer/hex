@@ -10,5 +10,6 @@ void action_navigate(struct State *s, key k);
 void action_terrain(struct State *s, key k);
 void action_command(struct State *s, key k);
 void action_road(struct State *s, key k);
+void action_river(struct State *s, key k);
 
 #endif

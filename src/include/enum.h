@@ -27,6 +27,8 @@ enum MODE {
     MODE_AWAIT_TERRAIN,
     MODE_ROAD,
     MODE_AWAIT_ROAD,
+    MODE_RIVER,
+    MODE_AWAIT_RIVER,
     MODE_COMMAND
 };
 const char *mode_name(enum MODE m);
@@ -68,6 +70,8 @@ enum DIRECTION {
     DIRECTION_XX
 };
 enum DIRECTION direction_opposite(enum DIRECTION d);
+enum DIRECTION direction_next(enum DIRECTION d);
+enum DIRECTION direction_prev(enum DIRECTION d);
 
 
 #define NUM_CHILDREN 9

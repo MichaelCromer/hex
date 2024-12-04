@@ -107,6 +107,11 @@ void state_update(struct State *s)
         case MODE_ROAD:
         case MODE_AWAIT_ROAD:
             action_road(s, k);
+            break;
+        case MODE_AWAIT_RIVER:
+        case MODE_RIVER:
+            action_river(s, k);
+            break;
         case MODE_NONE:
         default:
             break;

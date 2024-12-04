@@ -135,6 +135,27 @@ void tile_set_river(struct Tile *tile, enum DIRECTION d, bool b)
 }
 
 
+void tile_toggle_river(struct Tile *tile, enum DIRECTION d)
+{
+    if (!tile) {
+        return;
+    }
+    tile->rivers[d] = !tile->rivers[d];
+}
+
+
+void tile_clear_rivers(struct Tile *tile)
+{
+    if (!tile) {
+        return;
+    }
+
+    for (int i = 0; i < NUM_DIRECTIONS; i++) {
+        tile_set_river(tile, i, false);
+    }
+}
+
+
 char tile_getch(struct Tile *tile, int x, int y)
 {
     const char *chopts = terrain_chopts(tile_terrain(tile));
@@ -142,4 +163,3 @@ char tile_getch(struct Tile *tile, int x, int y)
 
     return chopts[prng(x, y, tile->seed + offset, NUM_TERRAIN_CHOPTS)];
 }
-

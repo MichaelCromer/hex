@@ -14,11 +14,6 @@ void action_mode(struct State *state, enum MODE m)
         return;
     }
 
-    /* don't set an await mode for the currently select mode! */
-    if (state_mode(state) == mode_drop_await(m)) {
-        return;
-    }
-
     if ((m == state_mode(state)) || (m == MODE_NONE)) {
         state_push_mode(state, MODE_NAVIGATE);
     } else {
@@ -40,27 +35,86 @@ void action_move(struct State *s, enum DIRECTION d, int steps)
 
 void action_paint_terrain(struct State *s, enum TERRAIN t)
 {
-    if (atlas_terrain(state_atlas(s)) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
-        atlas_create_neighbours(state_atlas(s));
+    struct Atlas *atlas = state_atlas(s);
+
+    if (atlas_terrain(atlas) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
+        atlas_create_neighbours(atlas);
     }
-    atlas_set_terrain(state_atlas(s), t);
+    atlas_set_terrain(atlas, t);
     if (terrain_impassable(t)) {
-        tile_clear_roads(atlas_tile(state_atlas(s)));
+        struct Tile *tile = atlas_tile(atlas);
+        struct Tile *neighbour = NULL;
+        for (int i = 0; i < NUM_DIRECTIONS; i++) {
+            if (!tile_road(tile, i)) {
+                continue;
+            }
+            neighbour = chart_tile(atlas_neighbour(atlas, i));
+            tile_set_road(neighbour, direction_opposite(i), false);
+        }
+        tile_clear_roads(atlas_tile(atlas));
     }
-    ui_update_detail(state_ui(s), atlas_curr(state_atlas(s)));
+    ui_update_detail(state_ui(s), atlas_curr(atlas));
 }
 
 
 void action_paint_road(struct State *s, enum DIRECTION d)
 {
-    struct Tile *tile = atlas_tile(state_atlas(s));
+    struct Atlas *atlas = state_atlas(s);
+    struct Tile *tile = atlas_tile(atlas);
+    struct Tile *neighbour = chart_tile(atlas_neighbour(atlas, d));
     action_move(s, d, 1);
-    if (!terrain_impassable(tile_terrain(tile))) {
-        tile_toggle_road(tile, d);
+    if (terrain_impassable(tile_terrain(tile))
+            || terrain_impassable(tile_terrain(neighbour))) {
+        return;
     }
-    if (!terrain_impassable(atlas_terrain(state_atlas(s)))) {
-        tile_toggle_road(atlas_tile(state_atlas(s)), direction_opposite(d));
+    tile_toggle_road(tile, d);
+    tile_toggle_road(neighbour, direction_opposite(d));
+}
+
+
+void action_paint_river(struct State *s, enum DIRECTION d)
+{
+    struct Atlas *atlas = state_atlas(s);
+    struct Tile *tile = atlas_tile(atlas);
+    struct Tile *neighbour = chart_tile(atlas_neighbour(atlas, d));
+    if (terrain_impassable(tile_terrain(tile))
+            || terrain_impassable(tile_terrain(neighbour))) {
+        return;
     }
+    tile_toggle_river(tile, d);
+    tile_toggle_river(neighbour, direction_opposite(d));
+}
+
+
+void action_drag_river(struct State *state, enum DIRECTION d)
+{
+    struct Tile *tile = atlas_tile(state_atlas(state));
+    if (tile_river(tile, direction_next(d)) || tile_river(tile, direction_prev(d))) {
+        action_move(state, d, 1);
+        if (tile_river(tile, direction_next(d))) {
+            enum DIRECTION e = direction_prev(direction_opposite(d));
+            action_paint_river(state, e);
+        }
+        if (tile_river(tile, direction_prev(d))) {
+            enum DIRECTION e = direction_next(direction_opposite(d));
+            action_paint_river(state, e);
+        }
+        return;
+    }
+
+    enum DIRECTION e = direction_opposite(d);
+    if (tile_river(tile, direction_next(e)) || tile_river(tile, direction_prev(e))) {
+        if (tile_river(tile, direction_next(e))) {
+            enum DIRECTION f = direction_next(direction_next(e));
+            action_paint_river(state, f);
+        }
+        if (tile_river(tile, direction_prev(e))) {
+            enum DIRECTION f = direction_prev(direction_prev(e));
+            action_paint_river(state, f);
+        }
+        return;
+    }
+    action_move(state, d, 1);
 }
 
 
@@ -201,5 +255,30 @@ void action_road(struct State *s, key k)
     if (key_is_mode(k)) {
         action_mode(s, key_mode(k));
     }
-    return;
+}
+
+
+void action_river(struct State *state, key k)
+{
+    if (state_await(state)) {
+        if (key_is_direction(k)) {
+            action_paint_river(state, key_direction(k));
+        }
+        action_mode(state, key_mode(k));
+        return;
+    }
+
+    if (key_is_direction(k)) {
+        if (key_is_special(k)) {
+            action_drag_river(state, key_direction(k));
+        } else {
+            action_move(state, key_direction(k), 1);
+        }
+        return;
+    }
+
+    if (key_is_mode(k)) {
+        action_mode(state, key_mode(k));
+        return;
+    }
 }

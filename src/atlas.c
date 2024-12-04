@@ -278,7 +278,6 @@ struct Chart *atlas_neighbour(const struct Atlas *atlas, enum DIRECTION d)
     coordinate_shift(c, d);
     struct Chart *neighbour = atlas_find(atlas, c);
     coordinate_destroy(c);
-    c = NULL;
     return neighbour;
 }
 
