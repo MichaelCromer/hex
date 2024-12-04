@@ -15,6 +15,18 @@ enum DIRECTION direction_opposite(enum DIRECTION d)
 }
 
 
+enum DIRECTION direction_next(enum DIRECTION d)
+{
+    return (d + 1) % NUM_DIRECTIONS;
+}
+
+
+enum DIRECTION direction_prev(enum DIRECTION d)
+{
+    return (d + NUM_DIRECTIONS - 1) % NUM_DIRECTIONS;
+}
+
+
 /*******************************************************************************
  *  TERRAIN
  ******************************************************************************/
@@ -161,10 +173,11 @@ const char *modestr_navigate        = "[NAVIGATE]";
 const char *modestr_terrain         = "[TERRAIN]";
 const char *modestr_command         = "[COMMAND]";
 const char *modestr_road            = "[ROADS]";
+const char *modestr_river           = "[RIVERS]";
 const char *modestr_await_terrain   = "(terrain)";
 const char *modestr_await_road      = "(roads)";
+const char *modestr_await_river     = "(rivers)";
 const char *modestr_unknown         = "???";
-
 
 /*  MODE : Functions */
 
@@ -182,6 +195,10 @@ const char *mode_name(enum MODE m)
             return modestr_await_road;
         case MODE_ROAD:
             return modestr_road;
+        case MODE_AWAIT_RIVER:
+            return modestr_await_river;
+        case MODE_RIVER:
+            return modestr_river;
         case MODE_COMMAND:
             return modestr_command;
         default:
@@ -199,6 +216,9 @@ int mode_colour(enum MODE m)
         case MODE_ROAD:
         case MODE_AWAIT_ROAD:
             return COLOR_YELLOW;
+        case MODE_RIVER:
+        case MODE_AWAIT_RIVER:
+            return COLOR_CYAN;
         case MODE_COMMAND: return COLOR_RED;
         case MODE_NAVIGATE: return COLOR_WHITE;
         default: break;
@@ -210,6 +230,7 @@ int mode_colour(enum MODE m)
 bool mode_is_await(enum MODE m)
 {
     switch (m) {
+        case MODE_AWAIT_RIVER:
         case MODE_AWAIT_ROAD:
         case MODE_AWAIT_TERRAIN:
             return true;
@@ -222,11 +243,13 @@ bool mode_is_await(enum MODE m)
 enum MODE mode_drop_await(enum MODE m)
 {
     switch (m) {
+        case MODE_AWAIT_RIVER:
+            return MODE_RIVER;
         case MODE_AWAIT_ROAD:
             return MODE_ROAD;
         case MODE_AWAIT_TERRAIN:
             return MODE_TERRAIN;
         default: break;
     }
-    return m;;
+    return m;
 }

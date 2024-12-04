@@ -8,7 +8,7 @@ struct Geometry {
     float scale;
     float aspect;
     float slope;
-    int chart_w, chart_h;
+    int tile_dw, tile_dh;
     int cols, rows;
     int rmid, cmid;
 };
@@ -27,8 +27,8 @@ void geometry_initialise(struct Geometry *g, float scale, float aspect, WINDOW *
     g->aspect = aspect;
     getmaxyx(win, g->rows, g->cols);
 
-    g->chart_w = round(g->scale * ROOT3);
-    g->chart_h = round(g->scale * g->aspect);
+    g->tile_dw = round(g->scale * ROOT3 / 2);
+    g->tile_dh = round(g->scale * g->aspect / 2);
     g->slope = ROOT3_INV * g->aspect;
     g->rmid = g->rows / 2;
     g->cmid = g->cols / 2;
@@ -60,14 +60,14 @@ float geometry_slope(struct Geometry *g)
     return g->slope;
 }
 
-int geometry_tile_h(struct Geometry *g)
+int geometry_tile_dh(struct Geometry *g)
 {
-    return g->chart_h;
+    return g->tile_dh;
 }
 
-int geometry_tile_w(struct Geometry *g)
+int geometry_tile_dw(struct Geometry *g)
 {
-    return g->chart_w;
+    return g->tile_dw;
 }
 
 int geometry_cols(struct Geometry *g)
@@ -96,15 +96,15 @@ int geometry_cmid(struct Geometry *g)
 void geometry_set_scale(struct Geometry *g, float scale)
 {
     g->scale = scale;
-    g->chart_w = round(g->scale * ROOT3);
-    g->chart_h = round(g->scale * g->aspect);
+    g->tile_dw = round(g->scale * ROOT3 / 2);
+    g->tile_dh = round(g->scale * g->aspect / 2);
 }
 
 
 void geometry_set_aspect(struct Geometry *g, float aspect)
 {
     g->aspect = aspect;
-    g->chart_h = round(g->scale * g->aspect);
+    g->tile_dh = round(g->scale * g->aspect / 2);
     g->slope = ROOT3_INV * g->aspect;
 }
 
