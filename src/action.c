@@ -22,20 +22,20 @@ void action_mode(struct State *state, enum MODE m)
 }
 
 
-void action_move(struct State *s, enum DIRECTION d, int steps)
+void action_move(struct State *state, enum DIRECTION d, int steps)
 {
     for (int i = steps; i > 0; i--) {
-        atlas_step(state_atlas(s), d);
+        atlas_step(state_atlas(state), d);
     }
 
-    ui_update_detail(state_ui(s), atlas_curr(state_atlas(s)));
+    ui_update_detail(state_ui(state), atlas_curr(state_atlas(state)));
     return;
 }
 
 
-void action_paint_terrain(struct State *s, enum TERRAIN t)
+void action_paint_terrain(struct State *state, enum TERRAIN t)
 {
-    struct Atlas *atlas = state_atlas(s);
+    struct Atlas *atlas = state_atlas(state);
 
     if (atlas_terrain(atlas) == TERRAIN_UNKNOWN) { /* TODO this is a BAD check */
         atlas_create_neighbours(atlas);
@@ -53,16 +53,16 @@ void action_paint_terrain(struct State *s, enum TERRAIN t)
         }
         tile_clear_roads(atlas_tile(atlas));
     }
-    ui_update_detail(state_ui(s), atlas_curr(atlas));
+    ui_update_detail(state_ui(state), atlas_curr(atlas));
 }
 
 
-void action_paint_road(struct State *s, enum DIRECTION d)
+void action_paint_road(struct State *state, enum DIRECTION d)
 {
-    struct Atlas *atlas = state_atlas(s);
+    struct Atlas *atlas = state_atlas(state);
     struct Tile *tile = atlas_tile(atlas);
     struct Tile *neighbour = chart_tile(atlas_neighbour(atlas, d));
-    action_move(s, d, 1);
+    action_move(state, d, 1);
     if (terrain_impassable(tile_terrain(tile))
             || terrain_impassable(tile_terrain(neighbour))) {
         return;
@@ -72,9 +72,9 @@ void action_paint_road(struct State *s, enum DIRECTION d)
 }
 
 
-void action_paint_river(struct State *s, enum DIRECTION d)
+void action_paint_river(struct State *state, enum DIRECTION d)
 {
-    struct Atlas *atlas = state_atlas(s);
+    struct Atlas *atlas = state_atlas(state);
     struct Tile *tile = atlas_tile(atlas);
     struct Tile *neighbour = chart_tile(atlas_neighbour(atlas, d));
     if (terrain_impassable(tile_terrain(tile))
@@ -118,34 +118,34 @@ void action_drag_river(struct State *state, enum DIRECTION d)
 }
 
 
-void action_capture(struct State *s, key k)
+void action_capture(struct State *state, key k)
 {
     if (k != KEY_ENTER && k != '\n') {
         return;
     }
 
-    if (ui_show(state_ui(s), PANEL_SPLASH)) {
-        ui_toggle(state_ui(s), PANEL_SPLASH);
+    if (ui_show(state_ui(state), PANEL_SPLASH)) {
+        ui_toggle(state_ui(state), PANEL_SPLASH);
     }
 
-    state_push_mode(s, MODE_NAVIGATE);
+    state_push_mode(state, MODE_NAVIGATE);
 }
 
 
-void action_navigate(struct State *s, key k)
+void action_navigate(struct State *state, key k)
 {
     if (key_is_direction(k)) {
-        action_move(s, key_direction(k), (key_is_special(k)) ? 3 : 1);
+        action_move(state, key_direction(k), (key_is_special(k)) ? 3 : 1);
         return;
     }
 
     if (key_is_mode(k)) {
-        action_mode(s, key_mode(k));
+        action_mode(state, key_mode(k));
     }
 
     switch (k) {
         case KEY_TOGGLE_DETAIL:
-            ui_toggle(state_ui(s), PANEL_DETAIL);
+            ui_toggle(state_ui(state), PANEL_DETAIL);
             return;
         default:
             break;
@@ -155,61 +155,61 @@ void action_navigate(struct State *s, key k)
 }
 
 
-void action_terrain(struct State *s, key k)
+void action_terrain(struct State *state, key k)
 {
-    if (state_await(s)) {
+    if (state_await(state)) {
         if (key_is_terrain(k)) {
-            action_paint_terrain(s, key_terrain(k));
+            action_paint_terrain(state, key_terrain(k));
         }
-        action_mode(s, key_mode(k));
+        action_mode(state, key_mode(k));
         return;
     }
 
     if (key_is_terrain(k)) {
-        action_paint_terrain(s, key_terrain(k));
+        action_paint_terrain(state, key_terrain(k));
         return;
     }
 
     if (key_is_direction(k)) {
         enum DIRECTION d = key_direction(k);
-        enum TERRAIN t = atlas_terrain(state_atlas(s));
-        action_move(s, d, 1);
+        enum TERRAIN t = atlas_terrain(state_atlas(state));
+        action_move(state, d, 1);
 
         if (key_is_special(k)) {
             if (t != TERRAIN_UNKNOWN) {
-                action_paint_terrain(s, t);
+                action_paint_terrain(state, t);
             }
         }
     }
 
     if (key_is_mode(k)) {
-        action_mode(s, key_mode(k));
+        action_mode(state, key_mode(k));
     }
     return;
 }
 
 
-void action_command(struct State *s, key k)
+void action_command(struct State *state, key k)
 {
     struct Command *c = NULL;
     switch (k) {
         case KEY_ESCAPE:
-            commandline_reset(state_commandline(s));
-            state_pop_mode(s);
+            commandline_reset(state_commandline(state));
+            state_pop_mode(state);
             return;
 
         /* send command to be parsed */
         case KEY_ENTER:
         case '\n':
-            c = commandline_parse(state_commandline(s));
+            c = commandline_parse(state_commandline(state));
             switch (command_type(c)) {
                 case COMMAND_QUIT:
-                    state_set_quit(s, true);
+                    state_set_quit(state, true);
                 default:
                     break;
             }
-            commandline_reset(state_commandline(s));
-            state_pop_mode(s);
+            commandline_reset(state_commandline(state));
+            state_pop_mode(state);
             command_destroy(c);
             return;
 
@@ -217,16 +217,16 @@ void action_command(struct State *s, key k)
         case KEY_BACKSPACE:
         case '\b':
         case 127:
-            if (commandline_len(state_commandline(s)) <= 0) {
-                commandline_reset(state_commandline(s));
-                state_pop_mode(s);
+            if (commandline_len(state_commandline(state)) <= 0) {
+                commandline_reset(state_commandline(state));
+                state_pop_mode(state);
             }
-            commandline_popch(state_commandline(s));
+            commandline_popch(state_commandline(state));
             return;
 
         /* add char to buffer */
         default:
-            commandline_putch(state_commandline(s), state_currkey(s));
+            commandline_putch(state_commandline(state), state_currkey(state));
             break;
     }
 
@@ -234,26 +234,26 @@ void action_command(struct State *s, key k)
 }
 
 
-void action_road(struct State *s, key k)
+void action_road(struct State *state, key k)
 {
-    if (state_await(s)) {
+    if (state_await(state)) {
         if (key_is_direction(k)) {
-            action_paint_road(s, key_direction(k));
+            action_paint_road(state, key_direction(k));
         }
-        action_mode(s, key_mode(k));
+        action_mode(state, key_mode(k));
         return;
     }
 
     if (key_is_direction(k)) {
         if (key_is_special(k)) {
-            action_paint_road(s, key_direction(k));
+            action_paint_road(state, key_direction(k));
         } else {
-            action_move(s, key_direction(k), 1);
+            action_move(state, key_direction(k), 1);
         }
     }
 
     if (key_is_mode(k)) {
-        action_mode(s, key_mode(k));
+        action_mode(state, key_mode(k));
     }
 }
 
