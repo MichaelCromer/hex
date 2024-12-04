@@ -293,7 +293,7 @@ void action_river(struct State *s, key k)
 
     if (key_is_direction(k)) {
         if (key_is_special(k)) {
-            action_paint_river(s, key_direction(k));
+            action_drag_river(s, key_direction(k));
         } else {
             action_move(s, key_direction(k), 1);
         }
