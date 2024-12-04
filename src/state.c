@@ -17,11 +17,11 @@
 
 struct State {
     bool quit;
-    bool await;
     bool reticule;
 
     key currkey;
     enum MODE mode;
+    enum MODE lastmode;
 
     WINDOW *win;
     enum UI_COLOUR colour;
@@ -38,7 +38,6 @@ struct State *state_create(void)
     struct State *s = malloc(sizeof(struct State));
 
     s->quit = false;
-    s->await = false;
     s->reticule = false;
     s->currkey = 0;
     s->mode = MODE_NONE;
@@ -57,7 +56,7 @@ struct State *state_create(void)
 void state_initialise(struct State *s, WINDOW *win)
 {
     s->win = win;
-    state_set_mode(s, MODE_CAPTURE);
+    state_push_mode(s, MODE_CAPTURE);
 
     /* set up colour */
     enum UI_COLOUR colour = (has_colors() == TRUE)
@@ -99,14 +98,17 @@ void state_update(struct State *s)
             action_navigate(s, k);
             break;
         case MODE_TERRAIN:
+        case MODE_AWAIT_TERRAIN:
             action_terrain(s, k);
             break;
         case MODE_COMMAND:
             action_command(s, k);
             break;
         case MODE_ROAD:
+        case MODE_AWAIT_ROAD:
             action_road(s, k);
             break;
+        case MODE_AWAIT_RIVER:
         case MODE_RIVER:
             action_river(s, k);
             break;
@@ -162,9 +164,22 @@ enum MODE state_mode(const struct State *s)
 }
 
 
-void state_set_mode(struct State *s, enum MODE mode)
+enum MODE state_lastmode(const struct State *state)
 {
+    return state->lastmode;
+}
+
+
+void state_push_mode(struct State *s, enum MODE mode)
+{
+    s->lastmode = s->mode;
     s->mode = mode;
+}
+
+
+void state_pop_mode(struct State *state)
+{
+    state->mode = state->lastmode;
 }
 
 
@@ -206,19 +221,13 @@ void state_set_colour(struct State *s, enum UI_COLOUR colour)
 
 bool state_await(struct State *s)
 {
-    return s->await;
+    return mode_is_await(state_mode(s));
 }
 
 
 WINDOW *state_window(struct State *s)
 {
     return s->win;
-}
-
-
-void state_set_await(struct State *s, bool await)
-{
-    s->await = await;
 }
 
 

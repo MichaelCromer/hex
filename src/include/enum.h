@@ -24,12 +24,17 @@ enum MODE {
     MODE_CAPTURE,
     MODE_NAVIGATE,
     MODE_TERRAIN,
+    MODE_AWAIT_TERRAIN,
     MODE_ROAD,
+    MODE_AWAIT_ROAD,
     MODE_RIVER,
+    MODE_AWAIT_RIVER,
     MODE_COMMAND
 };
 const char *mode_name(enum MODE m);
 int mode_colour(enum MODE m);
+bool mode_is_await(enum MODE m);
+enum MODE mode_drop_await(enum MODE m);
 
 
 #define NUM_TERRAIN 9

@@ -7,6 +7,21 @@
 #include "include/tile.h"
 
 
+void action_mode(struct State *state, enum MODE m)
+{
+    if (state_await(state)) {
+        state_pop_mode(state);
+        return;
+    }
+
+    if ((m == state_mode(state)) || (m == MODE_NONE)) {
+        state_push_mode(state, MODE_NAVIGATE);
+    } else {
+        state_push_mode(state, m);
+    }
+}
+
+
 void action_move(struct State *s, enum DIRECTION d, int steps)
 {
     for (int i = steps; i > 0; i--) {
@@ -113,7 +128,7 @@ void action_capture(struct State *s, key k)
         ui_toggle(state_ui(s), PANEL_SPLASH);
     }
 
-    state_set_mode(s, MODE_NAVIGATE);
+    state_push_mode(s, MODE_NAVIGATE);
 }
 
 
@@ -125,32 +140,7 @@ void action_navigate(struct State *s, key k)
     }
 
     if (key_is_mode(k)) {
-        switch (k) {
-            case KEY_MODE_COMMAND:
-                state_set_mode(s, MODE_COMMAND);
-                break;
-            case KEY_MODE_AWAIT_TERRAIN:
-                state_set_await(s, true);
-                /* fall through */
-            case KEY_MODE_TERRAIN:
-                state_set_mode(s, MODE_TERRAIN);
-                break;
-            case KEY_MODE_AWAIT_ROAD:
-                state_set_await(s, true);
-                /* fall through */
-            case KEY_MODE_ROAD:
-                state_set_mode(s, MODE_ROAD);
-                break;
-            case KEY_MODE_AWAIT_RIVER:
-                state_set_await(s, true);
-                /* fall through */
-            case KEY_MODE_RIVER:
-                state_set_mode(s, MODE_RIVER);
-                break;
-            default:
-                break;
-        }
-        return;
+        action_mode(s, key_mode(k));
     }
 
     switch (k) {
@@ -168,11 +158,10 @@ void action_navigate(struct State *s, key k)
 void action_terrain(struct State *s, key k)
 {
     if (state_await(s)) {
-        state_set_await(s, false);
         if (key_is_terrain(k)) {
             action_paint_terrain(s, key_terrain(k));
         }
-        state_set_mode(s, MODE_NAVIGATE);
+        action_mode(s, key_mode(k));
         return;
     }
 
@@ -193,13 +182,8 @@ void action_terrain(struct State *s, key k)
         }
     }
 
-    switch (k) {
-        case KEY_MODE_TERRAIN:
-        case KEY_ESCAPE:
-            state_set_mode(s, MODE_NAVIGATE);
-            return;
-        default:
-            break;
+    if (key_is_mode(k)) {
+        action_mode(s, key_mode(k));
     }
     return;
 }
@@ -211,7 +195,7 @@ void action_command(struct State *s, key k)
     switch (k) {
         case KEY_ESCAPE:
             commandline_reset(state_commandline(s));
-            state_set_mode(s, MODE_NAVIGATE);
+            state_pop_mode(s);
             return;
 
         /* send command to be parsed */
@@ -225,7 +209,7 @@ void action_command(struct State *s, key k)
                     break;
             }
             commandline_reset(state_commandline(s));
-            state_set_mode(s, MODE_NAVIGATE);
+            state_pop_mode(s);
             command_destroy(c);
             return;
 
@@ -235,7 +219,7 @@ void action_command(struct State *s, key k)
         case 127:
             if (commandline_len(state_commandline(s)) <= 0) {
                 commandline_reset(state_commandline(s));
-                state_set_mode(s, MODE_NAVIGATE);
+                state_pop_mode(s);
             }
             commandline_popch(state_commandline(s));
             return;
@@ -253,11 +237,10 @@ void action_command(struct State *s, key k)
 void action_road(struct State *s, key k)
 {
     if (state_await(s)) {
-        state_set_await(s, false);
         if (key_is_direction(k)) {
             action_paint_road(s, key_direction(k));
         }
-        state_set_mode(s, MODE_NAVIGATE);
+        action_mode(s, key_mode(k));
         return;
     }
 
@@ -269,43 +252,33 @@ void action_road(struct State *s, key k)
         }
     }
 
-    switch (k) {
-        case KEY_MODE_ROAD:
-        case KEY_ESCAPE:
-            state_set_mode(s, MODE_NAVIGATE);
-            return;
-        default:
-            break;
+    if (key_is_mode(k)) {
+        action_mode(s, key_mode(k));
     }
 }
 
 
-void action_river(struct State *s, key k)
+void action_river(struct State *state, key k)
 {
-    if (state_await(s)) {
-        state_set_await(s, false);
+    if (state_await(state)) {
         if (key_is_direction(k)) {
-            action_paint_river(s, key_direction(k));
+            action_paint_river(state, key_direction(k));
         }
-        state_set_mode(s, MODE_NAVIGATE);
+        action_mode(state, key_mode(k));
         return;
     }
 
     if (key_is_direction(k)) {
         if (key_is_special(k)) {
-            action_drag_river(s, key_direction(k));
+            action_drag_river(state, key_direction(k));
         } else {
-            action_move(s, key_direction(k), 1);
+            action_move(state, key_direction(k), 1);
         }
         return;
     }
 
-    switch (k) {
-        case KEY_MODE_RIVER:
-        case KEY_ESCAPE:
-            state_set_mode(s, MODE_NAVIGATE);
-            return;
-        default:
-            break;
+    if (key_is_mode(k)) {
+        action_mode(state, key_mode(k));
+        return;
     }
 }
