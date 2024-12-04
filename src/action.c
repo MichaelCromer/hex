@@ -71,6 +71,38 @@ void action_paint_river(struct State *s, enum DIRECTION d)
 }
 
 
+void action_drag_river(struct State *state, enum DIRECTION d)
+{
+    struct Tile *tile = atlas_tile(state_atlas(state));
+    if (tile_river(tile, direction_next(d)) || tile_river(tile, direction_prev(d))) {
+        action_move(state, d, 1);
+        if (tile_river(tile, direction_next(d))) {
+            enum DIRECTION e = direction_prev(direction_opposite(d));
+            action_paint_river(state, e);
+        }
+        if (tile_river(tile, direction_prev(d))) {
+            enum DIRECTION e = direction_next(direction_opposite(d));
+            action_paint_river(state, e);
+        }
+        return;
+    }
+
+    enum DIRECTION e = direction_opposite(d);
+    if (tile_river(tile, direction_next(e)) || tile_river(tile, direction_prev(e))) {
+        if (tile_river(tile, direction_next(e))) {
+            enum DIRECTION f = direction_next(direction_next(e));
+            action_paint_river(state, f);
+        }
+        if (tile_river(tile, direction_prev(e))) {
+            enum DIRECTION f = direction_prev(direction_prev(e));
+            action_paint_river(state, f);
+        }
+        return;
+    }
+    action_move(state, d, 1);
+}
+
+
 void action_capture(struct State *s, key k)
 {
     if (k != KEY_ENTER && k != '\n') {
