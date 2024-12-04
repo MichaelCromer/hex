@@ -15,6 +15,18 @@ enum DIRECTION direction_opposite(enum DIRECTION d)
 }
 
 
+enum DIRECTION direction_next(enum DIRECTION d)
+{
+    return (d + 1) % NUM_DIRECTIONS;
+}
+
+
+enum DIRECTION direction_prev(enum DIRECTION d)
+{
+    return (d + NUM_DIRECTIONS - 1) % NUM_DIRECTIONS;
+}
+
+
 /*******************************************************************************
  *  TERRAIN
  ******************************************************************************/

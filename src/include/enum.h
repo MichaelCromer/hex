@@ -65,6 +65,8 @@ enum DIRECTION {
     DIRECTION_XX
 };
 enum DIRECTION direction_opposite(enum DIRECTION d);
+enum DIRECTION direction_next(enum DIRECTION d);
+enum DIRECTION direction_prev(enum DIRECTION d);
 
 
 #define NUM_CHILDREN 9
