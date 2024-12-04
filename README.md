@@ -16,17 +16,13 @@ executable is `./build/hex` for you to use as you see fit.
 ### DONE
 
  - [X] navigate tiles
- - [X] paint terrain
+ - [X] paint/drag terrain, roads, and rivers
  - [X] simple colours and ui
  - [X] commandline [quit]
 
 ### IN PROGRESS
 
  - [ ] save/load map files
- - [ ] paint roads and rivers
-     - - [ ] along hex edges for rivers
-     - - [X] between hex centres/through hex edges for roads
-     - - [X] per-tile booleans for road; allows 1/2 length
 
 ### Roadmap to 1.0
 
