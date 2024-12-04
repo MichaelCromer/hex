@@ -179,7 +179,6 @@ const char *modestr_await_road      = "(roads)";
 const char *modestr_await_river     = "(rivers)";
 const char *modestr_unknown         = "???";
 
-
 /*  MODE : Functions */
 
 
@@ -252,5 +251,5 @@ enum MODE mode_drop_await(enum MODE m)
             return MODE_TERRAIN;
         default: break;
     }
-    return m;;
+    return m;
 }
