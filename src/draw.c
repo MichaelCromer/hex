@@ -49,12 +49,12 @@ void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
 {
     int R = (r1 - r0), C = (c1 - c0);
     float L = (float)sqrt(R*R + C*C);
-    if (!L) {
+    if (L < 0.01f) {
         return;
     }
     float dr = (float)(R / L), dc = (float)(C / L);
     float r = 0, c = 0;
-    for (int i = 0; i <= L+1; i++) {
+    for (int i = 0; i <= L; i++) {
         mvwaddch(win, r0 + round(r), c0 + round(c), ch);
         r += dr;
         c += dc;
@@ -62,85 +62,70 @@ void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
 }
 
 
-void wdraw_road(WINDOW *win, struct Geometry *g, int r0, int c0, enum DIRECTION d)
+void wdraw_road(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d)
 {
-    float dr = 0, dc = 0,
-          Sr = geometry_scale(g) / 2,
-          Sc = geometry_scale(g) * geometry_aspect(g) / 2;
+    int dr = 0, dc = 0,
+        dw = geometry_tile_dw(g), dh = geometry_tile_dh(g);
 
     switch (d) {
         case DIRECTION_EE:
-            dr = ROOT3 * Sr;
+            dc = 2*dw;
             break;
         case DIRECTION_NE:
-            dr = ROOT3 * Sr / 2;
-            dc = -3 * Sc / 2;
+            dr = -3*dh;
+            dc = dw;
             break;
         case DIRECTION_NW:
-            dr = -1 * ROOT3 * Sr / 2;
-            dc = -3 * Sc / 2;
+            dr = -3*dh;
+            dc = -1*dw;
             break;
         case DIRECTION_WW:
-            dr = -1 * ROOT3 * Sr;
+            dc = -2*dw;
             break;
         case DIRECTION_SW:
-            dr = -1 * ROOT3 * Sr / 2;
-            dc = 3 * Sc / 2;
+            dr = 3*dh;
+            dc = -1*dw;
             break;
         case DIRECTION_SE:
-            dr = ROOT3 * Sr / 2;
-            dc = 3 * Sc / 2;
+            dr = 3*dh;
+            dc = dw;
             break;
         default:
             break;
     }
-    wdraw_line(win, r0, c0, r0 + round(dc), c0 + round(dr), '#');
+
+    wdraw_line(win, r, c, r + dr, c + dc, '#');
 }
 
 
 void wdraw_river(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d)
 {
-    int r0 = 0, c0 = 0, r1 = 0, c1 = 0;
-    float Sr = geometry_scale(g) / 2,
-          Sc = geometry_scale(g) * geometry_aspect(g) / 2;
+    int c0 = 0, r0 = 0, c1 = 0, r1 = 0,
+        dw = geometry_tile_dw(g),
+        dh = geometry_tile_dh(g);
 
     switch (d) {
         case DIRECTION_EE:
-            r0 = r + round(ROOT3 * Sr);
-            c0 = c + round(Sc);
-            r1 = r + round(ROOT3 * Sr);
-            c1 = c - round(Sc);
+            r0 = r + dh;
+            c0 = c + dw;
+            r1 = r - dh;
+            c1 = c + dw;
             break;
         case DIRECTION_NE:
-            r0 = r + round(ROOT3 * Sr);
-            c0 = c - round(Sc);
-            r1 = r;
-            c1 = c - round(2 * Sc);
+            r0 = r - dh;
+            c0 = c + dw;
+            r1 = r - 2*dh;
+            c1 = c;
             break;
         case DIRECTION_NW:
-            r0 = r;
-            c0 = c - round(2 * Sc);
-            r0 = r - round(ROOT3 * Sr);
-            c0 = c - round(Sc);
+            r0 = r - 2*dh;
+            c0 = c;
+            r1 = r - dh;
+            c1 = c - dw;
             break;
         case DIRECTION_WW:
-            r0 = r - round(ROOT3 * Sr);
-            c0 = c - round(Sc);
-            r1 = r - round(ROOT3 * Sr);
-            c1 = c + round(Sc);
-            break;
         case DIRECTION_SW:
-            r0 = r - round(ROOT3 * Sr);
-            c0 = c + round(Sc);
-            r1 = r;
-            c1 = c + round(2 * Sc);
-            break;
         case DIRECTION_SE:
-            r0 = r;
-            c0 = c + round(2 * Sc);
-            r1 = r + round(ROOT3 * Sr);
-            c1 = c + round(Sc);
-            break;
         default:
             break;
     }
@@ -188,7 +173,7 @@ void wdraw_reticule(WINDOW *win, struct Geometry *g)
 
     float slope = geometry_slope(g);
     int rmid = geometry_rmid(g), cmid = geometry_cmid(g);
-    int w_half = (geometry_tile_w(g)+1)/2, h_half = (geometry_tile_h(g))/2;
+    int w_half = (geometry_tile_dw(g)+1)/2, h_half = (geometry_tile_dh(g))/2;
 
     attron(COLOR_PAIR(COLOR_RED));
 
@@ -213,25 +198,18 @@ void wdraw_reticule(WINDOW *win, struct Geometry *g)
 
 void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int c0)
 {
-    int w_half = (geometry_tile_w(g)+1) / 2,
-        h_half = (geometry_tile_h(g)+1) / 2;
-    int dh = 0;
-    char ch = 0;
+    int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
 
-    enum TERRAIN t = tile_terrain(tile);
-
-    attron(COLOR_PAIR(terrain_colour(t)));
-    for (int c = -w_half; c <= w_half; c++) {
-        dh = (c < 0)
-                ? floor((w_half+c)*geometry_slope(g))
-                : floor((w_half-c)*geometry_slope(g));
-
-        for (int r = -(h_half + dh)+1; r <= (h_half + dh); r++) {
-            ch = tile_getch(tile, c, r);
-            mvwaddch(win, r0 + r, c0 + c, ch);
+    attron(COLOR_PAIR(terrain_colour(tile_terrain(tile))));
+    for (int c = 1 - w; c < w; c++) {
+        int dh = (c < 0)
+                ? floor((w + c)*geometry_slope(g))
+                : floor((w - c)*geometry_slope(g));
+        for (int r = -(h + dh); r < (h + dh); r++) {
+            mvwaddch(win, r0 + r, c0 + c, tile_getch(tile, c, r));
         }
     }
-    attroff(COLOR_PAIR(terrain_colour(t)));
+    attroff(COLOR_PAIR(terrain_colour(tile_terrain(tile))));
 
     attron(COLOR_PAIR(COLOR_YELLOW));
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
@@ -255,25 +233,29 @@ void wdraw_chart(
         WINDOW *win,
         struct Geometry *g,
         struct Chart *chart,
-        float u0,
-        float v0)
+        struct Coordinate *o)
 {
     /* recurse down the chart to find the tiles at the bottom and print them
-     * send the right integer character coordinates */
+     * send the right integer coordinates */
     if (!chart) {
         return;
     }
     if (chart_children(chart)) {
         for (int i = 0; i < NUM_CHILDREN; i++) {
-            wdraw_chart(win, g, chart_child(chart, i), u0, v0);
+            wdraw_chart(win, g, chart_child(chart, i), o);
         }
     }
     if (!chart_tile(chart)) {
         return;
     }
-    float u = chart_u(chart), v = chart_v(chart);
-    int dc = round(geometry_scale(g) * (u - u0));
-    int dr = round(geometry_scale(g) * geometry_aspect(g) * (v - v0));
+
+    struct Coordinate *c = chart_coordinate(chart);
+    int dp = coordinate_p(c) - coordinate_p(o),
+        dq = coordinate_q(c) - coordinate_q(o);
+
+    int dr = 3*dq*geometry_tile_dh(g),
+        dc = (2*dp + dq) * geometry_tile_dw(g);
+
     wdraw_tile(win, g, chart_tile(chart), geometry_rmid(g) + dr, geometry_cmid(g) + dc);
 }
 
@@ -294,8 +276,7 @@ void wdraw_atlas_at(
         coordinate_destroy(ch);
         return;
     }
-    struct Chart *centre = atlas_curr(atlas);
-    wdraw_chart(win, g, chart, chart_u(centre), chart_v(centre));
+    wdraw_chart(win, g, chart, atlas_coordinate(atlas));
 }
 
 
@@ -309,8 +290,8 @@ void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
     struct Coordinate *c = chart_coordinate(centre);
 
     /* TODO move this calculation to Geometry struct */
-    int n_hor = round( geometry_cols(g) / (1.00f * geometry_tile_w(g))) + 1,
-        n_ver = round( geometry_rows(g) / (0.75f * geometry_tile_h(g))) + 1;
+    int n_hor = round( geometry_cols(g) / (2.00f * geometry_tile_dw(g))) + 1,
+        n_ver = round( geometry_rows(g) / (1.50f * geometry_tile_dh(g))) + 1;
 
     struct Coordinate *c_E = coordinate_duplicate(c),
                       *c_W = coordinate_duplicate(c),
@@ -392,7 +373,7 @@ void wdraw_statusline(WINDOW *win, struct State *s)
 void draw_state(struct State *s)
 {
     wdraw_atlas(state_window(s), state_geometry(s), state_atlas(s));
-    wdraw_reticule(state_window(s), state_geometry(s));
+    //wdraw_reticule(state_window(s), state_geometry(s));
     wdraw_ui(state_window(s), state_ui(s));
     wdraw_statusline(state_window(s), s);
     return;

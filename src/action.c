@@ -46,13 +46,28 @@ void action_paint_road(struct State *s, enum DIRECTION d)
 {
     struct Atlas *atlas = state_atlas(s);
     struct Tile *tile = atlas_tile(atlas);
+    struct Tile *neighbour = chart_tile(atlas_neighbour(atlas, d));
     action_move(s, d, 1);
     if (terrain_impassable(tile_terrain(tile))
-            || terrain_impassable(atlas_terrain(atlas))) {
+            || terrain_impassable(tile_terrain(neighbour))) {
         return;
     }
     tile_toggle_road(tile, d);
-    tile_toggle_road(atlas_tile(atlas), direction_opposite(d));
+    tile_toggle_road(neighbour, direction_opposite(d));
+}
+
+
+void action_paint_river(struct State *s, enum DIRECTION d)
+{
+    struct Atlas *atlas = state_atlas(s);
+    struct Tile *tile = atlas_tile(atlas);
+    struct Tile *neighbour = chart_tile(atlas_neighbour(atlas, d));
+    if (terrain_impassable(tile_terrain(tile))
+            || terrain_impassable(tile_terrain(neighbour))) {
+        return;
+    }
+    tile_toggle_river(tile, d);
+    tile_toggle_river(neighbour, direction_opposite(d));
 }
 
 
@@ -237,7 +252,19 @@ void action_river(struct State *s, key k)
 {
     if (state_await(s)) {
         state_set_await(s, false);
+        if (key_is_direction(k)) {
+            action_paint_river(s, key_direction(k));
+        }
         state_set_mode(s, MODE_NAVIGATE);
+        return;
+    }
+
+    if (key_is_direction(k)) {
+        if (key_is_special(k)) {
+            action_paint_river(s, key_direction(k));
+        } else {
+            action_move(s, key_direction(k), 1);
+        }
         return;
     }
 
