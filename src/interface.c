@@ -32,7 +32,7 @@ struct UserInterface *ui_create(void)
 void ui_initialise(struct UserInterface *ui, struct Geometry *g)
 {
     ui->panel[PANEL_SPLASH] = panel_splash();
-    ui->panel[PANEL_DETAIL] = panel_hex_detail();
+    ui->panel[PANEL_DETAIL] = panel_tile_detail();
     panel_centre(ui->panel[PANEL_SPLASH], geometry_rmid(g), geometry_cmid(g));
     ui->show[PANEL_SPLASH] = true;
 
@@ -40,7 +40,7 @@ void ui_initialise(struct UserInterface *ui, struct Geometry *g)
 }
 
 
-void ui_update_detail(struct UserInterface *ui, struct Chart *h)
+void ui_update_detail(struct UserInterface *ui, struct Chart *chart)
 {
     struct Panel *detail = ui_panel(ui, PANEL_DETAIL);
     char buf[32];

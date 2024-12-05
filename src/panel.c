@@ -166,7 +166,7 @@ struct Panel *panel_splash(void)
 }
 
 
-struct Panel *panel_hex_detail(void)
+struct Panel *panel_tile_detail(void)
 {
     struct Panel *chart_detail = panel_create(2, 2, 3);
     panel_add_line(chart_detail, 0, "Currently at: ");
