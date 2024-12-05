@@ -35,31 +35,31 @@ struct State {
 
 struct State *state_create(void)
 {
-    struct State *s = malloc(sizeof(struct State));
+    struct State *state = malloc(sizeof(struct State));
 
-    s->quit = false;
-    s->reticule = false;
-    s->currkey = 0;
-    s->mode = MODE_NONE;
-    s->colour = COLOUR_NONE;
-    s->win = NULL;
+    state->quit = false;
+    state->reticule = false;
+    state->currkey = 0;
+    state->mode = MODE_NONE;
+    state->colour = COLOUR_NONE;
+    state->win = NULL;
 
-    s->geometry = geometry_create();
-    s->ui = ui_create();
-    s->atlas = atlas_create();
-    s->cmd = commandline_create();
+    state->geometry = geometry_create();
+    state->ui = ui_create();
+    state->atlas = atlas_create();
+    state->cmd = commandline_create();
 
-    return s;
+    return state;
 }
 
 
-void state_initialise(struct State *s, WINDOW *win)
+void state_initialise(struct State *state, WINDOW *win)
 {
-    s->win = win;
-    state_push_mode(s, MODE_CAPTURE);
+    state->win = win;
+    state_push_mode(state, MODE_CAPTURE);
 
-    s->colour = colour_test();
-    if (state_colour(s) == COLOUR_SOME || state_colour(s) == COLOUR_MANY) {
+    state->colour = colour_test();
+    if (state_colour(state) == COLOUR_SOME || state_colour(state) == COLOUR_MANY) {
         start_color();
         init_pair(1, COLOR_RED, COLOR_BLACK);
         init_pair(2, COLOR_GREEN, COLOR_BLACK);
@@ -71,41 +71,41 @@ void state_initialise(struct State *s, WINDOW *win)
     }
 
     geometry_initialise(
-            state_geometry(s),
+            state_geometry(state),
             GEOMETRY_DEFAULT_SCALE,
             GEOMETRY_DEFAULT_ASPECT,
             win);
-    ui_initialise(state_ui(s), state_geometry(s));
-    atlas_initialise(state_atlas(s), chart_create_origin());
+    ui_initialise(state_ui(state), state_geometry(state));
+    atlas_initialise(state_atlas(state), chart_create_origin());
 }
 
 
-void state_update(struct State *s)
+void state_update(struct State *state)
 {
-    key k = wgetch(state_window(s));
-    state_set_currkey(s, k);
+    key k = wgetch(state_window(state));
+    state_set_currkey(state, k);
 
-    switch (state_mode(s)) {
+    switch (state_mode(state)) {
         case MODE_CAPTURE:
-            action_capture(s, k);
+            action_capture(state, k);
             break;
         case MODE_NAVIGATE:
-            action_navigate(s, k);
+            action_navigate(state, k);
             break;
         case MODE_TERRAIN:
         case MODE_AWAIT_TERRAIN:
-            action_terrain(s, k);
+            action_terrain(state, k);
             break;
         case MODE_COMMAND:
-            action_command(s, k);
+            action_command(state, k);
             break;
         case MODE_ROAD:
         case MODE_AWAIT_ROAD:
-            action_road(s, k);
+            action_road(state, k);
             break;
         case MODE_AWAIT_RIVER:
         case MODE_RIVER:
-            action_river(s, k);
+            action_river(state, k);
             break;
         case MODE_NONE:
         default:
@@ -116,46 +116,46 @@ void state_update(struct State *s)
 }
 
 
-void state_destroy(struct State *s)
+void state_destroy(struct State *state)
 {
-    geometry_destroy(s->geometry);
-    atlas_destroy(s->atlas);
-    ui_destroy(s->ui);
-    commandline_destroy(s->cmd);
+    geometry_destroy(state->geometry);
+    atlas_destroy(state->atlas);
+    ui_destroy(state->ui);
+    commandline_destroy(state->cmd);
 
-    free(s);
-    s = NULL;
+    free(state);
+    state = NULL;
     return;
 }
 
 
-struct Geometry *state_geometry(const struct State *s)
+struct Geometry *state_geometry(const struct State *state)
 {
-    return s->geometry;
+    return state->geometry;
 }
 
 
-struct Atlas *state_atlas(const struct State *s)
+struct Atlas *state_atlas(const struct State *state)
 {
-    return s->atlas;
+    return state->atlas;
 }
 
 
-struct UserInterface *state_ui(const struct State *s)
+struct UserInterface *state_ui(const struct State *state)
 {
-    return s->ui;
+    return state->ui;
 }
 
 
-struct Commandline *state_commandline(const struct State *s)
+struct Commandline *state_commandline(const struct State *state)
 {
-    return s->cmd;
+    return state->cmd;
 }
 
 
-enum MODE state_mode(const struct State *s)
+enum MODE state_mode(const struct State *state)
 {
-    return s->mode;
+    return state->mode;
 }
 
 
@@ -165,10 +165,10 @@ enum MODE state_lastmode(const struct State *state)
 }
 
 
-void state_push_mode(struct State *s, enum MODE mode)
+void state_push_mode(struct State *state, enum MODE mode)
 {
-    s->lastmode = s->mode;
-    s->mode = mode;
+    state->lastmode = state->mode;
+    state->mode = mode;
 }
 
 
@@ -178,49 +178,49 @@ void state_pop_mode(struct State *state)
 }
 
 
-key state_currkey(struct State *s)
+key state_currkey(struct State *state)
 {
-    return s->currkey;
+    return state->currkey;
 }
 
 
-void state_set_currkey(struct State *s, key k)
+void state_set_currkey(struct State *state, key k)
 {
-    s->currkey = k;
+    state->currkey = k;
 }
 
 
-bool state_quit(struct State *s)
+bool state_quit(struct State *state)
 {
-    return s->quit;
+    return state->quit;
 }
 
 
-void state_set_quit(struct State *s, bool quit)
+void state_set_quit(struct State *state, bool quit)
 {
-    s->quit = quit;
+    state->quit = quit;
 }
 
 
-enum UI_COLOUR state_colour(struct State *s)
+enum UI_COLOUR state_colour(struct State *state)
 {
-    return s->colour;
+    return state->colour;
 }
 
 
-void state_set_colour(struct State *s, enum UI_COLOUR colour)
+void state_set_colour(struct State *state, enum UI_COLOUR colour)
 {
-    s->colour = colour;
+    state->colour = colour;
 }
 
 
-bool state_await(struct State *s)
+bool state_await(struct State *state)
 {
-    return mode_is_await(state_mode(s));
+    return mode_is_await(state_mode(state));
 }
 
 
-WINDOW *state_window(struct State *s)
+WINDOW *state_window(struct State *state)
 {
-    return s->win;
+    return state->win;
 }
