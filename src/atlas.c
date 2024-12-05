@@ -16,30 +16,30 @@ struct Chart {
 
 struct Chart *chart_create(const struct Coordinate *c)
 {
-    struct Chart *h = malloc(sizeof(struct Chart));
+    struct Chart *chart = malloc(sizeof(struct Chart));
 
-    h->coordinate = coordinate_duplicate(c);
-    h->tile = NULL;
-    h->children = NULL;
+    chart->coordinate = coordinate_duplicate(c);
+    chart->tile = NULL;
+    chart->children = NULL;
 
     if (coordinate_m(c) == 0) {
-        h->tile = tile_create();
+        chart->tile = tile_create();
     } else {
-        h->children = malloc(NUM_CHILDREN * sizeof(struct Chart *));
+        chart->children = malloc(NUM_CHILDREN * sizeof(struct Chart *));
         for (int i = 0; i < NUM_CHILDREN; i++) {
-            h->children[i] = NULL;
+            chart->children[i] = NULL;
         }
     } 
 
-    return h;
+    return chart;
 }
 
 
-struct Chart *chart_create_ancestor(struct Chart *hex1, struct Chart *hex2)
+struct Chart *chart_create_ancestor(struct Chart *chart1, struct Chart *chart2)
 {
     struct Coordinate *a = coordinate_create_ancestor(
-            chart_coordinate(hex1),
-            chart_coordinate(hex2));
+            chart_coordinate(chart1),
+            chart_coordinate(chart2));
     struct Chart *ancestor = chart_create(a);
     coordinate_destroy(a);
     return ancestor;
@@ -227,9 +227,9 @@ void atlas_destroy(struct Atlas *atlas)
 }
 
 
-struct Chart *atlas_root(const struct Atlas *m)
+struct Chart *atlas_root(const struct Atlas *atlas)
 {
-    return m->root;
+    return atlas->root;
 }
 
 
