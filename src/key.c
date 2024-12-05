@@ -143,15 +143,3 @@ enum MODE key_mode(key k)
     }
     return MODE_NONE;
 }
-
-
-bool key_is_await(key k)
-{
-    switch (k) {
-        case KEY_MODE_AWAIT_TERRAIN:
-        case KEY_MODE_AWAIT_ROAD:
-            return true;
-        default: break;
-    }
-    return false;
-}

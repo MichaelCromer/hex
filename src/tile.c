@@ -5,7 +5,7 @@
 #include "include/tile.h"
 
 
-static unsigned int count = 0;
+static unsigned int tile_count = 0;
 
 unsigned int lcg(unsigned int n)
 {
@@ -14,11 +14,11 @@ unsigned int lcg(unsigned int n)
 
 unsigned int puid()
 {
-    if (count == 0) {
-        count = (unsigned int)time(NULL);
+    if (tile_count == 0) {
+        tile_count = (unsigned int)time(NULL);
     }
-    count = lcg(count);
-    return count;
+    tile_count = lcg(tile_count);
+    return tile_count;
 }
 
 
@@ -60,12 +60,6 @@ struct Tile *tile_create()
 void tile_destroy(struct Tile *tile)
 {
     free(tile);
-}
-
-
-int tile_seed(const struct Tile *tile)
-{
-    return tile->seed;
 }
 
 

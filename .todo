@@ -25,3 +25,8 @@
 [ ] map zoom with plus minus keys
 [ ] is there a better way to check if I need to create neighbours than to see if the current terrain is TERRAIN_UNKNOWN
 [ ] action_move should use an atlas_move rather than iterate atlas_step
+[ ] action_move inside action_navigate should not have magic number parameters
+[ ] wdraw basic shapes probably can be implemented natively with ncurses
+[ ] chart p q r candidates for deprecation
+[ ] chart_tile candidate for deprecation, expose only atlas
+[ ] atlas step should probably be some variant on atlas move

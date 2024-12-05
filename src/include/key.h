@@ -48,7 +48,6 @@ bool key_is_direction(key k);
 bool key_is_special(key k);
 bool key_is_terrain(key k);
 bool key_is_mode(key k);
-bool key_is_await(key k);
 
 enum DIRECTION key_direction(key k);
 enum TERRAIN key_terrain(key k);

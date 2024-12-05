@@ -16,30 +16,30 @@ struct Chart {
 
 struct Chart *chart_create(const struct Coordinate *c)
 {
-    struct Chart *h = malloc(sizeof(struct Chart));
+    struct Chart *chart = malloc(sizeof(struct Chart));
 
-    h->coordinate = coordinate_duplicate(c);
-    h->tile = NULL;
-    h->children = NULL;
+    chart->coordinate = coordinate_duplicate(c);
+    chart->tile = NULL;
+    chart->children = NULL;
 
     if (coordinate_m(c) == 0) {
-        h->tile = tile_create();
+        chart->tile = tile_create();
     } else {
-        h->children = malloc(NUM_CHILDREN * sizeof(struct Chart *));
+        chart->children = malloc(NUM_CHILDREN * sizeof(struct Chart *));
         for (int i = 0; i < NUM_CHILDREN; i++) {
-            h->children[i] = NULL;
+            chart->children[i] = NULL;
         }
     } 
 
-    return h;
+    return chart;
 }
 
 
-struct Chart *chart_create_ancestor(struct Chart *hex1, struct Chart *hex2)
+struct Chart *chart_create_ancestor(struct Chart *chart1, struct Chart *chart2)
 {
     struct Coordinate *a = coordinate_create_ancestor(
-            chart_coordinate(hex1),
-            chart_coordinate(hex2));
+            chart_coordinate(chart1),
+            chart_coordinate(chart2));
     struct Chart *ancestor = chart_create(a);
     coordinate_destroy(a);
     return ancestor;
@@ -120,21 +120,6 @@ struct Tile *chart_tile(const struct Chart *chart)
 }
 
 
-void chart_set_tile(struct Chart *chart, struct Tile *tile)
-{
-    if (chart->tile) {
-        return;
-    }
-    chart->tile = tile;
-}
-
-
-int chart_seed(const struct Chart *chart)
-{
-    return tile_seed(chart_tile(chart));
-}
-
-
 int chart_p(const struct Chart *chart)
 {
     return coordinate_p(chart->coordinate);
@@ -153,33 +138,9 @@ int chart_r(const struct Chart *chart)
 }
 
 
-unsigned int chart_m(const struct Chart *chart)
-{
-    return coordinate_m(chart->coordinate);
-}
-
-
-float chart_u(const struct Chart *chart)
-{
-    return ROOT3 * (chart_p(chart) + chart_q(chart)/2.0f);
-}
-
-
-float chart_v(const struct Chart *chart)
-{
-    return 1.5f * chart_q(chart);
-}
-
-
 enum TERRAIN chart_terrain(const struct Chart *chart)
 {
     return tile_terrain(chart_tile(chart));
-}
-
-
-void chart_set_terrain(struct Chart *chart, enum TERRAIN t)
-{
-    tile_set_terrain(chart_tile(chart), t);
 }
 
 
@@ -200,14 +161,14 @@ struct Atlas *atlas_create(void)
 }
 
 
-void atlas_initialise(struct Atlas *atlas, struct Chart *root)
+void atlas_initialise(struct Atlas *atlas)
 {
     if (atlas->root) {
         return;
     }
 
-    atlas->root = root;
-    atlas->curr = root;
+    atlas->root = chart_create_origin();
+    atlas->curr = atlas->root;
 }
 
 
@@ -227,9 +188,9 @@ void atlas_destroy(struct Atlas *atlas)
 }
 
 
-struct Chart *atlas_root(const struct Atlas *m)
+struct Chart *atlas_root(const struct Atlas *atlas)
 {
-    return m->root;
+    return atlas->root;
 }
 
 
@@ -253,22 +214,13 @@ struct Tile *atlas_tile(const struct Atlas *atlas)
 
 enum TERRAIN atlas_terrain(const struct Atlas *atlas)
 {
-    return chart_terrain(atlas_curr(atlas));
+    return tile_terrain(chart_tile(atlas_curr(atlas)));
 }
 
 
 void atlas_set_terrain(struct Atlas *atlas, enum TERRAIN t)
 {
-    chart_set_terrain(atlas_curr(atlas), t);
-}
-
-
-void atlas_goto(struct Atlas *atlas, const struct Coordinate *c)
-{
-    struct Chart *new = atlas_find(atlas, c);
-    if (new) {
-        atlas->curr = new;
-    }
+    tile_set_terrain(chart_tile(atlas_curr(atlas)), t);
 }
 
 

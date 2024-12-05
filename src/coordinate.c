@@ -11,9 +11,6 @@ struct Coordinate {
     unsigned int m;
 };
 
-/*
- *      Coordinate Functions
- */
 
 const struct Coordinate COORDINATE_ORIGIN = {0,0,0,0};
 const struct Coordinate COORDINATE_DELTA_EE = {1,0,-1,0};
@@ -152,8 +149,8 @@ void coordinate_parent(const struct Coordinate *c, struct Coordinate *p)
 }
 
 
-void coordinate_child(const struct Coordinate *c, 
-        enum CHILDREN i, 
+void coordinate_child(const struct Coordinate *c,
+        enum CHILDREN i,
         struct Coordinate *ch)
 {
     coordinate_copy(c, ch);
@@ -186,24 +183,13 @@ bool coordinate_related(const struct Coordinate *c1, const struct Coordinate *c2
     coordinate_copy( (c1->m <  c2->m) ? c1 : c2, &lower);
     coordinate_copy( (c1->m >= c2->m) ? c1 : c2, &upper);
 
-    /* lift the lower to the height of the upper */
     coordinate_lift_to(&lower, upper.m);
     return coordinate_equals(&lower, &upper);
 }
 
 
-struct Coordinate *coordinate_create_ancestor(
-        const struct Coordinate *c0, 
-        const struct Coordinate *c1)
-{
-    struct Coordinate *a = coordinate_create_origin();
-    coordinate_common_ancestor(c0, c1, a);
-    return a;
-}
-
-
 void coordinate_common_ancestor(
-        const struct Coordinate *c0, 
+        const struct Coordinate *c0,
         const struct Coordinate *c1,
         struct Coordinate *a)
 {
@@ -222,52 +208,19 @@ void coordinate_common_ancestor(
 }
 
 
-int *coordinate_lineage(const struct Coordinate *U, const struct Coordinate *L)
+struct Coordinate *coordinate_create_ancestor(
+        const struct Coordinate *c0,
+        const struct Coordinate *c1)
 {
-    int dm = coordinate_m(U) - coordinate_m(L);
-
-    if (dm < 0) {
-        return NULL;
-    }
-
-    int *lineage = malloc((dm+1) * sizeof(int));
-    memset(lineage, 0, (dm+1) * sizeof(int));
-    lineage[0] = dm;
-
-    struct Coordinate *c = coordinate_duplicate(L);
-    for (int i = 1; i <= dm; i++) {
-        lineage[dm-i] = coordinate_index(c);
-        coordinate_lift_by(c, 1);
-    }
-
-    if (!coordinate_equals(U, c)) {
-        free(lineage);
-        lineage = NULL;
-    }
-
-    coordinate_destroy(c);
-    c = NULL;
-    return lineage;
+    struct Coordinate *a = coordinate_create_origin();
+    coordinate_common_ancestor(c0, c1, a);
+    return a;
 }
 
 
 enum CHILDREN coordinate_index(const struct Coordinate *c)
 {
     return (((3*c->p + c->q) % 9) + 9) % 9;
-}
-
-
-int coordinate_distance(struct Coordinate *c0, struct Coordinate *c1)
-{
-    int dp = abs(c0->p - c1->p);
-    int dq = abs(c0->q - c1->q);
-    int dr = abs(c0->r - c1->r);
-
-    int dc = 0;
-    dc = (dp > dq) ? dp : dq;
-    dc = (dr > dc) ? dr : dc;
-
-    return dc;
 }
 
 

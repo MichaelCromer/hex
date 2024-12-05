@@ -16,6 +16,7 @@
  *      DRAW 01 - Basic shapes
  */
 
+
 void wdraw_border(WINDOW *win, int r0, int c0, int w, int h)
 {
     mvwhline(win, r0,     c0,     ACS_HLINE, w-1);
@@ -153,17 +154,9 @@ void wdraw_panel(WINDOW *win, struct Panel *p)
 }
 
 
-void wclear_panel(WINDOW *win, struct Panel *p)
-{
-    int r = panel_row(p), c = panel_col(p);
-    int w = panel_width(p), h = panel_height(p);
-    wdraw_rectangle(win, r, c, w, h, ' ');
-}
-
 /*
- *      DRAW 03 - Chartes and terrain
+ *      DRAW 03 - Charts and terrain
  */
-
 
 
 void wdraw_reticule(WINDOW *win, struct Geometry *g)

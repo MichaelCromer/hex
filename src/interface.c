@@ -32,59 +32,45 @@ struct UserInterface *ui_create(void)
 void ui_initialise(struct UserInterface *ui, struct Geometry *g)
 {
     ui->panel[PANEL_SPLASH] = panel_splash();
-    ui->panel[PANEL_TERRAIN] = panel_terrain_selector();
-    ui->panel[PANEL_DETAIL] = panel_hex_detail();
+    ui->panel[PANEL_DETAIL] = panel_tile_detail();
     panel_centre(ui->panel[PANEL_SPLASH], geometry_rmid(g), geometry_cmid(g));
     ui->show[PANEL_SPLASH] = true;
-
-    return;
 }
 
 
-void ui_update_detail(struct UserInterface *ui, struct Chart *h)
+void ui_update_detail(struct UserInterface *ui, struct Atlas *atlas)
 {
     struct Panel *detail = ui_panel(ui, PANEL_DETAIL);
     char buf[32];
 
     panel_remove_line(detail, 1);
     memset(buf, 0 ,32);
-    snprintf(buf, 32, "    (%d, %d, %d)", chart_p(h), chart_q(h), chart_r(h));
+    struct Chart *chart = atlas_curr(atlas);
+    snprintf(buf, 32, "  (%d, %d, %d)", chart_p(chart), chart_q(chart), chart_r(chart));
     panel_add_line(detail, 1, buf);
 
     panel_remove_line(detail, 2);
     memset(buf, 0 ,32);
-    snprintf(buf, 32, "    Terrain: %s", terrain_name(chart_terrain(h)));
+    snprintf(buf, 32, "  Terrain: %s", terrain_name(atlas_terrain(atlas)));
     panel_add_line(detail, 2, buf);
-
-    panel_remove_line(detail, 3);
-    memset(buf, 0 ,32);
-    snprintf(buf, 32, "  Seed: %d", chart_seed(h));
-    panel_add_line(detail, 3, buf);
-
-    return;
 }
 
 
 void ui_destroy(struct UserInterface *ui)
 {
-    for (int i=0; i<NUM_UI_PANELS; i++) {
+    for (int i = 0; i < NUM_UI_PANELS; i++) {
         struct Panel *panel = ui->panel[i];
         if (panel) {
             panel_destroy(panel);
         }
     }
     free(ui);
-    ui = NULL;
-
-    return;
 }
 
 
 void ui_toggle(struct UserInterface *ui, enum UI_PANEL p)
 {
     ui->show[p] = !(ui->show[p]);
-
-    return;
 }
 
 
