@@ -166,18 +166,6 @@ struct Panel *panel_splash(void)
 }
 
 
-struct Panel *panel_terrain_selector(void)//int rmid, int cmid)
-{
-    struct Panel *terrain_selector = panel_create(10, 2, 5);
-    panel_add_line(terrain_selector, 0, "Select Terrain:");
-    panel_add_line(terrain_selector, 1, "q. Ocean     w. Mountain e. Hills");
-    panel_add_line(terrain_selector, 2, "a. Plains    s. Forest   d. Swamp");
-    panel_add_line(terrain_selector, 3, "z. Desert    x. Jungle   c. Tundra");
-
-    return terrain_selector;
-}
-
-
 struct Panel *panel_hex_detail(void)
 {
     struct Panel *chart_detail = panel_create(2, 2, 3);

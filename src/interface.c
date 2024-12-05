@@ -32,7 +32,6 @@ struct UserInterface *ui_create(void)
 void ui_initialise(struct UserInterface *ui, struct Geometry *g)
 {
     ui->panel[PANEL_SPLASH] = panel_splash();
-    ui->panel[PANEL_TERRAIN] = panel_terrain_selector();
     ui->panel[PANEL_DETAIL] = panel_hex_detail();
     panel_centre(ui->panel[PANEL_SPLASH], geometry_rmid(g), geometry_cmid(g));
     ui->show[PANEL_SPLASH] = true;
