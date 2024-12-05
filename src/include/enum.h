@@ -34,7 +34,6 @@ enum MODE {
 const char *mode_name(enum MODE m);
 int mode_colour(enum MODE m);
 bool mode_is_await(enum MODE m);
-enum MODE mode_drop_await(enum MODE m);
 
 
 #define NUM_TERRAIN 9

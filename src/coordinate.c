@@ -188,16 +188,6 @@ bool coordinate_related(const struct Coordinate *c1, const struct Coordinate *c2
 }
 
 
-struct Coordinate *coordinate_create_ancestor(
-        const struct Coordinate *c0,
-        const struct Coordinate *c1)
-{
-    struct Coordinate *a = coordinate_create_origin();
-    coordinate_common_ancestor(c0, c1, a);
-    return a;
-}
-
-
 void coordinate_common_ancestor(
         const struct Coordinate *c0,
         const struct Coordinate *c1,
@@ -215,6 +205,16 @@ void coordinate_common_ancestor(
     coordinate_copy(lower, a);
     coordinate_destroy(tmp0);
     coordinate_destroy(tmp1);
+}
+
+
+struct Coordinate *coordinate_create_ancestor(
+        const struct Coordinate *c0,
+        const struct Coordinate *c1)
+{
+    struct Coordinate *a = coordinate_create_origin();
+    coordinate_common_ancestor(c0, c1, a);
+    return a;
 }
 
 

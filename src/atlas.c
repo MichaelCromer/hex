@@ -161,14 +161,14 @@ struct Atlas *atlas_create(void)
 }
 
 
-void atlas_initialise(struct Atlas *atlas, struct Chart *root)
+void atlas_initialise(struct Atlas *atlas)
 {
     if (atlas->root) {
         return;
     }
 
-    atlas->root = root;
-    atlas->curr = root;
+    atlas->root = chart_create_origin();
+    atlas->curr = atlas->root;
 }
 
 
@@ -221,15 +221,6 @@ enum TERRAIN atlas_terrain(const struct Atlas *atlas)
 void atlas_set_terrain(struct Atlas *atlas, enum TERRAIN t)
 {
     tile_set_terrain(chart_tile(atlas_curr(atlas)), t);
-}
-
-
-void atlas_goto(struct Atlas *atlas, const struct Coordinate *c)
-{
-    struct Chart *new = atlas_find(atlas, c);
-    if (new) {
-        atlas->curr = new;
-    }
 }
 
 

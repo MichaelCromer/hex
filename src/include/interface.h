@@ -14,6 +14,6 @@ void ui_destroy(struct UserInterface *ui);
 void ui_toggle(struct UserInterface *ui, enum UI_PANEL p);
 bool ui_show(struct UserInterface *ui, enum UI_PANEL p);
 struct Panel *ui_panel(struct UserInterface *ui, enum UI_PANEL p);
-void ui_update_detail(struct UserInterface *ui, struct Chart *h);
+void ui_update_detail(struct UserInterface *ui, struct Atlas *atlas);
 
 #endif

@@ -15,15 +15,11 @@ struct Geometry;
 struct Geometry *geometry_create(void);
 void geometry_initialise(struct Geometry *g, float scale, float aspect, WINDOW *win);
 void geometry_destroy(struct Geometry *g);
-void geometry_set_scale(struct Geometry *g, float scale);
-void geometry_set_aspect(struct Geometry *g, float aspect);
+float geometry_slope(struct Geometry *g);
 int geometry_cmid(struct Geometry *g);
 int geometry_rmid(struct Geometry *g);
 int geometry_rows(struct Geometry *g);
 int geometry_cols(struct Geometry *g);
-float geometry_scale(struct Geometry *g);
-float geometry_slope(struct Geometry *g);
-float geometry_aspect(struct Geometry *g);
 int geometry_tile_dh(struct Geometry *g);
 int geometry_tile_dw(struct Geometry *g);
 

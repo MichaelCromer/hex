@@ -79,23 +79,3 @@ int geometry_cmid(struct Geometry *g)
 {
     return g->cmid;
 }
-
-
-/* Geometry setters */
-
-void geometry_set_scale(struct Geometry *g, float scale)
-{
-    g->scale = scale;
-    g->tile_dw = round(g->scale * ROOT3 / 2);
-    g->tile_dh = round(g->scale * g->aspect / 2);
-}
-
-
-void geometry_set_aspect(struct Geometry *g, float aspect)
-{
-    g->aspect = aspect;
-    g->tile_dh = round(g->scale * g->aspect / 2);
-    g->slope = ROOT3_INV * g->aspect;
-}
-
-

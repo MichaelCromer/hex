@@ -63,12 +63,6 @@ void tile_destroy(struct Tile *tile)
 }
 
 
-int tile_seed(const struct Tile *tile)
-{
-    return tile->seed;
-}
-
-
 enum TERRAIN tile_terrain(const struct Tile *tile)
 {
     return tile->terrain;

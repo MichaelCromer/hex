@@ -38,19 +38,20 @@ void ui_initialise(struct UserInterface *ui, struct Geometry *g)
 }
 
 
-void ui_update_detail(struct UserInterface *ui, struct Chart *chart)
+void ui_update_detail(struct UserInterface *ui, struct Atlas *atlas)
 {
     struct Panel *detail = ui_panel(ui, PANEL_DETAIL);
     char buf[32];
 
     panel_remove_line(detail, 1);
     memset(buf, 0 ,32);
+    struct Chart *chart = atlas_curr(atlas);
     snprintf(buf, 32, "  (%d, %d, %d)", chart_p(chart), chart_q(chart), chart_r(chart));
     panel_add_line(detail, 1, buf);
 
     panel_remove_line(detail, 2);
     memset(buf, 0 ,32);
-    snprintf(buf, 32, "  Terrain: %s", terrain_name(chart_terrain(chart)));
+    snprintf(buf, 32, "  Terrain: %s", terrain_name(atlas_terrain(atlas)));
     panel_add_line(detail, 2, buf);
 }
 

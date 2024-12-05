@@ -76,14 +76,14 @@ void state_initialise(struct State *state, WINDOW *win)
             GEOMETRY_DEFAULT_ASPECT,
             win);
     ui_initialise(state_ui(state), state_geometry(state));
-    atlas_initialise(state_atlas(state), chart_create_origin());
+    atlas_initialise(state_atlas(state));
 }
 
 
 void state_update(struct State *state)
 {
     key k = wgetch(state_window(state));
-    state_set_currkey(state, k);
+    state->currkey = k;
 
     switch (state_mode(state)) {
         case MODE_CAPTURE:
@@ -181,12 +181,6 @@ void state_pop_mode(struct State *state)
 key state_currkey(struct State *state)
 {
     return state->currkey;
-}
-
-
-void state_set_currkey(struct State *state, key k)
-{
-    state->currkey = k;
 }
 
 

@@ -30,7 +30,7 @@ void action_move(struct State *state, enum DIRECTION d, int steps)
         atlas_step(atlas, d);
     }
 
-    ui_update_detail(state_ui(state), atlas_curr(atlas));
+    ui_update_detail(state_ui(state), atlas);
     return;
 }
 
@@ -63,7 +63,7 @@ void action_paint_terrain(struct State *state, enum TERRAIN t)
         tile_clear_rivers(atlas_tile(atlas));
     }
 
-    ui_update_detail(state_ui(state), atlas_curr(atlas));
+    ui_update_detail(state_ui(state), atlas);
 }
 
 

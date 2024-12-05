@@ -252,18 +252,3 @@ bool mode_is_await(enum MODE m)
     }
     return false;;
 }
-
-
-enum MODE mode_drop_await(enum MODE m)
-{
-    switch (m) {
-        case MODE_AWAIT_RIVER:
-            return MODE_RIVER;
-        case MODE_AWAIT_ROAD:
-            return MODE_ROAD;
-        case MODE_AWAIT_TERRAIN:
-            return MODE_TERRAIN;
-        default: break;
-    }
-    return m;
-}
