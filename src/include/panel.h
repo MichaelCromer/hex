@@ -19,6 +19,6 @@ char *panel_line(struct Panel *p, int i);
 
 struct Panel *panel_splash(void);
 struct Panel *panel_terrain_selector(void);
-struct Panel *panel_hex_detail(void);
+struct Panel *panel_tile_detail(void);
 
 #endif
