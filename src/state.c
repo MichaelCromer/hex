@@ -208,12 +208,6 @@ enum UI_COLOUR state_colour(struct State *state)
 }
 
 
-void state_set_colour(struct State *state, enum UI_COLOUR colour)
-{
-    state->colour = colour;
-}
-
-
 bool state_await(struct State *state)
 {
     return mode_is_await(state_mode(state));
