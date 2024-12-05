@@ -3,6 +3,6 @@
 
 #include "state.h"
 
-void draw_state(struct State *s);
+void draw_state(struct State *state);
 
 #endif
