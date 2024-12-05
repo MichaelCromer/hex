@@ -120,21 +120,6 @@ struct Tile *chart_tile(const struct Chart *chart)
 }
 
 
-void chart_set_tile(struct Chart *chart, struct Tile *tile)
-{
-    if (chart->tile) {
-        return;
-    }
-    chart->tile = tile;
-}
-
-
-int chart_seed(const struct Chart *chart)
-{
-    return tile_seed(chart_tile(chart));
-}
-
-
 int chart_p(const struct Chart *chart)
 {
     return coordinate_p(chart->coordinate);
@@ -153,33 +138,9 @@ int chart_r(const struct Chart *chart)
 }
 
 
-unsigned int chart_m(const struct Chart *chart)
-{
-    return coordinate_m(chart->coordinate);
-}
-
-
-float chart_u(const struct Chart *chart)
-{
-    return ROOT3 * (chart_p(chart) + chart_q(chart)/2.0f);
-}
-
-
-float chart_v(const struct Chart *chart)
-{
-    return 1.5f * chart_q(chart);
-}
-
-
 enum TERRAIN chart_terrain(const struct Chart *chart)
 {
     return tile_terrain(chart_tile(chart));
-}
-
-
-void chart_set_terrain(struct Chart *chart, enum TERRAIN t)
-{
-    tile_set_terrain(chart_tile(chart), t);
 }
 
 
@@ -259,7 +220,7 @@ enum TERRAIN atlas_terrain(const struct Atlas *atlas)
 
 void atlas_set_terrain(struct Atlas *atlas, enum TERRAIN t)
 {
-    chart_set_terrain(atlas_curr(atlas), t);
+    tile_set_terrain(chart_tile(atlas_curr(atlas)), t);
 }
 
 

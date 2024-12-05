@@ -30,12 +30,6 @@ enum COMMAND command_type(const struct Command *c)
 }
 
 
-const char *command_str(const struct Command *c)
-{
-    return c->data;
-}
-
-
 void command_destroy(struct Command *c)
 {
     if (c->data) {
@@ -116,27 +110,12 @@ char *commandline_start(struct Commandline *c)
 }
 
 
-char *commandline_end(struct Commandline *c)
-{
-    return (c->curr = c->buffer + c->len);
-}
-
-
 char *commandline_next(struct Commandline *c)
 {
     if (c->curr >= c->buffer + c->len + 1) {
         return c->buffer + c->len + 1;
     }
     return (c->curr++);
-}
-
-
-char *commandline_prev(struct Commandline *c)
-{
-    if (c->curr <= c->buffer) {
-        return c->buffer;
-    }
-    return (c->curr--);
 }
 
 

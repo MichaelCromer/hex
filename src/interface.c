@@ -56,11 +56,6 @@ void ui_update_detail(struct UserInterface *ui, struct Chart *h)
     snprintf(buf, 32, "    Terrain: %s", terrain_name(chart_terrain(h)));
     panel_add_line(detail, 2, buf);
 
-    panel_remove_line(detail, 3);
-    memset(buf, 0 ,32);
-    snprintf(buf, 32, "  Seed: %d", chart_seed(h));
-    panel_add_line(detail, 3, buf);
-
     return;
 }
 

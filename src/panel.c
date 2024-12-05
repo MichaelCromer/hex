@@ -180,11 +180,10 @@ struct Panel *panel_terrain_selector(void)//int rmid, int cmid)
 
 struct Panel *panel_hex_detail(void)
 {
-    struct Panel *chart_detail = panel_create(2, 2, 4);
+    struct Panel *chart_detail = panel_create(2, 2, 3);
     panel_add_line(chart_detail, 0, "Currently at: ");
     panel_add_line(chart_detail, 1, "    (p, q, r)");
     panel_add_line(chart_detail, 2, "    TERRAIN: NONE");
-    panel_add_line(chart_detail, 3, "  SEED: 0");
 
     return chart_detail;
 }
