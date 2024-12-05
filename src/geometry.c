@@ -45,16 +45,6 @@ void geometry_destroy(struct Geometry *g)
 
 /* Geometry getters */
 
-float geometry_scale(struct Geometry *g)
-{
-    return g->scale;
-}
-
-float geometry_aspect(struct Geometry *g)
-{
-    return g->aspect;
-}
-
 float geometry_slope(struct Geometry *g)
 {
     return g->slope;
