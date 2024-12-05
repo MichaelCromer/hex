@@ -50,14 +50,17 @@ void action_paint_terrain(struct State *state, enum TERRAIN t)
         struct Tile *neighbour = NULL;
 
         for (int i = 0; i < NUM_DIRECTIONS; i++) {
-            if (!tile_road(tile, i)) {
-                continue;
-            }
             neighbour = chart_tile(atlas_neighbour(atlas, i));
-            tile_set_road(neighbour, direction_opposite(i), false);
+            if (tile_road(tile, i)) {
+                tile_set_road(neighbour, direction_opposite(i), false);
+            }
+            if (tile_river(tile, i)) {
+                tile_set_river(neighbour, direction_opposite(i), false);
+            }
         }
 
         tile_clear_roads(atlas_tile(atlas));
+        tile_clear_rivers(atlas_tile(atlas));
     }
 
     ui_update_detail(state_ui(state), atlas_curr(atlas));
