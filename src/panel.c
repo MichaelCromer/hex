@@ -3,6 +3,7 @@
 
 #include "include/panel.h"
 
+
 struct Panel {
     int r0, c0;
     int w, h;

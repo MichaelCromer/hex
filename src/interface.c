@@ -35,8 +35,6 @@ void ui_initialise(struct UserInterface *ui, struct Geometry *g)
     ui->panel[PANEL_DETAIL] = panel_tile_detail();
     panel_centre(ui->panel[PANEL_SPLASH], geometry_rmid(g), geometry_cmid(g));
     ui->show[PANEL_SPLASH] = true;
-
-    return;
 }
 
 
@@ -47,38 +45,31 @@ void ui_update_detail(struct UserInterface *ui, struct Chart *chart)
 
     panel_remove_line(detail, 1);
     memset(buf, 0 ,32);
-    snprintf(buf, 32, "    (%d, %d, %d)", chart_p(h), chart_q(h), chart_r(h));
+    snprintf(buf, 32, "  (%d, %d, %d)", chart_p(chart), chart_q(chart), chart_r(chart));
     panel_add_line(detail, 1, buf);
 
     panel_remove_line(detail, 2);
     memset(buf, 0 ,32);
-    snprintf(buf, 32, "    Terrain: %s", terrain_name(chart_terrain(h)));
+    snprintf(buf, 32, "  Terrain: %s", terrain_name(chart_terrain(chart)));
     panel_add_line(detail, 2, buf);
-
-    return;
 }
 
 
 void ui_destroy(struct UserInterface *ui)
 {
-    for (int i=0; i<NUM_UI_PANELS; i++) {
+    for (int i = 0; i < NUM_UI_PANELS; i++) {
         struct Panel *panel = ui->panel[i];
         if (panel) {
             panel_destroy(panel);
         }
     }
     free(ui);
-    ui = NULL;
-
-    return;
 }
 
 
 void ui_toggle(struct UserInterface *ui, enum UI_PANEL p)
 {
     ui->show[p] = !(ui->show[p]);
-
-    return;
 }
 
 
