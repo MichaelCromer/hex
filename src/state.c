@@ -58,12 +58,7 @@ void state_initialise(struct State *s, WINDOW *win)
     s->win = win;
     state_push_mode(s, MODE_CAPTURE);
 
-    /* set up colour */
-    enum UI_COLOUR colour = (has_colors() == TRUE)
-        ? ( (can_change_color() == TRUE) ? COLOUR_MANY : COLOUR_SOME)
-        : COLOUR_NONE;
-    state_set_colour(s, colour);
-
+    s->colour = colour_test();
     if (state_colour(s) == COLOUR_SOME || state_colour(s) == COLOUR_MANY) {
         start_color();
         init_pair(1, COLOR_RED, COLOR_BLACK);
@@ -229,12 +224,3 @@ WINDOW *state_window(struct State *s)
 {
     return s->win;
 }
-
-
-enum UI_COLOUR state_colour_test(void)
-{
-    return (has_colors())
-        ? ((can_change_color()) ? COLOUR_MANY : COLOUR_SOME)
-        : COLOUR_NONE;
-}
-

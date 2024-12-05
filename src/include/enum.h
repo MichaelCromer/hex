@@ -9,6 +9,7 @@ enum UI_COLOUR {
     COLOUR_SOME,
     COLOUR_MANY
 };
+enum UI_COLOUR colour_test(void);
 
 
 #define NUM_UI_PANELS 3
