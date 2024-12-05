@@ -214,7 +214,7 @@ struct Tile *atlas_tile(const struct Atlas *atlas)
 
 enum TERRAIN atlas_terrain(const struct Atlas *atlas)
 {
-    return chart_terrain(atlas_curr(atlas));
+    return tile_terrain(chart_tile(atlas_curr(atlas)));
 }
 
 
