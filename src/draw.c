@@ -161,28 +161,18 @@ void wdraw_panel(WINDOW *win, struct Panel *p)
 
 void wdraw_reticule(WINDOW *win, struct Geometry *g)
 {
-    char ch = '#';
-    int dh = 0;
-
-    float slope = geometry_slope(g);
-    int rmid = geometry_rmid(g), cmid = geometry_cmid(g);
-    int w_half = (geometry_tile_dw(g)+1)/2, h_half = (geometry_tile_dh(g))/2;
+    char x = '#';
+    int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
+    int r = geometry_rmid(g), c = geometry_cmid(g);
 
     attron(COLOR_PAIR(COLOR_RED));
 
-    mvwvline(win, rmid-h_half + 1, cmid-w_half, ch, 2*h_half + 1);
-    mvwvline(win, rmid-h_half + 1, cmid+w_half, ch, 2*h_half + 1);
-
-    mvwvline(win, rmid-h_half + 1, cmid-w_half+1, ch, 2*h_half + 1);
-    mvwvline(win, rmid-h_half + 1, cmid+w_half-1, ch, 2*h_half + 1);
-
-    for (int col = -w_half; col <= w_half; col++) {
-        dh = (col < 0)
-            ? floor((w_half+col)*slope)
-            : floor((w_half-col)*slope);
-        mvwaddch(win, rmid - (h_half + dh), cmid + col, ch);
-        mvwaddch(win, rmid + (h_half + dh)+1, cmid + col, ch);
-    }
+    mvwaddch(win, r + h, c + w, x);
+    mvwaddch(win, r - h, c + w, x);
+    mvwaddch(win, r + h, c - w, x);
+    mvwaddch(win, r - h, c - w, x);
+    mvwaddch(win, r + 2*h, c, x);
+    mvwaddch(win, r - 2*h, c, x);
 
     attroff(COLOR_PAIR(COLOR_RED));
     return;
@@ -376,7 +366,7 @@ void wdraw_statusline(WINDOW *win, struct State *s)
 void draw_state(struct State *s)
 {
     wdraw_atlas(state_window(s), state_geometry(s), state_atlas(s));
-    //wdraw_reticule(state_window(s), state_geometry(s));
+    wdraw_reticule(state_window(s), state_geometry(s));
     wdraw_ui(state_window(s), state_ui(s));
     wdraw_statusline(state_window(s), s);
     return;
