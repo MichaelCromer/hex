@@ -147,3 +147,30 @@ enum MODE key_mode(key k)
     }
     return MODE_NONE;
 }
+
+
+bool key_is_feature(key k)
+{
+    switch (k) {
+        case KEY_FEATURE_DUNGEON:
+        case KEY_FEATURE_SETTLEMENT:
+        case KEY_FEATURE_LOCATION:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+
+enum FEATURE key_feature(key k)
+{
+    switch (k) {
+        case KEY_FEATURE_DUNGEON: return FEATURE_DUNGEON;
+        case KEY_FEATURE_SETTLEMENT: return FEATURE_SETTLEMENT;
+        case KEY_FEATURE_LOCATION: return FEATURE_LOCATION;
+        default:
+            break;
+    }
+    return FEATURE_NONE;
+}

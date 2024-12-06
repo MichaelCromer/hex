@@ -60,6 +60,14 @@ bool terrain_impassable(enum TERRAIN t);
 const char *terrain_statusline(void);
 
 
+enum FEATURE {
+    FEATURE_NONE,
+    FEATURE_SETTLEMENT,
+    FEATURE_LOCATION,
+    FEATURE_DUNGEON
+};
+
+
 #define NUM_DIRECTIONS 6
 enum DIRECTION {
     DIRECTION_EE,
@@ -96,6 +104,5 @@ enum COMMAND {
     COMMAND_WRITE,
     COMMAND_EDIT,
 };
-
 
 #endif 
