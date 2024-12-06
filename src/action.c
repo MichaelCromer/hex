@@ -306,3 +306,16 @@ void action_river(struct State *state, key k)
         return;
     }
 }
+
+
+void action_feature(struct State *state, key k)
+{
+    if (state_await(state)) {
+        action_mode(state, key_mode(k));
+    }
+
+    if (key_is_mode(k)) {
+        action_mode(state, key_mode(k));
+        return;
+    }
+}
