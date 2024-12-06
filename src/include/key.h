@@ -12,6 +12,8 @@
 #define     KEY_MODE_AWAIT_ROAD 'r'
 #define          KEY_MODE_RIVER 'Y'
 #define    KEY_MODE_AWAIT_RIVER 'y'
+#define        KEY_MODE_FEATURE 'F'
+#define  KEY_MODE_AWAIT_FEATURE 'f'
 #define        KEY_MODE_COMMAND ':'
 
 #define       KEY_TOGGLE_DETAIL 'j'
