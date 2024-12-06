@@ -134,6 +134,19 @@ void wdraw_river(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d
 }
 
 
+void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0, enum FEATURE f)
+{
+    int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
+    int r = r0 - h/2, c = c0 - w/2;
+    switch (f) {
+        case FEATURE_SETTLEMENT:
+            wdraw_box(win, r, c, w, h, ' ');
+        default:
+            break;
+    }
+}
+
+
 /*
  *      DRAW 02 - Panels
  */
@@ -209,6 +222,8 @@ void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int 
         }
     }
     attroff(COLOR_PAIR(COLOR_CYAN));
+
+    wdraw_feature(win, g, r0, c0, tile_feature(tile));
 }
 
 
