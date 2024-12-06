@@ -29,3 +29,4 @@
 [ ] wdraw basic shapes probably can be implemented natively with ncurses
 [ ] chart p q r candidates for deprecation
 [ ] chart_tile candidate for deprecation, expose only atlas
+[ ] consider collapsing terrain unknown and terrain none
