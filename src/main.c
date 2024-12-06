@@ -3,7 +3,6 @@
 #include "include/draw.h"
 #include "include/state.h"
 
-
 void initialise(void)
 {
     initscr();                  /* init the lib                                     */
@@ -15,13 +14,11 @@ void initialise(void)
     ESCDELAY = 10;
 }
 
-
 void cleanup(void)
 {
     erase();
     endwin();
 }
-
 
 int main(void)
 {

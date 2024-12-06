@@ -8,7 +8,7 @@
 struct State;
 
 struct State *state_create(void);
-void state_initialise(struct State *state, WINDOW *win);
+void state_initialise(struct State *state, WINDOW * win);
 void state_update(struct State *state);
 void state_destroy(struct State *state);
 struct Geometry *state_geometry(const struct State *state);

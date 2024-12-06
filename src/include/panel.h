@@ -1,7 +1,6 @@
 #ifndef PANEL_H
 #define PANEL_H
 
-
 struct Panel;
 
 void panel_destroy(struct Panel *p);

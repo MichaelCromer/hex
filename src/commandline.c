@@ -7,12 +7,10 @@
 #define COMMANDLINE_BUFFER_SIZE 1024
 #define COMMAND_WORD_QUIT   "quit"
 
-
 struct Command {
     enum COMMAND type;
     char *data;
 };
-
 
 struct Command *command_create(enum COMMAND type, char *data)
 {
@@ -23,12 +21,10 @@ struct Command *command_create(enum COMMAND type, char *data)
     return c;
 }
 
-
 enum COMMAND command_type(const struct Command *c)
 {
     return c->type;
 }
-
 
 void command_destroy(struct Command *c)
 {
@@ -39,13 +35,11 @@ void command_destroy(struct Command *c)
     free(c);
 }
 
-
 struct Commandline {
     char buffer[COMMANDLINE_BUFFER_SIZE];
     int len;
     char *curr;
 };
-
 
 struct Commandline *commandline_create(void)
 {
@@ -54,7 +48,6 @@ struct Commandline *commandline_create(void)
     return c;
 }
 
-
 void commandline_reset(struct Commandline *c)
 {
     memset(c->buffer, '\0', COMMANDLINE_BUFFER_SIZE);
@@ -62,24 +55,20 @@ void commandline_reset(struct Commandline *c)
     c->curr = c->buffer;
 }
 
-
 void commandline_destroy(struct Commandline *c)
 {
     free(c);
 }
-
 
 size_t commandline_len(struct Commandline *c)
 {
     return c->len;
 }
 
-
 const char *commandline_str(struct Commandline *c)
 {
     return c->buffer;
 }
-
 
 void commandline_putch(struct Commandline *c, char ch)
 {
@@ -91,24 +80,21 @@ void commandline_putch(struct Commandline *c, char ch)
     (c->len)++;
 }
 
-
 char commandline_popch(struct Commandline *c)
 {
     if (c->len <= 0) {
         return '\0';
     }
-    char ch = c->buffer[(c->len)-1];
+    char ch = c->buffer[(c->len) - 1];
     (c->len)--;
     c->buffer[(c->len)] = '\0';
     return ch;
 }
 
-
 char *commandline_start(struct Commandline *c)
 {
     return (c->curr = c->buffer);
 }
-
 
 char *commandline_next(struct Commandline *c)
 {
@@ -118,12 +104,10 @@ char *commandline_next(struct Commandline *c)
     return (c->curr++);
 }
 
-
 char *commandline_curr(struct Commandline *c)
 {
     return c->curr;
 }
-
 
 enum COMMAND commandline_parse_type(struct Commandline *c)
 {
@@ -150,7 +134,6 @@ enum COMMAND commandline_parse_type(struct Commandline *c)
     return COMMAND_ERROR;
 }
 
-
 char *commandline_parse_data(struct Commandline *c)
 {
     char *c0 = commandline_curr(c);
@@ -174,13 +157,12 @@ char *commandline_parse_data(struct Commandline *c)
     return data;
 }
 
-
 struct Command *commandline_parse(struct Commandline *c)
 {
     commandline_start(c);
 
     enum COMMAND t = commandline_parse_type(c);
-    
+
     switch (t) {
         case COMMAND_QUIT:
         case COMMAND_ERROR:
