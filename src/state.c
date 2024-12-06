@@ -14,7 +14,6 @@
 #include "include/panel.h"
 #include "include/state.h"
 
-
 struct State {
     bool quit;
     bool reticule;
@@ -31,7 +30,6 @@ struct State {
     struct UserInterface *ui;
     struct Commandline *cmd;
 };
-
 
 struct State *state_create(void)
 {
@@ -52,7 +50,6 @@ struct State *state_create(void)
     return state;
 }
 
-
 void state_initialise(struct State *state, WINDOW *win)
 {
     state->win = win;
@@ -70,15 +67,11 @@ void state_initialise(struct State *state, WINDOW *win)
         init_pair(7, COLOR_WHITE, COLOR_BLACK);
     }
 
-    geometry_initialise(
-            state_geometry(state),
-            GEOMETRY_DEFAULT_SCALE,
-            GEOMETRY_DEFAULT_ASPECT,
-            win);
+    geometry_initialise(state_geometry(state),
+                        GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
     ui_initialise(state_ui(state), state_geometry(state));
     atlas_initialise(state_atlas(state));
 }
-
 
 void state_update(struct State *state)
 {
@@ -115,7 +108,6 @@ void state_update(struct State *state)
     return;
 }
 
-
 void state_destroy(struct State *state)
 {
     geometry_destroy(state->geometry);
@@ -128,42 +120,35 @@ void state_destroy(struct State *state)
     return;
 }
 
-
 struct Geometry *state_geometry(const struct State *state)
 {
     return state->geometry;
 }
-
 
 struct Atlas *state_atlas(const struct State *state)
 {
     return state->atlas;
 }
 
-
 struct UserInterface *state_ui(const struct State *state)
 {
     return state->ui;
 }
-
 
 struct Commandline *state_commandline(const struct State *state)
 {
     return state->cmd;
 }
 
-
 enum MODE state_mode(const struct State *state)
 {
     return state->mode;
 }
 
-
 enum MODE state_lastmode(const struct State *state)
 {
     return state->lastmode;
 }
-
 
 void state_push_mode(struct State *state, enum MODE mode)
 {
@@ -171,42 +156,35 @@ void state_push_mode(struct State *state, enum MODE mode)
     state->mode = mode;
 }
 
-
 void state_pop_mode(struct State *state)
 {
     state->mode = state->lastmode;
 }
-
 
 key state_currkey(struct State *state)
 {
     return state->currkey;
 }
 
-
 bool state_quit(struct State *state)
 {
     return state->quit;
 }
-
 
 void state_set_quit(struct State *state, bool quit)
 {
     state->quit = quit;
 }
 
-
 enum UI_COLOUR state_colour(struct State *state)
 {
     return state->colour;
 }
 
-
 bool state_await(struct State *state)
 {
     return mode_is_await(state_mode(state));
 }
-
 
 WINDOW *state_window(struct State *state)
 {

@@ -2,7 +2,6 @@
 
 #include "include/key.h"
 
-
 enum DIRECTION key_direction(key k)
 {
     switch (tolower(k)) {
@@ -24,7 +23,6 @@ enum DIRECTION key_direction(key k)
     return DIRECTION_XX;
 }
 
-
 bool key_is_direction(key k)
 {
     switch (tolower(k)) {
@@ -41,7 +39,6 @@ bool key_is_direction(key k)
     return false;
 }
 
-
 bool key_is_special(key k)
 {
     switch (k) {
@@ -57,7 +54,6 @@ bool key_is_special(key k)
     }
     return false;
 }
-
 
 enum TERRAIN key_terrain(key k)
 {
@@ -88,7 +84,6 @@ enum TERRAIN key_terrain(key k)
     return TERRAIN_NONE;
 }
 
-
 bool key_is_terrain(key k)
 {
     switch (k) {
@@ -109,7 +104,6 @@ bool key_is_terrain(key k)
     return false;
 }
 
-
 bool key_is_mode(key k)
 {
     switch (k) {
@@ -128,18 +122,25 @@ bool key_is_mode(key k)
     return false;
 }
 
-
 enum MODE key_mode(key k)
 {
     switch (k) {
-        case KEY_MODE_COMMAND: return MODE_COMMAND;
-        case KEY_MODE_AWAIT_TERRAIN: return MODE_AWAIT_TERRAIN;
-        case KEY_MODE_TERRAIN: return MODE_TERRAIN;
-        case KEY_MODE_AWAIT_ROAD: return MODE_AWAIT_ROAD;
-        case KEY_MODE_ROAD: return MODE_ROAD;
-        case KEY_MODE_AWAIT_RIVER: return MODE_AWAIT_RIVER;
-        case KEY_MODE_RIVER: return MODE_RIVER;
-        default: break;
+        case KEY_MODE_COMMAND:
+            return MODE_COMMAND;
+        case KEY_MODE_AWAIT_TERRAIN:
+            return MODE_AWAIT_TERRAIN;
+        case KEY_MODE_TERRAIN:
+            return MODE_TERRAIN;
+        case KEY_MODE_AWAIT_ROAD:
+            return MODE_AWAIT_ROAD;
+        case KEY_MODE_ROAD:
+            return MODE_ROAD;
+        case KEY_MODE_AWAIT_RIVER:
+            return MODE_AWAIT_RIVER;
+        case KEY_MODE_RIVER:
+            return MODE_RIVER;
+        default:
+            break;
     }
     return MODE_NONE;
 }

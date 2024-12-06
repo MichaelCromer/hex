@@ -6,13 +6,11 @@
 #include "include/atlas.h"
 #include "include/tile.h"
 
-
 struct Chart {
     struct Coordinate *coordinate;
     struct Tile *tile;
     struct Chart **children;
 };
-
 
 struct Chart *chart_create(const struct Coordinate *c)
 {
@@ -29,34 +27,29 @@ struct Chart *chart_create(const struct Coordinate *c)
         for (int i = 0; i < NUM_CHILDREN; i++) {
             chart->children[i] = NULL;
         }
-    } 
+    }
 
     return chart;
 }
 
-
 struct Chart *chart_create_ancestor(struct Chart *chart1, struct Chart *chart2)
 {
-    struct Coordinate *a = coordinate_create_ancestor(
-            chart_coordinate(chart1),
-            chart_coordinate(chart2));
+    struct Coordinate *a = coordinate_create_ancestor(chart_coordinate(chart1),
+                                                      chart_coordinate(chart2));
     struct Chart *ancestor = chart_create(a);
     coordinate_destroy(a);
     return ancestor;
 }
-
 
 struct Chart *chart_create_origin(void)
 {
     return chart_create(coordinate_origin());
 }
 
-
 struct Chart **chart_children(const struct Chart *chart)
 {
     return chart->children;
 }
-
 
 struct Chart *chart_child(const struct Chart *chart, enum CHILDREN c)
 {
@@ -67,7 +60,6 @@ struct Chart *chart_child(const struct Chart *chart, enum CHILDREN c)
     return chart->children[c];
 }
 
-
 void chart_set_child(struct Chart *chart, enum CHILDREN c, struct Chart *child)
 {
     if (!chart || chart_child(chart, c)) {
@@ -76,7 +68,6 @@ void chart_set_child(struct Chart *chart, enum CHILDREN c, struct Chart *child)
 
     chart->children[c] = child;
 }
-
 
 void chart_destroy(struct Chart *chart)
 {
@@ -104,12 +95,10 @@ void chart_destroy(struct Chart *chart)
     free(chart);
 }
 
-
 struct Coordinate *chart_coordinate(const struct Chart *chart)
 {
     return chart->coordinate;
 }
-
 
 struct Tile *chart_tile(const struct Chart *chart)
 {
@@ -119,36 +108,30 @@ struct Tile *chart_tile(const struct Chart *chart)
     return chart->tile;
 }
 
-
 int chart_p(const struct Chart *chart)
 {
     return coordinate_p(chart->coordinate);
 }
-
 
 int chart_q(const struct Chart *chart)
 {
     return coordinate_q(chart->coordinate);
 }
 
-
 int chart_r(const struct Chart *chart)
 {
     return coordinate_r(chart->coordinate);
 }
-
 
 enum TERRAIN chart_terrain(const struct Chart *chart)
 {
     return tile_terrain(chart_tile(chart));
 }
 
-
 struct Atlas {
     struct Chart *root;
     struct Chart *curr;
 };
-
 
 struct Atlas *atlas_create(void)
 {
@@ -160,7 +143,6 @@ struct Atlas *atlas_create(void)
     return atlas;
 }
 
-
 void atlas_initialise(struct Atlas *atlas)
 {
     if (atlas->root) {
@@ -170,7 +152,6 @@ void atlas_initialise(struct Atlas *atlas)
     atlas->root = chart_create_origin();
     atlas->curr = atlas->root;
 }
-
 
 void atlas_destroy(struct Atlas *atlas)
 {
@@ -187,42 +168,35 @@ void atlas_destroy(struct Atlas *atlas)
     free(atlas);
 }
 
-
 struct Chart *atlas_root(const struct Atlas *atlas)
 {
     return atlas->root;
 }
-
 
 struct Chart *atlas_curr(const struct Atlas *atlas)
 {
     return atlas->curr;
 }
 
-
 struct Coordinate *atlas_coordinate(const struct Atlas *atlas)
 {
     return chart_coordinate(atlas_curr(atlas));
 }
-
 
 struct Tile *atlas_tile(const struct Atlas *atlas)
 {
     return chart_tile(atlas_curr(atlas));
 }
 
-
 enum TERRAIN atlas_terrain(const struct Atlas *atlas)
 {
     return tile_terrain(chart_tile(atlas_curr(atlas)));
 }
 
-
 void atlas_set_terrain(struct Atlas *atlas, enum TERRAIN t)
 {
     tile_set_terrain(chart_tile(atlas_curr(atlas)), t);
 }
-
 
 struct Chart *atlas_neighbour(const struct Atlas *atlas, enum DIRECTION d)
 {
@@ -232,7 +206,6 @@ struct Chart *atlas_neighbour(const struct Atlas *atlas, enum DIRECTION d)
     coordinate_destroy(c);
     return neighbour;
 }
-
 
 void atlas_step(struct Atlas *atlas, enum DIRECTION d)
 {
@@ -268,7 +241,6 @@ struct Chart *atlas_find(const struct Atlas *atlas, const struct Coordinate *c)
     return chart_child(parent, coordinate_index(c));
 }
 
-
 void atlas_insert(struct Atlas *atlas, struct Chart *new)
 {
     if (!atlas || !atlas_root(atlas) || !new) {
@@ -294,7 +266,6 @@ void atlas_insert(struct Atlas *atlas, struct Chart *new)
     }
     chart_set_child(parent, coordinate_index(n), new);
 }
-
 
 void atlas_create_neighbours(struct Atlas *atlas)
 {

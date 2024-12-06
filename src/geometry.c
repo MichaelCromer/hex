@@ -3,7 +3,6 @@
 
 #include "include/geometry.h"
 
-
 struct Geometry {
     float scale;
     float aspect;
@@ -13,13 +12,11 @@ struct Geometry {
     int rmid, cmid;
 };
 
-
 struct Geometry *geometry_create(void)
 {
     struct Geometry *g = malloc(sizeof(struct Geometry));
     return g;
 }
-
 
 void geometry_initialise(struct Geometry *g, float scale, float aspect, WINDOW *win)
 {
@@ -35,13 +32,11 @@ void geometry_initialise(struct Geometry *g, float scale, float aspect, WINDOW *
 
 }
 
-
 void geometry_destroy(struct Geometry *g)
 {
     free(g);
     g = NULL;
 }
-
 
 /* Geometry getters */
 

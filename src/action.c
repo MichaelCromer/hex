@@ -6,7 +6,6 @@
 #include "include/interface.h"
 #include "include/tile.h"
 
-
 void action_mode(struct State *state, enum MODE m)
 {
     if (state_await(state)) {
@@ -21,7 +20,6 @@ void action_mode(struct State *state, enum MODE m)
     }
 }
 
-
 void action_move(struct State *state, enum DIRECTION d, int steps)
 {
     struct Atlas *atlas = state_atlas(state);
@@ -33,7 +31,6 @@ void action_move(struct State *state, enum DIRECTION d, int steps)
     ui_update_detail(state_ui(state), atlas);
     return;
 }
-
 
 void action_paint_terrain(struct State *state, enum TERRAIN t)
 {
@@ -66,7 +63,6 @@ void action_paint_terrain(struct State *state, enum TERRAIN t)
     ui_update_detail(state_ui(state), atlas);
 }
 
-
 void action_paint_road(struct State *state, enum DIRECTION d)
 {
     struct Atlas *atlas = state_atlas(state);
@@ -76,14 +72,13 @@ void action_paint_road(struct State *state, enum DIRECTION d)
     action_move(state, d, 1);
 
     if (terrain_impassable(tile_terrain(tile))
-            || terrain_impassable(tile_terrain(neighbour))) {
+        || terrain_impassable(tile_terrain(neighbour))) {
         return;
     }
 
     tile_toggle_road(tile, d);
     tile_toggle_road(neighbour, direction_opposite(d));
 }
-
 
 void action_paint_river(struct State *state, enum DIRECTION d)
 {
@@ -92,14 +87,13 @@ void action_paint_river(struct State *state, enum DIRECTION d)
     struct Tile *neighbour = chart_tile(atlas_neighbour(atlas, d));
 
     if (terrain_impassable(tile_terrain(tile))
-            || terrain_impassable(tile_terrain(neighbour))) {
+        || terrain_impassable(tile_terrain(neighbour))) {
         return;
     }
 
     tile_toggle_river(tile, d);
     tile_toggle_river(neighbour, direction_opposite(d));
 }
-
 
 void action_drag_river(struct State *state, enum DIRECTION d)
 {
@@ -140,7 +134,6 @@ void action_drag_river(struct State *state, enum DIRECTION d)
     action_move(state, d, 1);
 }
 
-
 void action_capture(struct State *state, key k)
 {
     if (k != KEY_ENTER && k != '\n') {
@@ -153,7 +146,6 @@ void action_capture(struct State *state, key k)
 
     state_push_mode(state, MODE_NAVIGATE);
 }
-
 
 void action_navigate(struct State *state, key k)
 {
@@ -174,7 +166,6 @@ void action_navigate(struct State *state, key k)
             break;
     }
 }
-
 
 void action_terrain(struct State *state, key k)
 {
@@ -209,7 +200,6 @@ void action_terrain(struct State *state, key k)
         action_mode(state, key_mode(k));
     }
 }
-
 
 void action_command(struct State *state, key k)
 {
@@ -254,7 +244,6 @@ void action_command(struct State *state, key k)
     }
 }
 
-
 void action_road(struct State *state, key k)
 {
     if (state_await(state)) {
@@ -279,7 +268,6 @@ void action_road(struct State *state, key k)
         action_mode(state, key_mode(k));
     }
 }
-
 
 void action_river(struct State *state, key k)
 {

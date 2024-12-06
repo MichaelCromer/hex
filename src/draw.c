@@ -11,40 +11,35 @@
 #include "include/state.h"
 #include "include/tile.h"
 
-
 /*
- *      DRAW 01 - Basic shapes
+*     DRAW 01 - Basic shapes
  */
-
 
 void wdraw_border(WINDOW *win, int r0, int c0, int w, int h)
 {
-    mvwhline(win, r0,     c0,     ACS_HLINE, w-1);
-    mvwvline(win, r0,     c0,     ACS_VLINE, h-1);
-    mvwvline(win, r0,     c0+w-1, ACS_VLINE, h-1);
-    mvwhline(win, r0+h-1, c0,     ACS_HLINE, w-1);
+    mvwhline(win, r0, c0, ACS_HLINE, w - 1);
+    mvwvline(win, r0, c0, ACS_VLINE, h - 1);
+    mvwvline(win, r0, c0 + w - 1, ACS_VLINE, h - 1);
+    mvwhline(win, r0 + h - 1, c0, ACS_HLINE, w - 1);
 
-    mvwaddch(win, r0,     c0,     ACS_PLUS);
-    mvwaddch(win, r0,     c0+w-1, ACS_PLUS);
-    mvwaddch(win, r0+h-1, c0,     ACS_PLUS);
-    mvwaddch(win, r0+h-1, c0+w-1, ACS_PLUS);
+    mvwaddch(win, r0, c0, ACS_PLUS);
+    mvwaddch(win, r0, c0 + w - 1, ACS_PLUS);
+    mvwaddch(win, r0 + h - 1, c0, ACS_PLUS);
+    mvwaddch(win, r0 + h - 1, c0 + w - 1, ACS_PLUS);
 }
-
 
 void wdraw_rectangle(WINDOW *win, int r0, int c0, int w, int h, char bg)
 {
-    for (int r=0; r<h; r++) {
-        mvwhline(win, r0+r, c0, bg, w);
+    for (int r = 0; r < h; r++) {
+        mvwhline(win, r0 + r, c0, bg, w);
     }
 }
-
 
 void wdraw_box(WINDOW *win, int r0, int c0, int w, int h, char bg)
 {
     wdraw_rectangle(win, r0, c0, w, h, bg);
     wdraw_border(win, r0, c0, w, h);
 }
-
 
 void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
 {
@@ -62,33 +57,31 @@ void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
     }
 }
 
-
 void wdraw_road(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d)
 {
-    int dr = 0, dc = 0,
-        dw = geometry_tile_dw(g), dh = geometry_tile_dh(g);
+    int dr = 0, dc = 0, dw = geometry_tile_dw(g), dh = geometry_tile_dh(g);
 
     switch (d) {
         case DIRECTION_EE:
-            dc = 2*dw;
+            dc = 2 * dw;
             break;
         case DIRECTION_NE:
-            dr = -3*dh;
+            dr = -3 * dh;
             dc = dw;
             break;
         case DIRECTION_NW:
-            dr = -3*dh;
-            dc = -1*dw;
+            dr = -3 * dh;
+            dc = -1 * dw;
             break;
         case DIRECTION_WW:
-            dc = -2*dw;
+            dc = -2 * dw;
             break;
         case DIRECTION_SW:
-            dr = 3*dh;
-            dc = -1*dw;
+            dr = 3 * dh;
+            dc = -1 * dw;
             break;
         case DIRECTION_SE:
-            dr = 3*dh;
+            dr = 3 * dh;
             dc = dw;
             break;
         default:
@@ -98,12 +91,10 @@ void wdraw_road(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d)
     wdraw_line(win, r, c, r + dr, c + dc, '#');
 }
 
-
 void wdraw_river(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d)
 {
     int c0 = 0, r0 = 0, c1 = 0, r1 = 0,
-        dw = geometry_tile_dw(g),
-        dh = geometry_tile_dh(g);
+        dw = geometry_tile_dw(g), dh = geometry_tile_dh(g);
 
     switch (d) {
         case DIRECTION_EE:
@@ -133,9 +124,8 @@ void wdraw_river(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d
     wdraw_line(win, r0, c0, r1, c1, '~');
 }
 
-
 /*
- *      DRAW 02 - Panels
+*     DRAW 02 - Panels
  */
 
 void wdraw_panel(WINDOW *win, struct Panel *p)
@@ -149,15 +139,13 @@ void wdraw_panel(WINDOW *win, struct Panel *p)
         if (!line) {
             continue;
         }
-        mvwprintw(win, r+2+i, c+2, "%s", line);
+        mvwprintw(win, r + 2 + i, c + 2, "%s", line);
     }
 }
 
-
 /*
- *      DRAW 03 - Charts and terrain
+*     DRAW 03 - Charts and terrain
  */
-
 
 void wdraw_reticule(WINDOW *win, struct Geometry *g)
 {
@@ -166,28 +154,27 @@ void wdraw_reticule(WINDOW *win, struct Geometry *g)
 
     float slope = geometry_slope(g);
     int rmid = geometry_rmid(g), cmid = geometry_cmid(g);
-    int w_half = (geometry_tile_dw(g)+1)/2, h_half = (geometry_tile_dh(g))/2;
+    int w_half = (geometry_tile_dw(g) + 1)/2, h_half = (geometry_tile_dh(g))/2;
 
     attron(COLOR_PAIR(COLOR_RED));
 
-    mvwvline(win, rmid-h_half + 1, cmid-w_half, ch, 2*h_half + 1);
-    mvwvline(win, rmid-h_half + 1, cmid+w_half, ch, 2*h_half + 1);
+    mvwvline(win, rmid - h_half + 1, cmid - w_half, ch, 2*h_half + 1);
+    mvwvline(win, rmid - h_half + 1, cmid + w_half, ch, 2*h_half + 1);
 
-    mvwvline(win, rmid-h_half + 1, cmid-w_half+1, ch, 2*h_half + 1);
-    mvwvline(win, rmid-h_half + 1, cmid+w_half-1, ch, 2*h_half + 1);
+    mvwvline(win, rmid - h_half + 1, cmid - w_half + 1, ch, 2*h_half + 1);
+    mvwvline(win, rmid - h_half + 1, cmid + w_half - 1, ch, 2*h_half + 1);
 
     for (int col = -w_half; col <= w_half; col++) {
         dh = (col < 0)
-            ? floor((w_half+col)*slope)
-            : floor((w_half-col)*slope);
+            ? floor((w_half + col)*slope)
+            : floor((w_half - col)*slope);
         mvwaddch(win, rmid - (h_half + dh), cmid + col, ch);
-        mvwaddch(win, rmid + (h_half + dh)+1, cmid + col, ch);
+        mvwaddch(win, rmid + (h_half + dh) + 1, cmid + col, ch);
     }
 
     attroff(COLOR_PAIR(COLOR_RED));
     return;
 }
-
 
 void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int c0)
 {
@@ -196,8 +183,8 @@ void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int 
     attron(COLOR_PAIR(terrain_colour(tile_terrain(tile))));
     for (int c = 1 - w; c < w; c++) {
         int dh = (c < 0)
-                ? floor((w + c)*geometry_slope(g))
-                : floor((w - c)*geometry_slope(g));
+            ? floor((w + c)*geometry_slope(g))
+            : floor((w - c)*geometry_slope(g));
         for (int r = -(h + dh); r < (h + dh); r++) {
             mvwaddch(win, r0 + r, c0 + c, tile_getch(tile, c, r));
         }
@@ -221,12 +208,8 @@ void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int 
     attroff(COLOR_PAIR(COLOR_CYAN));
 }
 
-
-void wdraw_chart(
-        WINDOW *win,
-        struct Geometry *g,
-        struct Chart *chart,
-        struct Coordinate *o)
+void wdraw_chart(WINDOW *win,
+                 struct Geometry *g, struct Chart *chart, struct Coordinate *o)
 {
     /* recurse down the chart to find the tiles at the bottom and print them
      * send the right integer coordinates */
@@ -243,21 +226,15 @@ void wdraw_chart(
     }
 
     struct Coordinate *c = chart_coordinate(chart);
-    int dp = coordinate_p(c) - coordinate_p(o),
-        dq = coordinate_q(c) - coordinate_q(o);
+    int dp = coordinate_p(c) - coordinate_p(o), dq = coordinate_q(c) - coordinate_q(o);
 
-    int dr = 3*dq*geometry_tile_dh(g),
-        dc = (2*dp + dq) * geometry_tile_dw(g);
+    int dr = 3*dq*geometry_tile_dh(g), dc = (2*dp + dq)*geometry_tile_dw(g);
 
     wdraw_tile(win, g, chart_tile(chart), geometry_rmid(g) + dr, geometry_cmid(g) + dc);
 }
 
-
-void wdraw_atlas_at(
-        WINDOW *win,
-        struct Geometry *g,
-        struct Atlas *atlas,
-        struct Coordinate *c)
+void wdraw_atlas_at(WINDOW *win,
+                    struct Geometry *g, struct Atlas *atlas, struct Coordinate *c)
 {
     struct Chart *chart = atlas_find(atlas, c);
     if (!chart && coordinate_m(c)) {
@@ -272,7 +249,6 @@ void wdraw_atlas_at(
     wdraw_chart(win, g, chart, atlas_coordinate(atlas));
 }
 
-
 void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 {
     /* find the smallest coordinate that is guaranteed to contain the window
@@ -283,24 +259,23 @@ void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
     struct Coordinate *c = chart_coordinate(centre);
 
     /* TODO move this calculation to Geometry struct */
-    int n_hor = round( geometry_cols(g) / (2.00f * geometry_tile_dw(g))) + 1,
-        n_ver = round( geometry_rows(g) / (1.50f * geometry_tile_dh(g))) + 1;
+    int n_hor = round(geometry_cols(g)/(2.00f*geometry_tile_dw(g))) + 1,
+        n_ver = round(geometry_rows(g)/(1.50f*geometry_tile_dh(g))) + 1;
 
     struct Coordinate *c_E = coordinate_duplicate(c),
-                      *c_W = coordinate_duplicate(c),
-                      *c_N = coordinate_duplicate(c),
-                      *c_S = coordinate_duplicate(c);
+        *c_W = coordinate_duplicate(c),
+        *c_N = coordinate_duplicate(c), *c_S = coordinate_duplicate(c);
 
-    coordinate_nshift(c_W, DIRECTION_WW, n_hor/2);
-    coordinate_nshift(c_E, DIRECTION_EE, n_hor/2);
-    coordinate_nshift(c_N, DIRECTION_NW, n_ver/4);
-    coordinate_nshift(c_N, DIRECTION_NE, n_ver/4);
-    coordinate_nshift(c_S, DIRECTION_SW, n_ver/4);
-    coordinate_nshift(c_S, DIRECTION_SE, n_ver/4);
+    coordinate_nshift(c_W, DIRECTION_WW, n_hor / 2);
+    coordinate_nshift(c_E, DIRECTION_EE, n_hor / 2);
+    coordinate_nshift(c_N, DIRECTION_NW, n_ver / 4);
+    coordinate_nshift(c_N, DIRECTION_NE, n_ver / 4);
+    coordinate_nshift(c_S, DIRECTION_SW, n_ver / 4);
+    coordinate_nshift(c_S, DIRECTION_SE, n_ver / 4);
 
     struct Coordinate *tmp1 = coordinate_create_ancestor(c_E, c_W);
     struct Coordinate *tmp2 = coordinate_create_ancestor(c_N, c_S);
-    struct Coordinate *a    = coordinate_create_ancestor(tmp1, tmp2);
+    struct Coordinate *a = coordinate_create_ancestor(tmp1, tmp2);
 
     wdraw_atlas_at(win, g, atlas, a);
 
@@ -314,9 +289,8 @@ void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 }
 
 /*
- *      DRAW 04 - Core stuff
+*     DRAW 04 - Core stuff
  */
-
 
 void wdraw_ui(WINDOW *win, struct UserInterface *ui)
 {
@@ -327,15 +301,13 @@ void wdraw_ui(WINDOW *win, struct UserInterface *ui)
     }
 }
 
-
 void wdraw_statusline(WINDOW *win, struct State *s)
 {
-    int r0 = geometry_rows(state_geometry(s))-1,
-        c0 = 0,
-        w  = geometry_cols(state_geometry(s))-1;
+    int r0 = geometry_rows(state_geometry(s)) - 1,
+        c0 = 0, w = geometry_cols(state_geometry(s)) - 1;
 
     mvwhline(win, r0, c0, ' ', w);
-    wmove(win, r0, c0+1);
+    wmove(win, r0, c0 + 1);
 
     if (state_await(s)) {
         attron(COLOR_PAIR(mode_colour(state_lastmode(s))));
@@ -371,7 +343,6 @@ void wdraw_statusline(WINDOW *win, struct State *s)
             break;
     }
 }
-
 
 void draw_state(struct State *s)
 {
