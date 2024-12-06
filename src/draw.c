@@ -130,7 +130,13 @@ void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0, enum FEATURE
     int r = r0 - h/2, c = c0 - w/2;
     switch (f) {
         case FEATURE_SETTLEMENT:
-            wdraw_box(win, r, c, w, h, ' ');
+            wdraw_box(win, r--, c++, w, h, ' ');
+            w -=2;
+            while (w > 0) {
+                mvwhline(win, r--, c, '=', w);
+                w -= 4;
+                c += 2;
+            }
         default:
             break;
     }
