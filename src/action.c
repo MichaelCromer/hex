@@ -193,11 +193,10 @@ void action_terrain(struct State *state, key k)
     }
 
     if (key_is_direction(k)) {
+        enum TERRAIN t = atlas_terrain(state_atlas(state));
+        action_move(state, key_direction(k), 1);
 
         if (key_is_special(k)) {
-            enum TERRAIN t = atlas_terrain(state_atlas(state));
-            action_move(state, key_direction(k), 1);
-
             if (t != TERRAIN_UNKNOWN) {
                 action_paint_terrain(state, t);
             }
