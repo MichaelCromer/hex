@@ -29,6 +29,8 @@ enum MODE {
     MODE_AWAIT_ROAD,
     MODE_RIVER,
     MODE_AWAIT_RIVER,
+    MODE_FEATURE,
+    MODE_AWAIT_FEATURE,
     MODE_COMMAND
 };
 const char *mode_name(enum MODE m);

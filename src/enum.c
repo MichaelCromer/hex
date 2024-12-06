@@ -188,9 +188,11 @@ const char *modestr_terrain         = "[TERRAIN]";
 const char *modestr_command         = "[COMMAND]";
 const char *modestr_road            = "[ROADS]";
 const char *modestr_river           = "[RIVERS]";
+const char *modestr_feature         = "[FEATURE]";
 const char *modestr_await_terrain   = "(terrain)";
 const char *modestr_await_road      = "(roads)";
 const char *modestr_await_river     = "(rivers)";
+const char *modestr_await_feature   = "(feature)";
 const char *modestr_unknown         = "???";
 
 /*  MODE : Functions */
@@ -213,6 +215,10 @@ const char *mode_name(enum MODE m)
             return modestr_await_river;
         case MODE_RIVER:
             return modestr_river;
+        case MODE_AWAIT_FEATURE:
+            return modestr_await_feature;
+        case MODE_FEATURE:
+            return modestr_feature;
         case MODE_COMMAND:
             return modestr_command;
         default:
@@ -233,6 +239,9 @@ int mode_colour(enum MODE m)
         case MODE_RIVER:
         case MODE_AWAIT_RIVER:
             return COLOR_CYAN;
+        case MODE_FEATURE:
+        case MODE_AWAIT_FEATURE:
+            return COLOR_MAGENTA;
         case MODE_COMMAND: return COLOR_RED;
         case MODE_NAVIGATE: return COLOR_WHITE;
         default: break;
@@ -244,6 +253,7 @@ int mode_colour(enum MODE m)
 bool mode_is_await(enum MODE m)
 {
     switch (m) {
+        case MODE_AWAIT_FEATURE:
         case MODE_AWAIT_RIVER:
         case MODE_AWAIT_ROAD:
         case MODE_AWAIT_TERRAIN:
