@@ -116,8 +116,23 @@ void wdraw_river(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d
             c1 = c - dw;
             break;
         case DIRECTION_WW:
+            r0 = r + dh;
+            c0 = c - dw;
+            r1 = r - dh;
+            c1 = c - dw;
+            break;
         case DIRECTION_SW:
+            r0 = r + dh;
+            c0 = c - dw;
+            r1 = r + 2*dh;
+            c1 = c;
+            break;
         case DIRECTION_SE:
+            r0 = r + 2*dh;
+            c0 = c;
+            r1 = r + dh;
+            c1 = c + dw;
+            break;
         default:
             break;
     }
@@ -189,11 +204,11 @@ void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int 
     int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
 
     attron(COLOR_PAIR(terrain_colour(tile_terrain(tile))));
-    for (int c = 1 - w; c < w; c++) {
+    for (int c = -w; c <= w; c++) {
         int dh = (c < 0)
             ? floor((w + c)*geometry_slope(g))
             : floor((w - c)*geometry_slope(g));
-        for (int r = -(h + dh); r < (h + dh); r++) {
+        for (int r = -(h + dh); r <= (h + dh); r++) {
             mvwaddch(win, r0 + r, c0 + c, tile_getch(tile, c, r));
         }
     }
