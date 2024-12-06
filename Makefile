@@ -19,3 +19,9 @@ $(BLDDIR)/%.o: %.c
 .PHONY: clean
 clean:
 	rm -r $(BLDDIR)
+
+
+format:
+	indent -npro -linux -l88 -nut -i4 -cli4 src/*.c src/include/*.h
+	find -name '*~' -delete
+	sed -i '/ + \| - /s/ \([*\/]\) /\1/g' src/*.c src/include/*.h
