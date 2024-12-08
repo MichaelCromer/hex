@@ -35,9 +35,9 @@ void wdraw_rectangle(WINDOW *win, int r0, int c0, int w, int h, char bg)
     }
 }
 
-void wdraw_box(WINDOW *win, int r0, int c0, int w, int h, char bg)
+void wdraw_box(WINDOW *win, int r0, int c0, int w, int h)
 {
-    wdraw_rectangle(win, r0, c0, w, h, bg);
+    wdraw_rectangle(win, r0, c0, w, h, ' ');
     wdraw_border(win, r0, c0, w, h);
 }
 
@@ -56,6 +56,29 @@ void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
         c += dc;
     }
 }
+
+/*
+*     DRAW 02 - Panels
+ */
+
+void wdraw_panel(WINDOW *win, struct Panel *p)
+{
+    int r = panel_row(p), c = panel_col(p);
+    int w = panel_width(p), h = panel_height(p);
+    wdraw_box(win, r, c, w, h);
+
+    for (int i = 0; i < panel_len(p); i++) {
+        char *line = panel_line(p, i);
+        if (!line) {
+            continue;
+        }
+        mvwprintw(win, r + 2 + i, c + 2, "%s", line);
+    }
+}
+
+/*
+*     DRAW 03 - Charts and terrain
+ */
 
 void wdraw_road(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d)
 {
@@ -139,64 +162,45 @@ void wdraw_river(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d
     wdraw_line(win, r0, c0, r1, c1, '~');
 }
 
-void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0, enum FEATURE f)
+void wdraw_settlement(WINDOW *win, struct Geometry *g, int r0, int c0)
 {
     int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
     int r = r0 - h/2, c = c0 - w/2;
+
+    wdraw_box(win, r--, c++, w, h);
+    w -= 2;
+    while (w > 0) {
+        mvwhline(win, r--, c, '=', w);
+        w -= 4;
+        c += 2;
+    }
+}
+
+void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0)
+{
+    int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
+    int r = r0 - h/2 - 1, c = c0 - w/2 - 1;
+
+    wdraw_rectangle(win, r, c, 2, 2, '#');
+    wdraw_rectangle(win, r + h, c, 2, 2, '#');
+    wdraw_rectangle(win, r, c + w, 2, 2, '#');
+    wdraw_rectangle(win, r + h, c + w, 2, 2, '#');
+    wdraw_box(win, r0 - 1, c0 - 1, 3,3);
+}
+
+void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0, enum FEATURE f)
+{
     switch (f) {
         case FEATURE_SETTLEMENT:
-            wdraw_box(win, r--, c++, w, h, ' ');
-            w -=2;
-            while (w > 0) {
-                mvwhline(win, r--, c, '=', w);
-                w -= 4;
-                c += 2;
-            }
+            wdraw_settlement(win, g, r0, c0);
+            break;
+        case FEATURE_LOCATION:
+            wdraw_location(win, g, r0, c0);
+            break;
+        case FEATURE_DUNGEON:
         default:
             break;
     }
-}
-
-/*
-*     DRAW 02 - Panels
- */
-
-void wdraw_panel(WINDOW *win, struct Panel *p)
-{
-    int r = panel_row(p), c = panel_col(p);
-    int w = panel_width(p), h = panel_height(p);
-    wdraw_box(win, r, c, w, h, ' ');
-
-    for (int i = 0; i < panel_len(p); i++) {
-        char *line = panel_line(p, i);
-        if (!line) {
-            continue;
-        }
-        mvwprintw(win, r + 2 + i, c + 2, "%s", line);
-    }
-}
-
-/*
-*     DRAW 03 - Charts and terrain
- */
-
-void wdraw_reticule(WINDOW *win, struct Geometry *g)
-{
-    char x = '#';
-    int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
-    int r = geometry_rmid(g), c = geometry_cmid(g);
-
-    attron(COLOR_PAIR(COLOR_RED));
-
-    mvwaddch(win, r + h, c + w, x);
-    mvwaddch(win, r - h, c + w, x);
-    mvwaddch(win, r + h, c - w, x);
-    mvwaddch(win, r - h, c - w, x);
-    mvwaddch(win, r + 2*h, c, x);
-    mvwaddch(win, r - 2*h, c, x);
-
-    attroff(COLOR_PAIR(COLOR_RED));
-    return;
 }
 
 void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int c0)
@@ -316,6 +320,25 @@ void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 /*
 *     DRAW 04 - Core stuff
  */
+
+void wdraw_reticule(WINDOW *win, struct Geometry *g)
+{
+    char x = '#';
+    int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
+    int r = geometry_rmid(g), c = geometry_cmid(g);
+
+    attron(COLOR_PAIR(COLOR_RED));
+
+    mvwaddch(win, r + h, c + w, x);
+    mvwaddch(win, r - h, c + w, x);
+    mvwaddch(win, r + h, c - w, x);
+    mvwaddch(win, r - h, c - w, x);
+    mvwaddch(win, r + 2*h, c, x);
+    mvwaddch(win, r - 2*h, c, x);
+
+    attroff(COLOR_PAIR(COLOR_RED));
+    return;
+}
 
 void wdraw_ui(WINDOW *win, struct UserInterface *ui)
 {
