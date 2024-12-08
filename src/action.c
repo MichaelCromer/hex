@@ -58,7 +58,7 @@ void action_paint_terrain(struct State *state, enum TERRAIN t)
 
         tile_clear_roads(tile);
         tile_clear_rivers(tile);
-        tile_set_feature(tile, FEATURE_NONE);
+        tile_set_location(tile, LOCATION_NONE);
     }
 
     ui_update_detail(state_ui(state), atlas);
@@ -135,7 +135,7 @@ void action_drag_river(struct State *state, enum DIRECTION d)
     action_move(state, d, 1);
 }
 
-void action_paint_feature(struct State *state, enum FEATURE f)
+void action_paint_location(struct State *state, enum LOCATION f)
 {
     struct Tile *tile = atlas_tile(state_atlas(state));
 
@@ -143,12 +143,12 @@ void action_paint_feature(struct State *state, enum FEATURE f)
         return;
     }
 
-    if (tile_feature(tile) == f) {
-        tile_set_feature(tile, FEATURE_NONE);
+    if (tile_location(tile) == f) {
+        tile_set_location(tile, LOCATION_NONE);
         return;
     }
 
-    tile_set_feature(tile, f);
+    tile_set_location(tile, f);
 }
 
 void action_capture(struct State *state, key k)
@@ -312,14 +312,14 @@ void action_river(struct State *state, key k)
     }
 }
 
-void action_feature(struct State *state, key k)
+void action_location(struct State *state, key k)
 {
     if (state_await(state)) {
         action_mode(state, key_mode(k));
     }
 
-    if (key_is_feature(k)) {
-        action_paint_feature(state, key_feature(k));
+    if (key_is_location(k)) {
+        action_paint_location(state, key_location(k));
     }
 
     if (key_is_direction(k)) {

@@ -100,9 +100,9 @@ void state_update(struct State *state)
         case MODE_RIVER:
             action_river(state, k);
             break;
-        case MODE_AWAIT_FEATURE:
-        case MODE_FEATURE:
-            action_feature(state, k);
+        case MODE_AWAIT_LOCATION:
+        case MODE_LOCATION:
+            action_location(state, k);
             break;
         case MODE_NONE:
         default:

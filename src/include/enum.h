@@ -26,8 +26,8 @@ enum MODE {
     MODE_AWAIT_ROAD,
     MODE_RIVER,
     MODE_AWAIT_RIVER,
-    MODE_FEATURE,
-    MODE_AWAIT_FEATURE,
+    MODE_LOCATION,
+    MODE_AWAIT_LOCATION,
     MODE_COMMAND
 };
 const char *mode_name(enum MODE m);
@@ -55,11 +55,11 @@ int terrain_colour(enum TERRAIN t);
 bool terrain_impassable(enum TERRAIN t);
 const char *terrain_statusline(void);
 
-enum FEATURE {
-    FEATURE_NONE,
-    FEATURE_SETTLEMENT,
-    FEATURE_LOCATION,
-    FEATURE_DUNGEON
+enum LOCATION {
+    LOCATION_NONE,
+    LOCATION_SETTLEMENT,
+    LOCATION_FEATURE,
+    LOCATION_DUNGEON
 };
 
 #define NUM_DIRECTIONS 6

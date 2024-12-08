@@ -176,7 +176,7 @@ void wdraw_settlement(WINDOW *win, struct Geometry *g, int r0, int c0)
     }
 }
 
-void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0)
+void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0)
 {
     int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
     int r = r0 - h/2 - 1, c = c0 - w/2 - 1;
@@ -185,19 +185,19 @@ void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0)
     wdraw_rectangle(win, r + h, c, 2, 2, '#');
     wdraw_rectangle(win, r, c + w, 2, 2, '#');
     wdraw_rectangle(win, r + h, c + w, 2, 2, '#');
-    wdraw_box(win, r0 - 1, c0 - 1, 3,3);
+    wdraw_box(win, r0 - 1, c0 - 1, 3, 3);
 }
 
-void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0, enum FEATURE f)
+void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0, enum LOCATION f)
 {
     switch (f) {
-        case FEATURE_SETTLEMENT:
+        case LOCATION_SETTLEMENT:
             wdraw_settlement(win, g, r0, c0);
             break;
-        case FEATURE_LOCATION:
-            wdraw_location(win, g, r0, c0);
+        case LOCATION_FEATURE:
+            wdraw_feature(win, g, r0, c0);
             break;
-        case FEATURE_DUNGEON:
+        case LOCATION_DUNGEON:
         default:
             break;
     }
@@ -234,7 +234,7 @@ void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int 
     }
     attroff(COLOR_PAIR(COLOR_CYAN));
 
-    wdraw_feature(win, g, r0, c0, tile_feature(tile));
+    wdraw_location(win, g, r0, c0, tile_location(tile));
 }
 
 void wdraw_chart(WINDOW *win,

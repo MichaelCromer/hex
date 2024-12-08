@@ -115,8 +115,8 @@ bool key_is_mode(key k)
         case KEY_MODE_ROAD:
         case KEY_MODE_AWAIT_RIVER:
         case KEY_MODE_RIVER:
-        case KEY_MODE_AWAIT_FEATURE:
-        case KEY_MODE_FEATURE:
+        case KEY_MODE_AWAIT_LOCATION:
+        case KEY_MODE_LOCATION:
             return true;
         default:
             break;
@@ -141,22 +141,22 @@ enum MODE key_mode(key k)
             return MODE_AWAIT_RIVER;
         case KEY_MODE_RIVER:
             return MODE_RIVER;
-        case KEY_MODE_AWAIT_FEATURE:
-            return MODE_AWAIT_FEATURE;
-        case KEY_MODE_FEATURE:
-            return MODE_FEATURE;
+        case KEY_MODE_AWAIT_LOCATION:
+            return MODE_AWAIT_LOCATION;
+        case KEY_MODE_LOCATION:
+            return MODE_LOCATION;
         default:
             break;
     }
     return MODE_NONE;
 }
 
-bool key_is_feature(key k)
+bool key_is_location(key k)
 {
     switch (k) {
-        case KEY_FEATURE_DUNGEON:
-        case KEY_FEATURE_SETTLEMENT:
-        case KEY_FEATURE_LOCATION:
+        case KEY_LOCATION_DUNGEON:
+        case KEY_LOCATION_SETTLEMENT:
+        case KEY_LOCATION_FEATURE:
             return true;
         default:
             break;
@@ -164,17 +164,17 @@ bool key_is_feature(key k)
     return false;
 }
 
-enum FEATURE key_feature(key k)
+enum LOCATION key_location(key k)
 {
     switch (k) {
-        case KEY_FEATURE_DUNGEON:
-            return FEATURE_DUNGEON;
-        case KEY_FEATURE_SETTLEMENT:
-            return FEATURE_SETTLEMENT;
-        case KEY_FEATURE_LOCATION:
-            return FEATURE_LOCATION;
+        case KEY_LOCATION_DUNGEON:
+            return LOCATION_DUNGEON;
+        case KEY_LOCATION_SETTLEMENT:
+            return LOCATION_SETTLEMENT;
+        case KEY_LOCATION_FEATURE:
+            return LOCATION_FEATURE;
         default:
             break;
     }
-    return FEATURE_NONE;
+    return LOCATION_NONE;
 }

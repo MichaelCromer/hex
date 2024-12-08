@@ -32,7 +32,7 @@ struct Tile {
     enum TERRAIN terrain;
     bool roads[NUM_DIRECTIONS];
     bool rivers[NUM_DIRECTIONS];
-    enum FEATURE feature;
+    enum LOCATION location;
 };
 
 struct Tile *tile_create()
@@ -41,7 +41,7 @@ struct Tile *tile_create()
 
     tile->seed = puid();
     tile->terrain = TERRAIN_UNKNOWN;
-    tile->feature = FEATURE_NONE;
+    tile->location = LOCATION_NONE;
 
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         tile->roads[i] = false;
@@ -133,20 +133,20 @@ void tile_clear_rivers(struct Tile *tile)
     }
 }
 
-enum FEATURE tile_feature(struct Tile *tile)
+enum LOCATION tile_location(struct Tile *tile)
 {
     if (!tile) {
-        return FEATURE_NONE;
+        return LOCATION_NONE;
     }
-    return tile->feature;
+    return tile->location;
 }
 
-void tile_set_feature(struct Tile *tile, enum FEATURE f)
+void tile_set_location(struct Tile *tile, enum LOCATION l)
 {
     if (!tile) {
         return;
     }
-    tile->feature = f;
+    tile->location = l;
 }
 
 char tile_getch(struct Tile *tile, int x, int y)

@@ -20,8 +20,8 @@ bool tile_river(const struct Tile *tile, enum DIRECTION d);
 void tile_set_river(struct Tile *tile, enum DIRECTION d, bool b);
 void tile_toggle_river(struct Tile *tile, enum DIRECTION d);
 void tile_clear_rivers(struct Tile *tile);
-enum FEATURE tile_feature(struct Tile *tile);
-void tile_set_feature(struct Tile *tile, enum FEATURE f);
+enum LOCATION tile_location(struct Tile *tile);
+void tile_set_location(struct Tile *tile, enum LOCATION l);
 char tile_getch(struct Tile *tile, int x, int y);
 
 #endif
