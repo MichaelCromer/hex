@@ -6,13 +6,12 @@
 
 static unsigned int tile_count = 0;
 
-
 struct Tile {
     unsigned int seed;
     enum TERRAIN terrain;
     bool roads[NUM_DIRECTIONS];
     bool rivers[NUM_DIRECTIONS];
-    enum LOCATION location;
+    struct Location *location;
 };
 
 struct Tile *tile_create()
@@ -25,7 +24,7 @@ struct Tile *tile_create()
     tile_count = 1664525*tile_count + 1013904223;
     tile->seed = tile_count;
     tile->terrain = TERRAIN_UNKNOWN;
-    tile->location = LOCATION_NONE;
+    tile->location = NULL;
 
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         tile->roads[i] = false;
@@ -117,20 +116,20 @@ void tile_clear_rivers(struct Tile *tile)
     }
 }
 
-enum LOCATION tile_location(struct Tile *tile)
+struct Location *tile_location(struct Tile *tile)
 {
     if (!tile) {
-        return LOCATION_NONE;
+        return NULL;
     }
     return tile->location;
 }
 
-void tile_set_location(struct Tile *tile, enum LOCATION l)
+void tile_set_location(struct Tile *tile, struct Location *location)
 {
     if (!tile) {
         return;
     }
-    tile->location = l;
+    tile->location = location;
 }
 
 char tile_getch(struct Tile *tile, int x, int y)
