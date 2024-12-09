@@ -188,6 +188,28 @@ void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0)
     wdraw_box(win, r0 - 1, c0 - 1, 3, 3);
 }
 
+
+void wdraw_dungeon(WINDOW *win, struct Geometry *g, int r0, int c0)
+{
+    int w = geometry_tile_dw(g)-1, h = geometry_tile_dh(g);
+    int r = r0 - h/2 + 1, c = c0 - w/2;
+
+    if (w < 3) {
+        return;
+    }
+
+    wdraw_rectangle(win, r, c, w, h, ' ');
+    mvwhline(win, r, c, '#', w);
+    mvwhline(win, r-1, c+1, '#', w-1);
+
+    mvwvline(win, r, c, '#', h);
+    mvwvline(win, r, c+1, '#', h);
+
+    mvwvline(win, r, c+w, '#', h);
+    mvwvline(win, r, c+w-1, '#', h);
+}
+
+
 void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0, enum LOCATION f)
 {
     switch (f) {
@@ -198,6 +220,8 @@ void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0, enum LOCATI
             wdraw_feature(win, g, r0, c0);
             break;
         case LOCATION_DUNGEON:
+            wdraw_dungeon(win, g, r0, c0);
+            break;
         default:
             break;
     }
