@@ -135,7 +135,7 @@ void action_drag_river(struct State *state, enum DIRECTION d)
     action_move(state, d, 1);
 }
 
-void action_paint_location(struct State *state, enum LOCATION f)
+void action_paint_location(struct State *state, enum LOCATION t)
 {
     struct Tile *tile = atlas_tile(state_atlas(state));
 
@@ -143,12 +143,16 @@ void action_paint_location(struct State *state, enum LOCATION f)
         return;
     }
 
-    if (tile_location(tile) == f) {
-        tile_set_location(tile, LOCATION_NONE);
+    if (!tile_location(tile)) {
+        /* instantiate a new location in the directory */
+    }
+
+    if (location_type(tile_location(tile)) == t) {
+        location_set_type(tile_location(tile), LOCATION_NONE);
         return;
     }
 
-    tile_set_location(tile, f);
+    location_set_type(tile_location(tile), t);
 }
 
 void action_capture(struct State *state, key k)

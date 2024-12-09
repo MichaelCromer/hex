@@ -230,9 +230,10 @@ void wdraw_dungeon(WINDOW *win, struct Geometry *g, int r0, int c0)
 }
 
 
-void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0, enum LOCATION f)
+void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0, struct Location *location)
 {
-    switch (f) {
+    enum LOCATION t = location_type(location);
+    switch (t) {
         case LOCATION_SETTLEMENT:
             wdraw_settlement(win, g, r0, c0);
             break;
