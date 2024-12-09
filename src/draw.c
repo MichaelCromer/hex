@@ -164,22 +164,42 @@ void wdraw_river(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d
 
 void wdraw_settlement(WINDOW *win, struct Geometry *g, int r0, int c0)
 {
-    int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
-    int r = r0 - h/2, c = c0 - w/2;
+    int w = geometry_tile_dw(g)-1, h = geometry_tile_dh(g);
+    int r = r0 - h/2 + 1, c = c0 - w/2;
 
-    wdraw_box(win, r--, c++, w, h);
-    w -= 2;
-    while (w > 0) {
-        mvwhline(win, r--, c, '=', w);
-        w -= 4;
-        c += 2;
+    if (w < 3) {
+        return;
     }
+
+    wdraw_rectangle(win, r, c, w, h, ' ');
+
+    /* roof */
+    mvwhline(win, r-1, c+1, '^', w-1);
+    mvwhline(win, r-2, c+2, '^', w-3);
+
+    /* walls */
+    mvwvline(win, r, c, '|', h);
+    mvwvline(win, r, c+w, '|', h);
+
+    /* floor */
+    mvwhline(win, r+h-1, c+1, '_', w-1);
+
+    /* corners */
+    mvwaddch(win, r+h-1, c, '+');
+    mvwaddch(win, r+h-1, c+w, '+');
+    mvwaddch(win, r-1, c, '+');
+    mvwaddch(win, r-1, c+w, '+');
 }
+
 
 void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0)
 {
     int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
     int r = r0 - h/2 - 1, c = c0 - w/2 - 1;
+
+    if (w < 3) {
+        return;
+    }
 
     wdraw_rectangle(win, r, c, 2, 2, '#');
     wdraw_rectangle(win, r + h, c, 2, 2, '#');
