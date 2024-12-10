@@ -164,7 +164,7 @@ void wdraw_river(WINDOW *win, struct Geometry *g, int r, int c, enum DIRECTION d
 
 void wdraw_settlement(WINDOW *win, struct Geometry *g, int r0, int c0)
 {
-    int w = geometry_tile_dw(g)-1, h = geometry_tile_dh(g);
+    int w = geometry_tile_dw(g) - 1, h = geometry_tile_dh(g);
     int r = r0 - h/2 + 1, c = c0 - w/2;
 
     if (w < 3) {
@@ -174,23 +174,22 @@ void wdraw_settlement(WINDOW *win, struct Geometry *g, int r0, int c0)
     wdraw_rectangle(win, r, c, w, h, ' ');
 
     /* roof */
-    mvwhline(win, r-1, c+1, '^', w-1);
-    mvwhline(win, r-2, c+2, '^', w-3);
+    mvwhline(win, r - 1, c + 1, '^', w - 1);
+    mvwhline(win, r - 2, c + 2, '^', w - 3);
 
     /* walls */
     mvwvline(win, r, c, '|', h);
-    mvwvline(win, r, c+w, '|', h);
+    mvwvline(win, r, c + w, '|', h);
 
     /* floor */
-    mvwhline(win, r+h-1, c+1, '_', w-1);
+    mvwhline(win, r + h - 1, c + 1, '_', w - 1);
 
     /* corners */
-    mvwaddch(win, r+h-1, c, '+');
-    mvwaddch(win, r+h-1, c+w, '+');
-    mvwaddch(win, r-1, c, '+');
-    mvwaddch(win, r-1, c+w, '+');
+    mvwaddch(win, r + h - 1, c, '+');
+    mvwaddch(win, r + h - 1, c + w, '+');
+    mvwaddch(win, r - 1, c, '+');
+    mvwaddch(win, r - 1, c + w, '+');
 }
-
 
 void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0)
 {
@@ -208,10 +207,9 @@ void wdraw_feature(WINDOW *win, struct Geometry *g, int r0, int c0)
     wdraw_box(win, r0 - 1, c0 - 1, 3, 3);
 }
 
-
 void wdraw_dungeon(WINDOW *win, struct Geometry *g, int r0, int c0)
 {
-    int w = geometry_tile_dw(g)-1, h = geometry_tile_dh(g);
+    int w = geometry_tile_dw(g) - 1, h = geometry_tile_dh(g);
     int r = r0 - h/2 + 1, c = c0 - w/2;
 
     if (w < 3) {
@@ -220,17 +218,17 @@ void wdraw_dungeon(WINDOW *win, struct Geometry *g, int r0, int c0)
 
     wdraw_rectangle(win, r, c, w, h, ' ');
     mvwhline(win, r, c, '#', w);
-    mvwhline(win, r-1, c+1, '#', w-1);
+    mvwhline(win, r - 1, c + 1, '#', w - 1);
 
     mvwvline(win, r, c, '#', h);
-    mvwvline(win, r, c+1, '#', h);
+    mvwvline(win, r, c + 1, '#', h);
 
-    mvwvline(win, r, c+w, '#', h);
-    mvwvline(win, r, c+w-1, '#', h);
+    mvwvline(win, r, c + w, '#', h);
+    mvwvline(win, r, c + w - 1, '#', h);
 }
 
-
-void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0, struct Location *location)
+void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0,
+                    struct Location *location)
 {
     enum LOCATION t = location_type(location);
     switch (t) {
