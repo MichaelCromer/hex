@@ -18,6 +18,7 @@ struct Atlas;
 struct Atlas *atlas_create(void);
 void atlas_initialise(struct Atlas *atlas);
 void atlas_destroy(struct Atlas *atlas);
+struct Directory *atlas_directory(const struct Atlas *atlas);
 struct Chart *atlas_curr(const struct Atlas *atlas);
 struct Coordinate *atlas_coordinate(const struct Atlas *atlas);
 struct Tile *atlas_tile(const struct Atlas *atlas);
@@ -27,5 +28,6 @@ struct Chart *atlas_neighbour(const struct Atlas *atlas, enum DIRECTION d);
 void atlas_step(struct Atlas *atlas, enum DIRECTION d);
 struct Chart *atlas_find(const struct Atlas *atlas, const struct Coordinate *c);
 void atlas_create_neighbours(struct Atlas *atlas);
+void atlas_create_location(struct Atlas *atlas, enum LOCATION t);
 
 #endif

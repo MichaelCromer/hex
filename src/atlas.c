@@ -129,6 +129,7 @@ enum TERRAIN chart_terrain(const struct Chart *chart)
 }
 
 struct Atlas {
+    struct Directory *directory;
     struct Chart *root;
     struct Chart *curr;
 };
@@ -139,6 +140,7 @@ struct Atlas *atlas_create(void)
 
     atlas->root = NULL;
     atlas->curr = NULL;
+    atlas->directory = NULL;
 
     return atlas;
 }
@@ -164,8 +166,18 @@ void atlas_destroy(struct Atlas *atlas)
         atlas->root = NULL;
     }
 
+    if (atlas->directory) {
+        directory_destroy(atlas->directory);
+        atlas->directory = NULL;
+    }
+
     atlas->curr = NULL;
     free(atlas);
+}
+
+struct Directory *atlas_directory(const struct Atlas *atlas)
+{
+    return atlas->directory;
 }
 
 struct Chart *atlas_root(const struct Atlas *atlas)
@@ -283,4 +295,11 @@ void atlas_create_neighbours(struct Atlas *atlas)
 
     coordinate_destroy(n);
     return;
+}
+
+void atlas_create_location(struct Atlas *atlas, enum LOCATION t)
+{
+    struct Location *new = location_create(atlas_coordinate(atlas), t);
+    directory_insert(&(atlas->directory), new);
+    tile_set_location(atlas_tile(atlas), new);
 }
