@@ -47,3 +47,42 @@ struct Coordinate *location_coordinate(const struct Location *location)
 {
     return location->c;
 }
+
+
+struct Directory {
+    struct Location *location;
+    struct Directory *subdirectory;
+};
+
+struct Directory *directory_create(struct Location *location)
+{
+    struct Directory *directory = malloc(sizeof(struct Directory));
+
+    directory->location = location;
+    directory->subdirectory = NULL;
+
+    return directory;
+}
+
+void directory_destroy(struct Directory *directory)
+{
+    if (!directory) {
+        return;
+    }
+
+    directory_destroy(directory->subdirectory);
+    directory->subdirectory = NULL;
+
+    location_destroy(directory->location);
+    directory->location = NULL;
+
+    free(directory);
+}
+
+void directory_insert(struct Directory **directory, struct Location *location)
+{
+    struct Directory *new = directory_create(location);
+
+    new->subdirectory = *directory;
+    *directory = new;
+}
