@@ -5,10 +5,10 @@
 #include <string.h>
 
 #include "include/action.h"
+#include "include/atlas.h"
 #include "include/commandline.h"
 #include "include/enum.h"
 #include "include/geometry.h"
-#include "include/atlas.h"
 #include "include/interface.h"
 #include "include/key.h"
 #include "include/panel.h"
@@ -25,10 +25,10 @@ struct State {
     WINDOW *win;
     enum UI_COLOUR colour;
 
-    struct Geometry *geometry;
     struct Atlas *atlas;
-    struct UserInterface *ui;
     struct Commandline *cmd;
+    struct Geometry *geometry;
+    struct UserInterface *ui;
 };
 
 struct State *state_create(void)
@@ -42,10 +42,10 @@ struct State *state_create(void)
     state->colour = COLOUR_NONE;
     state->win = NULL;
 
-    state->geometry = geometry_create();
-    state->ui = ui_create();
     state->atlas = atlas_create();
     state->cmd = commandline_create();
+    state->geometry = geometry_create();
+    state->ui = ui_create();
 
     return state;
 }
@@ -114,10 +114,10 @@ void state_update(struct State *state)
 
 void state_destroy(struct State *state)
 {
-    geometry_destroy(state->geometry);
     atlas_destroy(state->atlas);
-    ui_destroy(state->ui);
     commandline_destroy(state->cmd);
+    geometry_destroy(state->geometry);
+    ui_destroy(state->ui);
 
     free(state);
     state = NULL;
