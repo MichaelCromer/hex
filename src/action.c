@@ -58,7 +58,10 @@ void action_paint_terrain(struct State *state, enum TERRAIN t)
 
         tile_clear_roads(tile);
         tile_clear_rivers(tile);
-        tile_set_location(tile, LOCATION_NONE);
+
+        if (tile_location(tile)) {
+            location_set_type(tile_location(tile), LOCATION_NONE);
+        }
     }
 
     ui_update_detail(state_ui(state), atlas);
@@ -144,15 +147,12 @@ void action_paint_location(struct State *state, enum LOCATION t)
     }
 
     if (!tile_location(tile)) {
-        /* instantiate a new location in the directory */
-    }
-
-    if (location_type(tile_location(tile)) == t) {
+        atlas_create_location(state_atlas(state), t);
+    } else if (location_type(tile_location(tile)) == t) {
         location_set_type(tile_location(tile), LOCATION_NONE);
-        return;
+    } else {
+        location_set_type(tile_location(tile), t);
     }
-
-    location_set_type(tile_location(tile), t);
 }
 
 void action_capture(struct State *state, key k)
