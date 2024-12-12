@@ -70,7 +70,7 @@ void state_initialise(struct State *state, WINDOW *win)
     geometry_initialise(state_geometry(state),
                         GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
     ui_initialise(state_ui(state), state_geometry(state));
-    atlas_initialise(state_atlas(state));
+    atlas_initialise(state_atlas(state), state_geometry(state));
 }
 
 void state_update(struct State *state)
