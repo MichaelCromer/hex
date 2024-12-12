@@ -27,7 +27,7 @@ void geometry_initialise(struct Geometry *g, float scale, float aspect, WINDOW *
 
     g->tile_dw = round(g->scale * ROOT3 / 2);
     g->tile_dh = round(g->scale * g->aspect / 2);
-    g->tile_nw = round(g->cols/(2.00f*g->tile_dw)) + 1,
+    g->tile_nw = round(g->cols/(2.00f*g->tile_dw)) + 1;
     g->tile_nh = round(g->rows/(1.50f*g->tile_dh)) + 1;
 
     g->slope = ROOT3_INV * g->aspect;
