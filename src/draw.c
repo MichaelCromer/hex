@@ -227,14 +227,14 @@ void wdraw_dungeon(WINDOW *win, struct Geometry *g, int r0, int c0)
     mvwvline(win, r, c + w - 1, '#', h);
 }
 
-void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0,
-                    struct Location *location)
+void wdraw_tile_location(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0,
+                         int c0)
 {
-    if (!location) {
+    if (!tile || !tile_location(tile)) {
         return;
     }
 
-    enum LOCATION t = location_type(location);
+    enum LOCATION t = location_type(tile_location(tile));
     switch (t) {
         case LOCATION_SETTLEMENT:
             wdraw_settlement(win, g, r0, c0);
@@ -250,7 +250,8 @@ void wdraw_location(WINDOW *win, struct Geometry *g, int r0, int c0,
     }
 }
 
-void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int c0)
+void wdraw_tile_terrain(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0,
+                        int c0)
 {
     int w = geometry_tile_dw(g), h = geometry_tile_dh(g);
 
@@ -280,93 +281,49 @@ void wdraw_tile(WINDOW *win, struct Geometry *g, struct Tile *tile, int r0, int 
         }
     }
     attroff(COLOR_PAIR(COLOR_CYAN));
-
-    wdraw_location(win, g, r0, c0, tile_location(tile));
 }
 
-void wdraw_chart(WINDOW *win,
-                 struct Geometry *g, struct Chart *chart, struct Coordinate *o)
+void wdraw_chart_with(WINDOW *win, struct Geometry *g, struct Chart *chart,
+                      struct Coordinate *v, struct Coordinate *o,
+                      void (*wdraw_tile)(WINDOW *, struct Geometry *, struct Tile *,
+                                         int, int))
 {
-    /* recurse down the chart to find the tiles at the bottom and print them
-     * send the right integer coordinates */
-    if (!chart) {
+    if (!chart || !v || !o || !wdraw_tile) {
         return;
     }
+
+    /* don't bother if this chart doesn't overlap with the target viewpoint */
+    if (!coordinate_related(chart_coordinate(chart), v)) {
+        return;
+    }
+
+    /* recurse */
     if (chart_children(chart)) {
         for (int i = 0; i < NUM_CHILDREN; i++) {
-            wdraw_chart(win, g, chart_child(chart, i), o);
+            wdraw_chart_with(win, g, chart_child(chart, i), v, o, wdraw_tile);
         }
     }
-    if (!chart_tile(chart)) {
-        return;
+
+    /* draw own tile */
+    if (chart_tile(chart)) {
+        int r0 = geometry_rmid(g), c0 = geometry_cmid(g);
+        int dp = coordinate_p(chart_coordinate(chart)) - coordinate_p(o),
+            dq = coordinate_q(chart_coordinate(chart)) - coordinate_q(o);
+
+        int r = r0 + 3*dq*geometry_tile_dh(g), c =
+            c0 + (2*dp + dq)*geometry_tile_dw(g);
+        wdraw_tile(win, g, chart_tile(chart), r, c);
     }
-
-    struct Coordinate *c = chart_coordinate(chart);
-    int dp = coordinate_p(c) - coordinate_p(o), dq = coordinate_q(c) - coordinate_q(o);
-
-    int dr = 3*dq*geometry_tile_dh(g), dc = (2*dp + dq)*geometry_tile_dw(g);
-
-    wdraw_tile(win, g, chart_tile(chart), geometry_rmid(g) + dr, geometry_cmid(g) + dc);
-}
-
-void wdraw_atlas_at(WINDOW *win,
-                    struct Geometry *g, struct Atlas *atlas, struct Coordinate *c)
-{
-    struct Chart *chart = atlas_find(atlas, c);
-    if (!chart && coordinate_m(c)) {
-        struct Coordinate *ch = coordinate_create_origin();
-        for (int i = 0; i < NUM_CHILDREN; i++) {
-            coordinate_child(c, i, ch);
-            wdraw_atlas_at(win, g, atlas, ch);
-        }
-        coordinate_destroy(ch);
-        return;
-    }
-    wdraw_chart(win, g, chart, atlas_coordinate(atlas));
 }
 
 void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 {
-    /* find the smallest coordinate that is guaranteed to contain the window
-     * send this coordinate to wdraw_atlas_at
-     * */
+    struct Coordinate *v = atlas_viewpoint(atlas);
+    struct Coordinate *o = atlas_coordinate(atlas);
 
-    struct Chart *centre = atlas_curr(atlas);
-    struct Coordinate *c = chart_coordinate(centre);
-
-    /* TODO move this calculation to Geometry struct */
-    int n_hor = round(geometry_cols(g)/(2.00f*geometry_tile_dw(g))) + 1,
-        n_ver = round(geometry_rows(g)/(1.50f*geometry_tile_dh(g))) + 1;
-
-    struct Coordinate *c_E = coordinate_duplicate(c),
-        *c_W = coordinate_duplicate(c),
-        *c_N = coordinate_duplicate(c), *c_S = coordinate_duplicate(c);
-
-    coordinate_nshift(c_W, DIRECTION_WW, n_hor / 2);
-    coordinate_nshift(c_E, DIRECTION_EE, n_hor / 2);
-    coordinate_nshift(c_N, DIRECTION_NW, n_ver / 4);
-    coordinate_nshift(c_N, DIRECTION_NE, n_ver / 4);
-    coordinate_nshift(c_S, DIRECTION_SW, n_ver / 4);
-    coordinate_nshift(c_S, DIRECTION_SE, n_ver / 4);
-
-    struct Coordinate *tmp1 = coordinate_create_ancestor(c_E, c_W);
-    struct Coordinate *tmp2 = coordinate_create_ancestor(c_N, c_S);
-    struct Coordinate *a = coordinate_create_ancestor(tmp1, tmp2);
-
-    wdraw_atlas_at(win, g, atlas, a);
-
-    coordinate_destroy(c_E);
-    coordinate_destroy(c_W);
-    coordinate_destroy(c_N);
-    coordinate_destroy(c_S);
-    coordinate_destroy(tmp1);
-    coordinate_destroy(tmp2);
-    coordinate_destroy(a);
+    wdraw_chart_with(win, g, atlas_root(atlas), v, o, wdraw_tile_terrain);
+    wdraw_chart_with(win, g, atlas_root(atlas), v, o, wdraw_tile_location);
 }
-
-/*
-*     DRAW 04 - Core stuff
- */
 
 void wdraw_reticule(WINDOW *win, struct Geometry *g)
 {
