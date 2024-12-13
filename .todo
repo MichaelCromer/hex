@@ -1,3 +1,4 @@
+[X] fix draw setup so that terrain, then rivers, then roads, then features are drawn, in layers
 [X] wdraw basic shapes probably can be implemented natively with ncurses
 [X] add state mode colour and other ui info into the ui struct
 [X] remember last interaction mode and have await return back there
@@ -33,4 +34,3 @@
 [ ] proper colour defines for roads, rivers, and features in wdraw_tile
 [ ] refactor state_update it is getting unwieldy
 [ ] make a plan for :set command for reticule, brush size, zoom, aspect, jump size, hints shown in statusbar, etc
-[ ] fix draw setup so that terrain, then rivers, then roads, then features are drawn, in layers

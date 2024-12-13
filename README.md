@@ -16,7 +16,7 @@ executable is `./build/hex` for you to use as you see fit.
 ### DONE
 
  - [X] navigate tiles
- - [X] paint/drag terrain, roads, and rivers
+ - [X] paint terrain, roads, rivers, and map features
  - [X] simple colours and ui
  - [X] commandline [quit]
 
@@ -37,7 +37,6 @@ Definite targets
  - [ ] expanded commands and options
      - - [ ] '?' for contextual help/commands, :h[elp] for more in-depth help viewer
      - - [ ] repeat/undo last action
-     - - [ ] place 'location' (town, dungeon, feature)
  - [ ] full/adaptive colour
 
 ### Midterm Goals
