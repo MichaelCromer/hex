@@ -1,3 +1,4 @@
+[X] wdraw basic shapes probably can be implemented natively with ncurses
 [X] add state mode colour and other ui info into the ui struct
 [X] remember last interaction mode and have await return back there
 [X] grid.c L440 a map-natrve implementation of map_create_neighbours
@@ -26,6 +27,10 @@
 [ ] is there a better way to check if I need to create neighbours than to see if the current terrain is TERRAIN_UNKNOWN
 [ ] action_move should use an atlas_move rather than iterate atlas_step
 [ ] action_move inside action_navigate should not have magic number parameters
-[ ] wdraw basic shapes probably can be implemented natively with ncurses
 [ ] chart p q r candidates for deprecation
 [ ] chart_tile candidate for deprecation, expose only atlas
+[ ] consider collapsing terrain unknown and terrain none
+[ ] proper colour defines for roads, rivers, and features in wdraw_tile
+[ ] refactor state_update it is getting unwieldy
+[ ] make a plan for :set command for reticule, brush size, zoom, aspect, jump size, hints shown in statusbar, etc
+[ ] fix draw setup so that terrain, then rivers, then roads, then features are drawn, in layers

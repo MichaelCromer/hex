@@ -129,8 +129,10 @@ enum TERRAIN chart_terrain(const struct Chart *chart)
 }
 
 struct Atlas {
+    struct Directory *directory;
     struct Chart *root;
     struct Chart *curr;
+    struct Coordinate *screen_L, *screen_R, *screen_T, *screen_B, *viewpoint;
 };
 
 struct Atlas *atlas_create(void)
@@ -139,11 +141,17 @@ struct Atlas *atlas_create(void)
 
     atlas->root = NULL;
     atlas->curr = NULL;
+    atlas->directory = NULL;
+    atlas->screen_L = NULL;
+    atlas->screen_R = NULL;
+    atlas->screen_T = NULL;
+    atlas->screen_B = NULL;
+    atlas->viewpoint = NULL;
 
     return atlas;
 }
 
-void atlas_initialise(struct Atlas *atlas)
+void atlas_initialise(struct Atlas *atlas, struct Geometry *g)
 {
     if (atlas->root) {
         return;
@@ -151,6 +159,8 @@ void atlas_initialise(struct Atlas *atlas)
 
     atlas->root = chart_create_origin();
     atlas->curr = atlas->root;
+
+    atlas_recalculate_screen(atlas, g);
 }
 
 void atlas_destroy(struct Atlas *atlas)
@@ -159,13 +169,23 @@ void atlas_destroy(struct Atlas *atlas)
         return;
     }
 
-    if (atlas->root) {
-        chart_destroy(atlas->root);
-        atlas->root = NULL;
-    }
+    chart_destroy(atlas->root);
+    directory_destroy(atlas->directory);
+    coordinate_destroy(atlas->screen_L);
+    coordinate_destroy(atlas->screen_R);
+    coordinate_destroy(atlas->screen_T);
+    coordinate_destroy(atlas->screen_B);
+    coordinate_destroy(atlas->viewpoint);
 
+    atlas->root = NULL;
     atlas->curr = NULL;
+    atlas->directory = NULL;
     free(atlas);
+}
+
+struct Directory *atlas_directory(const struct Atlas *atlas)
+{
+    return atlas->directory;
 }
 
 struct Chart *atlas_root(const struct Atlas *atlas)
@@ -212,6 +232,11 @@ void atlas_step(struct Atlas *atlas, enum DIRECTION d)
     struct Chart *n = NULL;
     if ((n = atlas_neighbour(atlas, d))) {
         atlas->curr = n;
+        coordinate_shift(atlas->screen_L, d);
+        coordinate_shift(atlas->screen_R, d);
+        coordinate_shift(atlas->screen_T, d);
+        coordinate_shift(atlas->screen_B, d);
+        atlas_recalculate_viewpoint(atlas);
     }
 }
 
@@ -283,4 +308,55 @@ void atlas_create_neighbours(struct Atlas *atlas)
 
     coordinate_destroy(n);
     return;
+}
+
+void atlas_create_location(struct Atlas *atlas, enum LOCATION t)
+{
+    struct Location *new = location_create(atlas_coordinate(atlas), t);
+    directory_insert(&(atlas->directory), new);
+    tile_set_location(atlas_tile(atlas), new);
+}
+
+struct Coordinate *atlas_viewpoint(struct Atlas *atlas)
+{
+    return atlas->viewpoint;
+}
+
+void atlas_recalculate_viewpoint(struct Atlas *atlas)
+{
+    struct Coordinate *tmp1 =
+        coordinate_create_ancestor(atlas->screen_L, atlas->screen_R);
+    struct Coordinate *tmp2 =
+        coordinate_create_ancestor(atlas->screen_T, atlas->screen_B);
+
+    coordinate_common_ancestor(tmp1, tmp2, atlas->viewpoint);
+
+    coordinate_destroy(tmp1);
+    coordinate_destroy(tmp2);
+}
+
+void atlas_recalculate_screen(struct Atlas *atlas, struct Geometry *g)
+{
+    int n_h = geometry_tile_nh(g), n_w = geometry_tile_nw(g);
+
+    coordinate_destroy(atlas->screen_L);
+    coordinate_destroy(atlas->screen_R);
+    coordinate_destroy(atlas->screen_T);
+    coordinate_destroy(atlas->screen_B);
+    coordinate_destroy(atlas->viewpoint);
+
+    atlas->screen_L = coordinate_duplicate(atlas_coordinate(atlas));
+    atlas->screen_R = coordinate_duplicate(atlas_coordinate(atlas));
+    atlas->screen_T = coordinate_duplicate(atlas_coordinate(atlas));
+    atlas->screen_B = coordinate_duplicate(atlas_coordinate(atlas));
+    atlas->viewpoint = coordinate_create_origin();
+
+    coordinate_nshift(atlas->screen_L, DIRECTION_WW, n_w / 2);
+    coordinate_nshift(atlas->screen_R, DIRECTION_EE, n_w / 2);
+    coordinate_nshift(atlas->screen_T, DIRECTION_NW, n_h / 4);
+    coordinate_nshift(atlas->screen_T, DIRECTION_NE, n_h / 4);
+    coordinate_nshift(atlas->screen_B, DIRECTION_SW, n_h / 4);
+    coordinate_nshift(atlas->screen_B, DIRECTION_SE, n_h / 4);
+
+    atlas_recalculate_viewpoint(atlas);
 }

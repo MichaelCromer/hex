@@ -56,8 +56,12 @@ void action_paint_terrain(struct State *state, enum TERRAIN t)
             }
         }
 
-        tile_clear_roads(atlas_tile(atlas));
-        tile_clear_rivers(atlas_tile(atlas));
+        tile_clear_roads(tile);
+        tile_clear_rivers(tile);
+
+        if (tile_location(tile)) {
+            location_set_type(tile_location(tile), LOCATION_NONE);
+        }
     }
 
     ui_update_detail(state_ui(state), atlas);
@@ -132,6 +136,23 @@ void action_drag_river(struct State *state, enum DIRECTION d)
     }
 
     action_move(state, d, 1);
+}
+
+void action_paint_location(struct State *state, enum LOCATION t)
+{
+    struct Tile *tile = atlas_tile(state_atlas(state));
+
+    if (terrain_impassable(tile_terrain(tile))) {
+        return;
+    }
+
+    if (!tile_location(tile)) {
+        atlas_create_location(state_atlas(state), t);
+    } else if (location_type(tile_location(tile)) == t) {
+        location_set_type(tile_location(tile), LOCATION_NONE);
+    } else {
+        location_set_type(tile_location(tile), t);
+    }
 }
 
 void action_capture(struct State *state, key k)
@@ -287,6 +308,26 @@ void action_river(struct State *state, key k)
             action_move(state, key_direction(k), 1);
         }
         return;
+    }
+
+    if (key_is_mode(k)) {
+        action_mode(state, key_mode(k));
+        return;
+    }
+}
+
+void action_location(struct State *state, key k)
+{
+    if (state_await(state)) {
+        action_mode(state, key_mode(k));
+    }
+
+    if (key_is_location(k)) {
+        action_paint_location(state, key_location(k));
+    }
+
+    if (key_is_direction(k)) {
+        action_move(state, key_direction(k), 1);
     }
 
     if (key_is_mode(k)) {

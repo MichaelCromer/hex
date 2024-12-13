@@ -12,6 +12,8 @@
 #define     KEY_MODE_AWAIT_ROAD 'r'
 #define          KEY_MODE_RIVER 'Y'
 #define    KEY_MODE_AWAIT_RIVER 'y'
+#define       KEY_MODE_LOCATION 'F'
+#define KEY_MODE_AWAIT_LOCATION 'f'
 #define        KEY_MODE_COMMAND ':'
 
 #define       KEY_TOGGLE_DETAIL 'j'
@@ -37,10 +39,14 @@
 #define       KEY_TERRAIN_HILLS 'e'
 #define      KEY_TERRAIN_PLAINS 'a'
 #define      KEY_TERRAIN_FOREST 's'
-#define      KEY_TERRAIN_TUNDRA 'c'
+#define       KEY_TERRAIN_SWAMP 'd'
 #define      KEY_TERRAIN_DESERT 'z'
 #define      KEY_TERRAIN_JUNGLE 'x'
-#define       KEY_TERRAIN_SWAMP 'd'
+#define      KEY_TERRAIN_TUNDRA 'c'
+
+#define     KEY_LOCATION_FEATURE 'a'
+#define  KEY_LOCATION_SETTLEMENT 's'
+#define     KEY_LOCATION_DUNGEON 'd'
 
 typedef int key;
 
@@ -48,9 +54,11 @@ bool key_is_direction(key k);
 bool key_is_special(key k);
 bool key_is_terrain(key k);
 bool key_is_mode(key k);
+bool key_is_location(key k);
 
 enum DIRECTION key_direction(key k);
 enum TERRAIN key_terrain(key k);
 enum MODE key_mode(key k);
+enum LOCATION key_location(key k);
 
 #endif

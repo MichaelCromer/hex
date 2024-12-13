@@ -6,40 +6,25 @@
 
 static unsigned int tile_count = 0;
 
-unsigned int lcg(unsigned int n)
-{
-    return 1664525*n + 1013904223;
-}
-
-unsigned int puid()
-{
-    if (tile_count == 0) {
-        tile_count = (unsigned int)time(NULL);
-    }
-    tile_count = lcg(tile_count);
-    return tile_count;
-}
-
-unsigned int prng(const unsigned int x,
-                  const unsigned int y, const unsigned int seed, const unsigned int max)
-{
-    unsigned int val = (unsigned int)seed ^ (x*9973 + y*1009);
-    return lcg(val) % max;
-}
-
 struct Tile {
     unsigned int seed;
     enum TERRAIN terrain;
     bool roads[NUM_DIRECTIONS];
     bool rivers[NUM_DIRECTIONS];
+    struct Location *location;
 };
 
 struct Tile *tile_create()
 {
     struct Tile *tile = malloc(sizeof(struct Tile));
 
-    tile->seed = puid();
+    if (tile_count == 0) {
+        tile_count = (unsigned int)time(NULL);
+    }
+    tile_count = 1664525*tile_count + 1013904223;
+    tile->seed = tile_count;
     tile->terrain = TERRAIN_UNKNOWN;
+    tile->location = NULL;
 
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         tile->roads[i] = false;
@@ -131,10 +116,29 @@ void tile_clear_rivers(struct Tile *tile)
     }
 }
 
+struct Location *tile_location(struct Tile *tile)
+{
+    if (!tile) {
+        return NULL;
+    }
+    return tile->location;
+}
+
+void tile_set_location(struct Tile *tile, struct Location *location)
+{
+    if (!tile) {
+        return;
+    }
+    tile->location = location;
+}
+
 char tile_getch(struct Tile *tile, int x, int y)
 {
     const char *chopts = terrain_chopts(tile_terrain(tile));
     int offset = (int)tile_terrain(tile);
 
-    return chopts[prng(x, y, tile->seed + offset, NUM_TERRAIN_CHOPTS)];
+    unsigned int val = (unsigned int)((tile->seed + offset) ^ (x*9973 + y*1009));
+    val = (1664525*val + 1013904223) % NUM_TERRAIN_CHOPTS;
+
+    return chopts[val];
 }

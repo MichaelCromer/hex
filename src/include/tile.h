@@ -5,6 +5,7 @@
 
 #include "coordinate.h"
 #include "enum.h"
+#include "location.h"
 
 struct Tile;
 
@@ -20,6 +21,8 @@ bool tile_river(const struct Tile *tile, enum DIRECTION d);
 void tile_set_river(struct Tile *tile, enum DIRECTION d, bool b);
 void tile_toggle_river(struct Tile *tile, enum DIRECTION d);
 void tile_clear_rivers(struct Tile *tile);
+struct Location *tile_location(struct Tile *tile);
+void tile_set_location(struct Tile *tile, struct Location *location);
 char tile_getch(struct Tile *tile, int x, int y);
 
 #endif

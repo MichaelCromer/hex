@@ -3,7 +3,7 @@
 
 #include <ncurses.h>
 
-#define GEOMETRY_DEFAULT_ASPECT 0.66f
+#define GEOMETRY_DEFAULT_ASPECT 0.67f
 #define GEOMETRY_DEFAULT_SCALE  10
 
 #define ROOT3       1.732050807f
@@ -21,5 +21,7 @@ int geometry_rows(struct Geometry *g);
 int geometry_cols(struct Geometry *g);
 int geometry_tile_dh(struct Geometry *g);
 int geometry_tile_dw(struct Geometry *g);
+int geometry_tile_nh(struct Geometry *g);
+int geometry_tile_nw(struct Geometry *g);
 
 #endif

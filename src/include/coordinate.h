@@ -28,5 +28,7 @@ void coordinate_add(const struct Coordinate *c1,
                     const struct Coordinate *c2, struct Coordinate *a);
 void coordinate_shift(struct Coordinate *c, enum DIRECTION d);
 void coordinate_nshift(struct Coordinate *c, enum DIRECTION d, int n);
+void coordinate_common_ancestor(const struct Coordinate *c0,
+                                const struct Coordinate *c1, struct Coordinate *a);
 
 #endif
