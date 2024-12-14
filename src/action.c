@@ -5,6 +5,13 @@
 #include "include/commandline.h"
 #include "include/interface.h"
 #include "include/tile.h"
+#include "include/write.h"
+
+void action_write(struct State *state, const char *filename)
+{
+    FILE *file = fopen(filename, "w");
+    write_state(file, state);
+}
 
 void action_mode(struct State *state, enum MODE m)
 {
@@ -239,6 +246,10 @@ void action_command(struct State *state, key k)
             switch (command_type(c)) {
                 case COMMAND_QUIT:
                     state_set_quit(state, true);
+                    break;
+                case COMMAND_WRITE:
+                    action_write(state, command_data(c));
+                    break;
                 default:
                     break;
             }
