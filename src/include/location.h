@@ -15,5 +15,7 @@ struct Directory;
 struct Directory *directory_create(struct Location *location);
 void directory_destroy(struct Directory *directory);
 void directory_insert(struct Directory **directory, struct Location *location);
+struct Directory *directory_next(const struct Directory *directory);
+struct Location *directory_location(const struct Directory *directory);
 
 #endif
