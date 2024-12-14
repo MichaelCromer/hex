@@ -5,7 +5,7 @@
 #include "include/commandline.h"
 #include "include/interface.h"
 #include "include/tile.h"
-#include "include/write.h"
+#include "include/file.h"
 
 void action_write(struct State *state, const char *filename)
 {
