@@ -11,6 +11,7 @@ struct Tile;
 
 struct Tile *tile_create();
 void tile_destroy(struct Tile *tile);
+unsigned int tile_seed(const struct Tile *tile);
 enum TERRAIN tile_terrain(const struct Tile *tile);
 void tile_set_terrain(struct Tile *tile, enum TERRAIN t);
 bool tile_road(const struct Tile *tile, enum DIRECTION d);
