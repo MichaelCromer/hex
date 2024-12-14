@@ -6,6 +6,7 @@
 
 #define COMMANDLINE_BUFFER_SIZE 1024
 #define COMMAND_WORD_QUIT   "quit"
+#define COMMAND_WORD_WRITE  "write"
 
 struct Command {
     enum COMMAND type;
@@ -24,6 +25,11 @@ struct Command *command_create(enum COMMAND type, char *data)
 enum COMMAND command_type(const struct Command *c)
 {
     return c->type;
+}
+
+char *command_data(const struct Command *c)
+{
+    return c->data;
 }
 
 void command_destroy(struct Command *c)
@@ -129,6 +135,8 @@ enum COMMAND commandline_parse_type(struct Commandline *c)
 
     if ((L <= strlen(COMMAND_WORD_QUIT)) && (strncmp(COMMAND_WORD_QUIT, c0, L) == 0)) {
         return COMMAND_QUIT;
+    } else if ((L <= strlen(COMMAND_WORD_WRITE)) && (strncmp(COMMAND_WORD_WRITE, c0, L) == 0)) {
+        return COMMAND_WRITE;
     }
 
     return COMMAND_ERROR;
@@ -162,6 +170,7 @@ struct Command *commandline_parse(struct Commandline *c)
     commandline_start(c);
 
     enum COMMAND t = commandline_parse_type(c);
+    char *data = NULL;
 
     switch (t) {
         case COMMAND_QUIT:
@@ -169,6 +178,8 @@ struct Command *commandline_parse(struct Commandline *c)
             return command_create(t, NULL);
         case COMMAND_EDIT:
         case COMMAND_WRITE:
+            data = commandline_parse_data(c);
+            return command_create(t, data);
         default:
             break;
     }
