@@ -346,6 +346,17 @@ void atlas_create_location(struct Atlas *atlas, enum LOCATION t)
     tile_set_location(atlas_tile(atlas), new);
 }
 
+void atlas_add_location(struct Atlas *atlas, struct Location *location)
+{
+    directory_insert(&(atlas->directory), location);
+    struct Coordinate *c = atlas_coordinate(atlas); /* store the old spot */
+    atlas_goto(atlas, location_coordinate(location));
+    if (coordinate_equals(location_coordinate(location), atlas_coordinate(atlas))) {
+        tile_set_location(atlas_tile(atlas), location);
+    }
+    atlas_goto(atlas, c); /* go back to the old spot */
+}
+
 struct Coordinate *atlas_viewpoint(struct Atlas *atlas)
 {
     return atlas->viewpoint;

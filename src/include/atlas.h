@@ -2,8 +2,9 @@
 #define GRID_H
 
 #include "coordinate.h"
-#include "geometry.h"
 #include "enum.h"
+#include "geometry.h"
+#include "location.h"
 
 struct Chart;
 struct Chart *chart_create(const struct Coordinate *c);
@@ -35,6 +36,7 @@ void atlas_goto(struct Atlas *atlas, struct Coordinate *c);
 struct Chart *atlas_find(const struct Atlas *atlas, const struct Coordinate *c);
 void atlas_create_neighbours(struct Atlas *atlas);
 void atlas_create_location(struct Atlas *atlas, enum LOCATION t);
+void atlas_add_location(struct Atlas *atlas, struct Location *location);
 struct Coordinate *atlas_viewpoint(struct Atlas *atlas);
 void atlas_recalculate_viewpoint(struct Atlas *atlas);
 void atlas_recalculate_screen(struct Atlas *atlas, struct Geometry *g);
