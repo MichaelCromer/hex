@@ -13,6 +13,16 @@ void action_write(struct State *state, const char *filename)
     write_state(file, state);
 }
 
+void action_edit(struct State *state, const char *filename)
+{
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        return;
+    }
+
+    read_state(file, state);
+}
+
 void action_mode(struct State *state, enum MODE m)
 {
     if (state_await(state)) {
@@ -250,6 +260,8 @@ void action_command(struct State *state, key k)
                 case COMMAND_WRITE:
                     action_write(state, command_data(c));
                     break;
+                case COMMAND_EDIT:
+                    action_edit(state, command_data(c));
                 default:
                     break;
             }
