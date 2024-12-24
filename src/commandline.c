@@ -7,6 +7,7 @@
 #define COMMANDLINE_BUFFER_SIZE 1024
 #define COMMAND_WORD_QUIT   "quit"
 #define COMMAND_WORD_WRITE  "write"
+#define COMMAND_WORD_EDIT   "edit"
 
 struct Command {
     enum COMMAND type;
@@ -135,8 +136,12 @@ enum COMMAND commandline_parse_type(struct Commandline *c)
 
     if ((L <= strlen(COMMAND_WORD_QUIT)) && (strncmp(COMMAND_WORD_QUIT, c0, L) == 0)) {
         return COMMAND_QUIT;
-    } else if ((L <= strlen(COMMAND_WORD_WRITE)) && (strncmp(COMMAND_WORD_WRITE, c0, L) == 0)) {
+    } else if ((L <= strlen(COMMAND_WORD_WRITE))
+               && (strncmp(COMMAND_WORD_WRITE, c0, L) == 0)) {
         return COMMAND_WRITE;
+    } else if ((L <= strlen(COMMAND_WORD_EDIT))
+               && (strncmp(COMMAND_WORD_EDIT, c0, L) == 0)) {
+        return COMMAND_EDIT;
     }
 
     return COMMAND_ERROR;
