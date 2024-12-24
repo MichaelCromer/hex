@@ -266,20 +266,25 @@ struct Chart *atlas_find(const struct Atlas *atlas, const struct Coordinate *c)
     return chart_child(parent, coordinate_index(c));
 }
 
-void atlas_insert(struct Atlas *atlas, struct Chart *new)
+void atlas_insert(struct Atlas *atlas, struct Chart *chart)
 {
-    if (!atlas || !atlas_root(atlas) || !new) {
+    if (!atlas || !chart) {
+        return;
+    }
+
+    if (!atlas_root(atlas)) {
+        atlas->root = chart;
         return;
     }
 
     struct Chart *root = atlas_root(atlas);
     struct Coordinate *r = chart_coordinate(root);
-    struct Coordinate *n = chart_coordinate(new);
+    struct Coordinate *n = chart_coordinate(chart);
 
     if (!coordinate_related(r, n)) {
-        atlas->root = chart_create_ancestor(root, new);
+        atlas->root = chart_create_ancestor(root, chart);
         atlas_insert(atlas, root);
-        atlas_insert(atlas, new);
+        atlas_insert(atlas, chart);
         return;
     }
 
@@ -289,7 +294,7 @@ void atlas_insert(struct Atlas *atlas, struct Chart *new)
         parent = chart_create(p);
         atlas_insert(atlas, parent);
     }
-    chart_set_child(parent, coordinate_index(n), new);
+    chart_set_child(parent, coordinate_index(n), chart);
 }
 
 void atlas_create_neighbours(struct Atlas *atlas)
