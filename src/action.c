@@ -10,7 +10,12 @@
 void action_write(struct State *state, const char *filename)
 {
     FILE *file = fopen(filename, "w");
+    if (!file) {
+        return;
+    }
+
     write_state(file, state);
+    fclose(file);
 }
 
 void action_edit(struct State *state, const char *filename)
@@ -21,6 +26,7 @@ void action_edit(struct State *state, const char *filename)
     }
 
     read_state(file, state);
+    fclose(file);
 }
 
 void action_mode(struct State *state, enum MODE m)
