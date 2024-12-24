@@ -34,3 +34,9 @@
 [ ] proper colour defines for roads, rivers, and features in wdraw_tile
 [ ] refactor state_update it is getting unwieldy
 [ ] make a plan for :set command for reticule, brush size, zoom, aspect, jump size, hints shown in statusbar, etc
+[ ] do I really need seed to be an unsigned int
+[ ] make the screen top left right and bottom and the viewpoint coordinates part of a camera struct
+[ ] remove the camera / viewpoint calculations from the atlas
+[ ] make draw_atlas reference the viewpoint
+[ ] refactor state_initialise to make more sense with reading arbitrary saved files
+[ ] consider refactor to have coordinates allocated directly on stack not as ptrs
