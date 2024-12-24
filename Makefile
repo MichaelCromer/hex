@@ -18,7 +18,8 @@ $(BLDDIR)/%.o: %.c
 
 .PHONY: clean
 clean:
-	rm -r $(BLDDIR)
+	rm -rf $(BLDDIR)
+	make
 
 
 format:
