@@ -14,7 +14,7 @@ struct Tile {
     struct Location *location;
 };
 
-struct Tile *tile_create()
+struct Tile *tile_create(void)
 {
     struct Tile *tile = malloc(sizeof(struct Tile));
 
@@ -39,12 +39,15 @@ void tile_destroy(struct Tile *tile)
     free(tile);
 }
 
-
 unsigned int tile_seed(const struct Tile *tile)
 {
     return tile->seed;
 }
 
+void tile_set_seed(struct Tile *tile, unsigned int seed)
+{
+    tile->seed = seed;
+}
 
 enum TERRAIN tile_terrain(const struct Tile *tile)
 {
