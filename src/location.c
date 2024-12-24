@@ -44,7 +44,7 @@ struct Coordinate *location_coordinate(const struct Location *location)
 
 struct Directory {
     struct Location *location;
-    struct Directory *subdirectory;
+    struct Directory *next;
 };
 
 struct Directory *directory_create(struct Location *location)
@@ -52,7 +52,7 @@ struct Directory *directory_create(struct Location *location)
     struct Directory *directory = malloc(sizeof(struct Directory));
 
     directory->location = location;
-    directory->subdirectory = NULL;
+    directory->next = NULL;
 
     return directory;
 }
@@ -63,8 +63,8 @@ void directory_destroy(struct Directory *directory)
         return;
     }
 
-    directory_destroy(directory->subdirectory);
-    directory->subdirectory = NULL;
+    directory_destroy(directory->next);
+    directory->next = NULL;
 
     location_destroy(directory->location);
     directory->location = NULL;
@@ -76,6 +76,16 @@ void directory_insert(struct Directory **directory, struct Location *location)
 {
     struct Directory *new = directory_create(location);
 
-    new->subdirectory = *directory;
+    new->next = *directory;
     *directory = new;
+}
+
+struct Directory *directory_next(const struct Directory *directory)
+{
+    return directory->next;
+}
+
+struct Location *directory_location(const struct Directory *directory)
+{
+    return directory->location;
 }

@@ -7,6 +7,7 @@
 
 struct Coordinate;
 
+struct Coordinate *coordinate_create(int p, int q, int r, int m);
 struct Coordinate *coordinate_duplicate(const struct Coordinate *c);
 void coordinate_destroy(struct Coordinate *c);
 struct Coordinate *coordinate_create_ancestor(const struct Coordinate *c0,

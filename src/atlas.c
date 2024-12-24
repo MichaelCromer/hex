@@ -108,6 +108,21 @@ struct Tile *chart_tile(const struct Chart *chart)
     return chart->tile;
 }
 
+void chart_clear_tile(struct Chart *chart)
+{
+    tile_destroy(chart_tile(chart));
+    chart->tile = NULL;
+}
+
+void chart_set_tile(struct Chart *chart, struct Tile *tile)
+{
+    if (!chart || chart_tile(chart) || !tile) {
+        return;
+    }
+
+    chart->tile = tile;
+}
+
 int chart_p(const struct Chart *chart)
 {
     return coordinate_p(chart->coordinate);
@@ -227,6 +242,15 @@ struct Chart *atlas_neighbour(const struct Atlas *atlas, enum DIRECTION d)
     return neighbour;
 }
 
+void atlas_goto(struct Atlas *atlas, struct Coordinate *c)
+{
+    struct Chart *chart = atlas_find(atlas, c);
+
+    if (c) {
+        atlas->curr = chart;
+    }
+}
+
 void atlas_step(struct Atlas *atlas, enum DIRECTION d)
 {
     struct Chart *n = NULL;
@@ -266,20 +290,25 @@ struct Chart *atlas_find(const struct Atlas *atlas, const struct Coordinate *c)
     return chart_child(parent, coordinate_index(c));
 }
 
-void atlas_insert(struct Atlas *atlas, struct Chart *new)
+void atlas_insert(struct Atlas *atlas, struct Chart *chart)
 {
-    if (!atlas || !atlas_root(atlas) || !new) {
+    if (!atlas || !chart) {
+        return;
+    }
+
+    if (!atlas_root(atlas)) {
+        atlas->root = chart;
         return;
     }
 
     struct Chart *root = atlas_root(atlas);
     struct Coordinate *r = chart_coordinate(root);
-    struct Coordinate *n = chart_coordinate(new);
+    struct Coordinate *n = chart_coordinate(chart);
 
     if (!coordinate_related(r, n)) {
-        atlas->root = chart_create_ancestor(root, new);
+        atlas->root = chart_create_ancestor(root, chart);
         atlas_insert(atlas, root);
-        atlas_insert(atlas, new);
+        atlas_insert(atlas, chart);
         return;
     }
 
@@ -289,7 +318,7 @@ void atlas_insert(struct Atlas *atlas, struct Chart *new)
         parent = chart_create(p);
         atlas_insert(atlas, parent);
     }
-    chart_set_child(parent, coordinate_index(n), new);
+    chart_set_child(parent, coordinate_index(n), chart);
 }
 
 void atlas_create_neighbours(struct Atlas *atlas)
@@ -315,6 +344,17 @@ void atlas_create_location(struct Atlas *atlas, enum LOCATION t)
     struct Location *new = location_create(atlas_coordinate(atlas), t);
     directory_insert(&(atlas->directory), new);
     tile_set_location(atlas_tile(atlas), new);
+}
+
+void atlas_add_location(struct Atlas *atlas, struct Location *location)
+{
+    directory_insert(&(atlas->directory), location);
+    struct Coordinate *c = atlas_coordinate(atlas); /* store the old spot */
+    atlas_goto(atlas, location_coordinate(location));
+    if (coordinate_equals(location_coordinate(location), atlas_coordinate(atlas))) {
+        tile_set_location(atlas_tile(atlas), location);
+    }
+    atlas_goto(atlas, c); /* go back to the old spot */
 }
 
 struct Coordinate *atlas_viewpoint(struct Atlas *atlas)

@@ -7,6 +7,7 @@ struct Command;
 struct Commandline;
 
 enum COMMAND command_type(const struct Command *c);
+char *command_data(const struct Command *c);
 void command_destroy(struct Command *c);
 
 void commandline_reset(struct Commandline *c);

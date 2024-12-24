@@ -134,6 +134,23 @@ struct Atlas *state_atlas(const struct State *state)
     return state->atlas;
 }
 
+void state_set_atlas(struct State *state, struct Atlas *atlas)
+{
+    if (state_atlas(state)) {
+        return;
+    }
+    state->atlas = atlas;
+}
+
+void state_clear_atlas(struct State *state)
+{
+    if (!state_atlas(state)) {
+        return;
+    }
+    atlas_destroy(state_atlas(state));
+    state->atlas = NULL;
+}
+
 struct UserInterface *state_ui(const struct State *state)
 {
     return state->ui;
