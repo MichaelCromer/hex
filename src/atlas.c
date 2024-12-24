@@ -108,6 +108,21 @@ struct Tile *chart_tile(const struct Chart *chart)
     return chart->tile;
 }
 
+void chart_clear_tile(struct Chart *chart)
+{
+    tile_destroy(chart_tile(chart));
+    chart->tile = NULL;
+}
+
+void chart_set_tile(struct Chart *chart, struct Tile *tile)
+{
+    if (!chart || chart_tile(chart) || !tile) {
+        return;
+    }
+
+    chart->tile = tile;
+}
+
 int chart_p(const struct Chart *chart)
 {
     return coordinate_p(chart->coordinate);
@@ -225,6 +240,15 @@ struct Chart *atlas_neighbour(const struct Atlas *atlas, enum DIRECTION d)
     struct Chart *neighbour = atlas_find(atlas, c);
     coordinate_destroy(c);
     return neighbour;
+}
+
+void atlas_goto(struct Atlas *atlas, struct Coordinate *c)
+{
+    struct Chart *chart = atlas_find(atlas, c);
+
+    if (c) {
+        atlas->curr = chart;
+    }
 }
 
 void atlas_step(struct Atlas *atlas, enum DIRECTION d)
