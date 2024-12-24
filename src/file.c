@@ -12,6 +12,7 @@
 #define FILE_MARKER_ROOT "===ROOT==="
 #define FILE_MARKER_CURR "===CURR==="
 #define FILE_MARKER_LOCN "===LOCN==="
+#define FILE_MARKER_NULL "===NULL==="
 
 #define FILE_SEP_MAJ ':'
 #define FILE_SEP_MED ';'
@@ -212,6 +213,60 @@ struct Chart *read_chart(char *line)
     return chart;
 }
 
+
+struct Location *read_location(char *line)
+{
+    char delim[2] = { FILE_SEP_MAJ, '\0' };
+
+    char *str_coordinate = strtok(line, delim);
+    char *str_location = strtok(NULL, delim);
+
+    struct Coordinate *c = read_coordinate(str_coordinate);
+    enum LOCATION t = (enum LOCATION)strtol(str_location, NULL, 10);
+
+    struct Location *location = location_create(c, t);
+
+    coordinate_destroy(c);
+    return location;
+}
+
+
+struct Atlas *read_atlas(FILE *file)
+{
+    struct Atlas *atlas = atlas_create();
+
+    char *buf = malloc(LINE_MAX);
+    memset(buf, 0, LINE_MAX);
+
+    /* read in charts */
+    while (fgets(buf, LINE_MAX, file)) {
+        if (strcmp(buf, FILE_MARKER_CURR "\n") == 0) {
+            break;
+        }
+        atlas_insert(atlas, read_chart(buf));
+    }
+
+    /* set the current coordinate */
+    while (fgets(buf, LINE_MAX, file)) {
+        if (strcmp(buf, FILE_MARKER_LOCN "\n") == 0) {
+            break;
+        }
+        atlas_goto(atlas, read_coordinate(buf));
+    }
+
+    /* read in locations */
+    while (fgets(buf, LINE_MAX, file)) {
+        if (strcmp(buf, FILE_MARKER_NULL "\n") == 0) {
+            break;
+        }
+        atlas_add_location(atlas, read_location(buf));
+    }
+
+    free(buf);
+    return atlas;
+}
+
+
 void read_state(FILE *file, struct State *state)
 {
     if (!file) {
@@ -227,22 +282,11 @@ void read_state(FILE *file, struct State *state)
             break;
         }
     }
-
-    struct Atlas *atlas = atlas_create();
-    while (fgets(buf, LINE_MAX, file)) {
-        if (strcmp(buf, FILE_MARKER_CURR "\n") == 0) {
-            break;
-        }
-        atlas_insert(atlas, read_chart(buf));
-    }
-
-    char *str_curr = fgets(buf, LINE_MAX, file);
-    struct Coordinate *c = read_coordinate(str_curr);
-    atlas_goto(atlas, c);
-    coordinate_destroy(c);
-    c = NULL;
+    struct Atlas *atlas = read_atlas(file);
 
     atlas_recalculate_screen(atlas, state_geometry(state));
     state_clear_atlas(state);
     state_set_atlas(state, atlas);
+
+    free(buf);
 }
