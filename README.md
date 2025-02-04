@@ -18,19 +18,18 @@ executable is `./build/hex` for you to use as you see fit.
  - [X] navigate tiles
  - [X] paint terrain, roads, rivers, and map features
  - [X] simple colours and ui
- - [X] commandline [quit]
+ - [X] commandline (q[uit], w[rite], e[dit])
 
 ### IN PROGRESS
 
- - [ ] save/load map files
+ - [ ] panels on the left for map detail info, panels on the right for help
+ - [ ] statusline shows mode-appropriate hints
 
 ### Roadmap to 1.0
 
 Definite targets
 
  - [ ] consistent UI/UX
-     - - [ ] panels on the left for map detail info, panels on the right for help
-     - - [ ] statusline shows mode-appropriate hints
      - - [ ] 'j' _always_ toggles view of tile detail
      - - [ ] directional keys _always_ move the reticule
      - - [ ] 'await'-style modes return to previous mode afterwards
@@ -46,7 +45,6 @@ Subject to change
  - [ ] minimap overlay option [looking doubtful if next point happens]
  - [ ] map layer changes using logtree structure for rapid traversal
  - [ ] naming of map features / customisable map data
- - [ ] placing of map marks / jump-to locations
  - [ ] searchable locations
  - [ ] single tile focus deep zoom
  - [ ] set/goto map marks
