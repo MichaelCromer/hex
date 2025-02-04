@@ -3,6 +3,8 @@
 #include "include/draw.h"
 #include "include/state.h"
 
+struct State *state = NULL;
+
 void initialise(void)
 {
     initscr();                  /* init the lib                                     */
@@ -12,31 +14,31 @@ void initialise(void)
     intrflush(stdscr, FALSE);   /* interpret screen changes from ssigs correctly    */
     curs_set(0);                /* disable cursor                                   */
     ESCDELAY = 10;
+
+    state = state_create();
+    state_initialise(state, stdscr);
 }
 
-void cleanup(void)
+void terminate(void)
 {
     erase();
     endwin();
+
+    state_destroy(state);
 }
 
 int main(void)
 {
     initialise();
 
-    struct State *s = state_create();
-    state_initialise(s, stdscr);
-
-    while (!state_quit(s)) {
+    while (!state_quit(state)) {
         erase();
-        draw_state(s);
+        draw_state(state);
         refresh();
 
-        state_update(s);
+        state_update(state);
     }
 
-    state_destroy(s);
-
-    cleanup();
+    terminate();
     return 0;
 }
