@@ -22,17 +22,23 @@
  *  WRITE
  *========================================================*/
 
-void write_coordinate(FILE *file, const struct Coordinate *c)
+void write_coordinate(FILE *file, struct Coordinate c)
 {
-    if (!file || !c) {
-        return;
-    }
+    if (!file) return;
 
     int p = coordinate_p(c),
-        q = coordinate_q(c), r = coordinate_r(c), m = coordinate_m(c);
+        q = coordinate_q(c),
+        r = coordinate_r(c),
+        m = coordinate_m(c);
 
-    fprintf(file, "%d%c%d%c%d%c%u%c", p, FILE_SEP_MIN, q, FILE_SEP_MIN, r, FILE_SEP_MIN,
-            m, FILE_SEP_MIN);
+    fprintf(
+        file,
+        "%d%c%d%c%d%c%u%c",
+        p, FILE_SEP_MIN,
+        q, FILE_SEP_MIN,
+        r, FILE_SEP_MIN,
+        m, FILE_SEP_MIN
+    );
 }
 
 void write_location(FILE *file, const struct Location *location)
@@ -133,11 +139,9 @@ void write_state(FILE *file, struct State *state)
  *  READ
  *========================================================*/
 
-struct Coordinate *read_coordinate(char *str)
+struct Coordinate read_coordinate(char *str)
 {
-    if (!str) {
-        return NULL;
-    }
+    if (!str) return (struct Coordinate) { 0 };
 
     char delim[2] = { FILE_SEP_MIN, '\0' };
     char *str_p = strtok(str, delim);
@@ -149,7 +153,7 @@ struct Coordinate *read_coordinate(char *str)
         q = strtol(str_q, NULL, 10), r = strtol(str_r, NULL, 10);
     unsigned int m = (unsigned int)strtol(str_m, NULL, 10);
 
-    return coordinate_create(p, q, r, m);
+    return coordinate(p, q, r, m);
 }
 
 /* expected format:
@@ -203,13 +207,10 @@ struct Chart *read_chart(char *line)
     char *str_coordinate = strtok(line, delim);
     char *str_tile = strtok(NULL, delim);
 
-    struct Coordinate *c = read_coordinate(str_coordinate);
-
+    struct Coordinate c = read_coordinate(str_coordinate);
     struct Chart *chart = chart_create(c);
     chart_clear_tile(chart);
     chart_set_tile(chart, read_tile(str_tile));
-    coordinate_destroy(c);
-
     return chart;
 }
 
@@ -221,12 +222,9 @@ struct Location *read_location(char *line)
     char *str_coordinate = strtok(line, delim);
     char *str_location = strtok(NULL, delim);
 
-    struct Coordinate *c = read_coordinate(str_coordinate);
-    enum LOCATION t = (enum LOCATION)strtol(str_location, NULL, 10);
-
+    struct Coordinate c = read_coordinate(str_coordinate);
+    enum LOCATION t = (enum LOCATION) strtol(str_location, NULL, 10);
     struct Location *location = location_create(c, t);
-
-    coordinate_destroy(c);
     return location;
 }
 
