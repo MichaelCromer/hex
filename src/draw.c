@@ -283,19 +283,19 @@ void wdraw_tile_terrain(WINDOW *win, struct Geometry *g, struct Tile *tile, int 
     attroff(COLOR_PAIR(COLOR_CYAN));
 }
 
-void wdraw_chart_with(WINDOW *win, struct Geometry *g, struct Chart *chart,
-                      struct Coordinate *v, struct Coordinate *o,
-                      void (*wdraw_tile)(WINDOW *, struct Geometry *, struct Tile *,
-                                         int, int))
+void wdraw_chart_with(
+    WINDOW *win,
+    struct Geometry *g,
+    struct Chart *chart,
+    struct Coordinate v,
+    struct Coordinate o,
+    void (*wdraw_tile)(WINDOW *, struct Geometry *, struct Tile *, int, int)
+)
 {
-    if (!chart || !v || !o || !wdraw_tile) {
-        return;
-    }
+    if (!chart || !wdraw_tile) return;
 
     /* don't bother if this chart doesn't overlap with the target viewpoint */
-    if (!coordinate_related(chart_coordinate(chart), v)) {
-        return;
-    }
+    if (!coordinate_related(chart_coordinate(chart), v)) return;
 
     /* recurse */
     if (chart_children(chart)) {
@@ -318,8 +318,8 @@ void wdraw_chart_with(WINDOW *win, struct Geometry *g, struct Chart *chart,
 
 void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 {
-    struct Coordinate *v = atlas_viewpoint(atlas);
-    struct Coordinate *o = atlas_coordinate(atlas);
+    struct Coordinate v = atlas_viewpoint(atlas);
+    struct Coordinate o = atlas_coordinate(atlas);
 
     wdraw_chart_with(win, g, atlas_root(atlas), v, o, wdraw_tile_terrain);
     wdraw_chart_with(win, g, atlas_root(atlas), v, o, wdraw_tile_location);

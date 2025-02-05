@@ -4,19 +4,20 @@
 #include <string.h>
 
 #include "include/atlas.h"
+#include "include/coordinate.h"
 #include "include/tile.h"
 
 struct Chart {
-    struct Coordinate *coordinate;
+    struct Coordinate coordinate;
     struct Tile *tile;
     struct Chart **children;
 };
 
-struct Chart *chart_create(const struct Coordinate *c)
+struct Chart *chart_create(struct Coordinate c)
 {
     struct Chart *chart = malloc(sizeof(struct Chart));
 
-    chart->coordinate = coordinate_duplicate(c);
+    chart->coordinate = c;
     chart->tile = NULL;
     chart->children = NULL;
 
@@ -34,11 +35,12 @@ struct Chart *chart_create(const struct Coordinate *c)
 
 struct Chart *chart_create_ancestor(struct Chart *chart1, struct Chart *chart2)
 {
-    struct Coordinate *a = coordinate_create_ancestor(chart_coordinate(chart1),
-                                                      chart_coordinate(chart2));
-    struct Chart *ancestor = chart_create(a);
-    coordinate_destroy(a);
-    return ancestor;
+    struct Coordinate a = coordinate_common_ancestor(
+        chart_coordinate(chart1),
+        chart_coordinate(chart2)
+    );
+
+    return chart_create(a);
 }
 
 struct Chart *chart_create_origin(void)
@@ -75,9 +77,6 @@ void chart_destroy(struct Chart *chart)
         return;
     }
 
-    coordinate_destroy(chart->coordinate);
-    chart->coordinate = NULL;
-
     if (chart->tile) {
         tile_destroy(chart->tile);
         chart->tile = NULL;
@@ -95,7 +94,7 @@ void chart_destroy(struct Chart *chart)
     free(chart);
 }
 
-struct Coordinate *chart_coordinate(const struct Chart *chart)
+struct Coordinate chart_coordinate(const struct Chart *chart)
 {
     return chart->coordinate;
 }
@@ -147,7 +146,7 @@ struct Atlas {
     struct Directory *directory;
     struct Chart *root;
     struct Chart *curr;
-    struct Coordinate *screen_L, *screen_R, *screen_T, *screen_B, *viewpoint;
+    struct Coordinate screen_L, screen_R, screen_T, screen_B, viewpoint;
 };
 
 struct Atlas *atlas_create(void)
@@ -157,11 +156,11 @@ struct Atlas *atlas_create(void)
     atlas->root = NULL;
     atlas->curr = NULL;
     atlas->directory = NULL;
-    atlas->screen_L = NULL;
-    atlas->screen_R = NULL;
-    atlas->screen_T = NULL;
-    atlas->screen_B = NULL;
-    atlas->viewpoint = NULL;
+    atlas->screen_L = (struct Coordinate) { 0 };
+    atlas->screen_R = (struct Coordinate) { 0 };
+    atlas->screen_T = (struct Coordinate) { 0 };
+    atlas->screen_B = (struct Coordinate) { 0 };
+    atlas->viewpoint = (struct Coordinate) { 0 };
 
     return atlas;
 }
@@ -186,11 +185,11 @@ void atlas_destroy(struct Atlas *atlas)
 
     chart_destroy(atlas->root);
     directory_destroy(atlas->directory);
-    coordinate_destroy(atlas->screen_L);
-    coordinate_destroy(atlas->screen_R);
-    coordinate_destroy(atlas->screen_T);
-    coordinate_destroy(atlas->screen_B);
-    coordinate_destroy(atlas->viewpoint);
+    atlas->screen_L = (struct Coordinate) { 0 };
+    atlas->screen_R = (struct Coordinate) { 0 };
+    atlas->screen_T = (struct Coordinate) { 0 };
+    atlas->screen_B = (struct Coordinate) { 0 };
+    atlas->viewpoint = (struct Coordinate) { 0 };
 
     atlas->root = NULL;
     atlas->curr = NULL;
@@ -213,7 +212,7 @@ struct Chart *atlas_curr(const struct Atlas *atlas)
     return atlas->curr;
 }
 
-struct Coordinate *atlas_coordinate(const struct Atlas *atlas)
+struct Coordinate atlas_coordinate(const struct Atlas *atlas)
 {
     return chart_coordinate(atlas_curr(atlas));
 }
@@ -235,20 +234,15 @@ void atlas_set_terrain(struct Atlas *atlas, enum TERRAIN t)
 
 struct Chart *atlas_neighbour(const struct Atlas *atlas, enum DIRECTION d)
 {
-    struct Coordinate *c = coordinate_duplicate(atlas_coordinate(atlas));
-    coordinate_shift(c, d);
-    struct Chart *neighbour = atlas_find(atlas, c);
-    coordinate_destroy(c);
-    return neighbour;
+    struct Coordinate c = coordinate_shift(atlas_coordinate(atlas), d);
+    return atlas_find(atlas, c);
 }
 
-void atlas_goto(struct Atlas *atlas, struct Coordinate *c)
+void atlas_goto(struct Atlas *atlas, struct Coordinate c)
 {
     struct Chart *chart = atlas_find(atlas, c);
 
-    if (c) {
-        atlas->curr = chart;
-    }
+    if (chart) atlas->curr = chart;
 }
 
 void atlas_step(struct Atlas *atlas, enum DIRECTION d)
@@ -264,37 +258,22 @@ void atlas_step(struct Atlas *atlas, enum DIRECTION d)
     }
 }
 
-struct Chart *atlas_find(const struct Atlas *atlas, const struct Coordinate *c)
+struct Chart *atlas_find(const struct Atlas *atlas, struct Coordinate c)
 {
-    if (!atlas || !c) {
-        return NULL;
-    }
+    if (!atlas) return NULL;
+    struct Coordinate r = chart_coordinate(atlas_root(atlas));
+    if (!coordinate_related(r, c) || (coordinate_m(c) > coordinate_m(r))) return NULL;
+    if (coordinate_equals(r, c)) return atlas_root(atlas);
 
-    struct Coordinate *r = chart_coordinate(atlas_root(atlas));
-
-    if (!coordinate_related(r, c) || (coordinate_m(c) > coordinate_m(r))) {
-        return NULL;
-    }
-
-    if (coordinate_equals(r, c)) {
-        return atlas_root(atlas);
-    }
-
-    struct Coordinate *p = coordinate_create_parent(c);
+    struct Coordinate p = coordinate_lift_by(c, 1);
     struct Chart *parent = atlas_find(atlas, p);
-
-    if (!parent) {
-        return NULL;
-    }
-
+    if (!parent) return NULL;
     return chart_child(parent, coordinate_index(c));
 }
 
 void atlas_insert(struct Atlas *atlas, struct Chart *chart)
 {
-    if (!atlas || !chart) {
-        return;
-    }
+    if (!atlas || !chart) return;
 
     if (!atlas_root(atlas)) {
         atlas->root = chart;
@@ -302,41 +281,38 @@ void atlas_insert(struct Atlas *atlas, struct Chart *chart)
     }
 
     struct Chart *root = atlas_root(atlas);
-    struct Coordinate *r = chart_coordinate(root);
-    struct Coordinate *n = chart_coordinate(chart);
+    struct Coordinate r = chart_coordinate(root);
+    struct Coordinate c = chart_coordinate(chart);
 
-    if (!coordinate_related(r, n)) {
+    if (!coordinate_related(r, c)) {
         atlas->root = chart_create_ancestor(root, chart);
         atlas_insert(atlas, root);
         atlas_insert(atlas, chart);
         return;
     }
 
-    struct Coordinate *p = coordinate_create_parent(n);
+    struct Coordinate p = coordinate_lift_by(c, 1);
     struct Chart *parent = atlas_find(atlas, p);
     if (!parent) {
         parent = chart_create(p);
         atlas_insert(atlas, parent);
     }
-    chart_set_child(parent, coordinate_index(n), chart);
+    chart_set_child(parent, coordinate_index(c), chart);
 }
 
 void atlas_create_neighbours(struct Atlas *atlas)
 {
-    struct Coordinate *n = coordinate_create_origin();
+    struct Coordinate n = coordinate_origin();
     struct Chart *neighbour = NULL;
 
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
-        coordinate_add(chart_coordinate(atlas_curr(atlas)), coordinate_delta(i), n);
+        n = coordinate_shift(chart_coordinate(atlas_curr(atlas)), i); 
         neighbour = atlas_find(atlas, n);
         if (!neighbour) {
             neighbour = chart_create(n);
             atlas_insert(atlas, neighbour);
         }
     }
-
-    coordinate_destroy(n);
-    return;
 }
 
 void atlas_create_location(struct Atlas *atlas, enum LOCATION t)
@@ -349,7 +325,7 @@ void atlas_create_location(struct Atlas *atlas, enum LOCATION t)
 void atlas_add_location(struct Atlas *atlas, struct Location *location)
 {
     directory_insert(&(atlas->directory), location);
-    struct Coordinate *c = atlas_coordinate(atlas); /* store the old spot */
+    struct Coordinate c = atlas_coordinate(atlas); /* store the old spot */
     atlas_goto(atlas, location_coordinate(location));
     if (coordinate_equals(location_coordinate(location), atlas_coordinate(atlas))) {
         tile_set_location(atlas_tile(atlas), location);
@@ -357,46 +333,31 @@ void atlas_add_location(struct Atlas *atlas, struct Location *location)
     atlas_goto(atlas, c); /* go back to the old spot */
 }
 
-struct Coordinate *atlas_viewpoint(struct Atlas *atlas)
+struct Coordinate atlas_viewpoint(struct Atlas *atlas)
 {
     return atlas->viewpoint;
 }
 
 void atlas_recalculate_viewpoint(struct Atlas *atlas)
 {
-    struct Coordinate *tmp1 =
-        coordinate_create_ancestor(atlas->screen_L, atlas->screen_R);
-    struct Coordinate *tmp2 =
-        coordinate_create_ancestor(atlas->screen_T, atlas->screen_B);
-
-    coordinate_common_ancestor(tmp1, tmp2, atlas->viewpoint);
-
-    coordinate_destroy(tmp1);
-    coordinate_destroy(tmp2);
+    atlas->viewpoint = coordinate_common_ancestor(
+        coordinate_common_ancestor(atlas->screen_L, atlas->screen_R),
+        coordinate_common_ancestor(atlas->screen_T, atlas->screen_B)
+    );
 }
 
 void atlas_recalculate_screen(struct Atlas *atlas, struct Geometry *g)
 {
     int n_h = geometry_tile_nh(g), n_w = geometry_tile_nw(g);
 
-    coordinate_destroy(atlas->screen_L);
-    coordinate_destroy(atlas->screen_R);
-    coordinate_destroy(atlas->screen_T);
-    coordinate_destroy(atlas->screen_B);
-    coordinate_destroy(atlas->viewpoint);
+    struct Coordinate c = atlas_coordinate(atlas);
 
-    atlas->screen_L = coordinate_duplicate(atlas_coordinate(atlas));
-    atlas->screen_R = coordinate_duplicate(atlas_coordinate(atlas));
-    atlas->screen_T = coordinate_duplicate(atlas_coordinate(atlas));
-    atlas->screen_B = coordinate_duplicate(atlas_coordinate(atlas));
-    atlas->viewpoint = coordinate_create_origin();
-
-    coordinate_nshift(atlas->screen_L, DIRECTION_WW, n_w / 2);
-    coordinate_nshift(atlas->screen_R, DIRECTION_EE, n_w / 2);
-    coordinate_nshift(atlas->screen_T, DIRECTION_NW, n_h / 4);
-    coordinate_nshift(atlas->screen_T, DIRECTION_NE, n_h / 4);
-    coordinate_nshift(atlas->screen_B, DIRECTION_SW, n_h / 4);
-    coordinate_nshift(atlas->screen_B, DIRECTION_SE, n_h / 4);
+    atlas->screen_L = coordinate_nshift(c, DIRECTION_WW, n_w / 2);
+    atlas->screen_R = coordinate_nshift(c, DIRECTION_EE, n_w / 2);
+    atlas->screen_T = coordinate_nshift(c, DIRECTION_NW, n_h / 4);
+    atlas->screen_T = coordinate_nshift(atlas->screen_T, DIRECTION_NE, n_h / 4);
+    atlas->screen_B = coordinate_nshift(c, DIRECTION_SW, n_h / 4);
+    atlas->screen_B = coordinate_nshift(atlas->screen_B, DIRECTION_SE, n_h / 4);
 
     atlas_recalculate_viewpoint(atlas);
 }

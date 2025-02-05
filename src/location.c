@@ -3,15 +3,15 @@
 #include "include/location.h"
 
 struct Location {
-    struct Coordinate *c;
+    struct Coordinate c;
     enum LOCATION type;
 };
 
-struct Location *location_create(const struct Coordinate *c, enum LOCATION t)
+struct Location *location_create(struct Coordinate c, enum LOCATION t)
 {
     struct Location *location = malloc(sizeof(struct Location));
 
-    location->c = coordinate_duplicate(c);
+    location->c = c;
     location->type = t;
 
     return location;
@@ -19,11 +19,6 @@ struct Location *location_create(const struct Coordinate *c, enum LOCATION t)
 
 void location_destroy(struct Location *location)
 {
-    if (location->c) {
-        coordinate_destroy(location->c);
-        location->c = NULL;
-    }
-
     free(location);
 }
 
@@ -37,7 +32,7 @@ void location_set_type(struct Location *location, enum LOCATION l)
     location->type = l;
 }
 
-struct Coordinate *location_coordinate(const struct Location *location)
+struct Coordinate location_coordinate(const struct Location *location)
 {
     return location->c;
 }

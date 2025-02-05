@@ -5,11 +5,11 @@
 #include "enum.h"
 
 struct Location;
-struct Location *location_create(const struct Coordinate *c, enum LOCATION t);
+struct Location *location_create(struct Coordinate c, enum LOCATION t);
 void location_destroy(struct Location *location);
 enum LOCATION location_type(const struct Location *location);
 void location_set_type(struct Location *location, enum LOCATION l);
-struct Coordinate *location_coordinate(const struct Location *location);
+struct Coordinate location_coordinate(const struct Location *location);
 
 struct Directory;
 struct Directory *directory_create(struct Location *location);
