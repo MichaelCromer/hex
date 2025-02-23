@@ -3,20 +3,15 @@
 
 #include "enum.h"
 
-struct Command;
-struct Commandline;
+void commandline_reset(void);
 
-enum COMMAND command_type(const struct Command *c);
-char *command_data(const struct Command *c);
-void command_destroy(struct Command *c);
+size_t commandline_len(void);
+enum COMMAND commandline_type(void);
+const char *commandline_str(void);
+const char *commandline_data(void);
 
-void commandline_reset(struct Commandline *c);
-struct Commandline *commandline_create(void);
-void commandline_destroy(struct Commandline *c);
-size_t commandline_len(struct Commandline *c);
-const char *commandline_str(struct Commandline *c);
-void commandline_putch(struct Commandline *c, char ch);
-char commandline_popch(struct Commandline *c);
-struct Command *commandline_parse(struct Commandline *c);
+void commandline_putch(char ch);
+char commandline_popch(void);
+void commandline_parse(void);
 
 #endif

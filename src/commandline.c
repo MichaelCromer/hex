@@ -9,185 +9,94 @@
 #define COMMAND_WORD_WRITE  "write"
 #define COMMAND_WORD_EDIT   "edit"
 
-struct Command {
-    enum COMMAND type;
-    char *data;
-};
 
-struct Command *command_create(enum COMMAND type, char *data)
+char buffer[COMMANDLINE_BUFFER_SIZE] = { 0 };
+size_t len = 0;
+size_t curr = 0;
+enum COMMAND type = COMMAND_NONE;
+char *data = NULL;
+
+
+size_t commandline_len(void) { return len; }
+const char *commandline_str(void) { return buffer; }
+enum COMMAND commandline_type(void) { return type; }
+const char *commandline_data(void) { return data; }
+
+
+void commandline_reset(void)
 {
-    struct Command *c = malloc(sizeof(struct Command));
-    c->type = type;
-    c->data = data;
-
-    return c;
+    memset(buffer, 0, COMMANDLINE_BUFFER_SIZE);
+    len = 0;
+    curr = 0;
+    type = COMMAND_NONE;
+    if (data) free(data);
+    data = NULL;
 }
 
-enum COMMAND command_type(const struct Command *c)
+
+void commandline_putch(char ch)
 {
-    return c->type;
+    if (len >= COMMANDLINE_BUFFER_SIZE - 1) return;
+    buffer[len++] = ch;
 }
 
-char *command_data(const struct Command *c)
+
+char commandline_popch(void)
 {
-    return c->data;
-}
-
-void command_destroy(struct Command *c)
-{
-    if (c->data) {
-        free(c->data);
-        c->data = NULL;
-    }
-    free(c);
-}
-
-struct Commandline {
-    char buffer[COMMANDLINE_BUFFER_SIZE];
-    int len;
-    char *curr;
-};
-
-struct Commandline *commandline_create(void)
-{
-    struct Commandline *c = malloc(sizeof(struct Commandline));
-    commandline_reset(c);
-    return c;
-}
-
-void commandline_reset(struct Commandline *c)
-{
-    memset(c->buffer, '\0', COMMANDLINE_BUFFER_SIZE);
-    c->len = 0;
-    c->curr = c->buffer;
-}
-
-void commandline_destroy(struct Commandline *c)
-{
-    free(c);
-}
-
-size_t commandline_len(struct Commandline *c)
-{
-    return c->len;
-}
-
-const char *commandline_str(struct Commandline *c)
-{
-    return c->buffer;
-}
-
-void commandline_putch(struct Commandline *c, char ch)
-{
-    if (c->len >= COMMANDLINE_BUFFER_SIZE - 1) {
-        return;
-    }
-
-    c->buffer[(c->len)] = ch;
-    (c->len)++;
-}
-
-char commandline_popch(struct Commandline *c)
-{
-    if (c->len <= 0) {
-        return '\0';
-    }
-    char ch = c->buffer[(c->len) - 1];
-    (c->len)--;
-    c->buffer[(c->len)] = '\0';
+    if (len <= 0) return 0;
+    char ch = buffer[len - 1];
+    buffer[--len] = 0;
     return ch;
 }
 
-char *commandline_start(struct Commandline *c)
+
+char *commandline_curr(void) { return buffer + curr; }
+
+
+char *commandline_next(void)
 {
-    return (c->curr = c->buffer);
+    if (curr >= len) return (buffer + len);
+    return buffer + (++curr);
 }
 
-char *commandline_next(struct Commandline *c)
+
+char *commandline_to_next(int (test)(int))
 {
-    if (c->curr >= c->buffer + c->len + 1) {
-        return c->buffer + c->len + 1;
-    }
-    return (c->curr++);
+    char *c = commandline_curr();
+    while (!test(*c) && (curr < len)) c = commandline_next();
+    return c;
 }
 
-char *commandline_curr(struct Commandline *c)
+
+bool commandline_match(char *keyword, char *c, size_t L)
 {
-    return c->curr;
+    return ((L > 0) && (L <= strlen(keyword)) && !strncmp(keyword, c, L));
 }
 
-enum COMMAND commandline_parse_type(struct Commandline *c)
+
+void commandline_parse(void)
 {
-    char *c0 = commandline_curr(c);
-    while (isspace(*c0) && (*c0 != '\0')) {
-        c0 = commandline_next(c);
-    }
+    curr = 0;
 
-    char *c1 = commandline_curr(c);
-    while (!isspace(*c1) && (*c1 != '\0')) {
-        c1 = commandline_next(c);
-    }
-
+    char *c0 = commandline_to_next(isgraph);
+    char *c1 = commandline_to_next(isspace);
     size_t L = c1 - c0;
 
-    if (L == 0) {
-        return COMMAND_NONE;
+    if (commandline_match(COMMAND_WORD_QUIT, c0, L))  {
+        type = COMMAND_QUIT;
+    } else if (commandline_match(COMMAND_WORD_WRITE, c0, L))  {
+        type = COMMAND_WRITE;
+    } else if (commandline_match(COMMAND_WORD_EDIT, c0, L))  {
+        type = COMMAND_EDIT;
+    } else {
+        type = COMMAND_ERROR;
     }
 
-    if ((L <= strlen(COMMAND_WORD_QUIT)) && (strncmp(COMMAND_WORD_QUIT, c0, L) == 0)) {
-        return COMMAND_QUIT;
-    } else if ((L <= strlen(COMMAND_WORD_WRITE))
-               && (strncmp(COMMAND_WORD_WRITE, c0, L) == 0)) {
-        return COMMAND_WRITE;
-    } else if ((L <= strlen(COMMAND_WORD_EDIT))
-               && (strncmp(COMMAND_WORD_EDIT, c0, L) == 0)) {
-        return COMMAND_EDIT;
-    }
+    if ((type == COMMAND_QUIT) || (type == COMMAND_ERROR)) return;
 
-    return COMMAND_ERROR;
-}
-
-char *commandline_parse_data(struct Commandline *c)
-{
-    char *c0 = commandline_curr(c);
-    while (isspace(*c0) && (*c0 != '\0')) {
-        c0 = commandline_next(c);
-    }
-
-    char *c1 = commandline_curr(c);
-    while (!isspace(*c1) && (*c1 != '\0')) {
-        c1 = commandline_next(c);
-    }
-
-    int L = c1 - c0;
-    char *data = malloc(L + 1);
-
-    for (int i = 0; i < L; i++) {
-        data[i] = *(c0 + i);
-    }
-    data[L] = '\0';
-
-    return data;
-}
-
-struct Command *commandline_parse(struct Commandline *c)
-{
-    commandline_start(c);
-
-    enum COMMAND t = commandline_parse_type(c);
-    char *data = NULL;
-
-    switch (t) {
-        case COMMAND_QUIT:
-        case COMMAND_ERROR:
-            return command_create(t, NULL);
-        case COMMAND_EDIT:
-        case COMMAND_WRITE:
-            data = commandline_parse_data(c);
-            return command_create(t, data);
-        default:
-            break;
-    }
-
-    return command_create(COMMAND_NONE, NULL);
+    c0 = commandline_to_next(isgraph);
+    c1 = commandline_to_next(isspace);
+    L = c1 - c0;
+    if (data) free(data);
+    data = strndup(c0, L);
 }

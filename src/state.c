@@ -6,7 +6,6 @@
 
 #include "include/action.h"
 #include "include/atlas.h"
-#include "include/commandline.h"
 #include "include/enum.h"
 #include "include/geometry.h"
 #include "include/interface.h"
@@ -43,7 +42,6 @@ struct State *state_create(void)
     state->win = NULL;
 
     state->atlas = atlas_create();
-    state->cmd = commandline_create();
     state->geometry = geometry_create();
     state->ui = ui_create();
 
@@ -115,7 +113,6 @@ void state_update(struct State *state)
 void state_destroy(struct State *state)
 {
     atlas_destroy(state->atlas);
-    commandline_destroy(state->cmd);
     geometry_destroy(state->geometry);
     ui_destroy(state->ui);
 
@@ -154,11 +151,6 @@ void state_clear_atlas(struct State *state)
 struct UserInterface *state_ui(const struct State *state)
 {
     return state->ui;
-}
-
-struct Commandline *state_commandline(const struct State *state)
-{
-    return state->cmd;
 }
 
 enum MODE state_mode(const struct State *state)
