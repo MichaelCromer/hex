@@ -376,7 +376,7 @@ void wdraw_statusline(WINDOW *win, struct State *s)
         case MODE_COMMAND:
             addch(' ');
             addch(':');
-            addstr(commandline_str(state_commandline(s)));
+            addstr(commandline_str());
             break;
         case MODE_TERRAIN:
         case MODE_AWAIT_TERRAIN:

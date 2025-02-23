@@ -247,49 +247,45 @@ void action_terrain(struct State *state, key k)
 
 void action_command(struct State *state, key k)
 {
-    struct Commandline *commandline = state_commandline(state);
-    struct Command *c = NULL;
-
     switch (k) {
         case KEY_ESCAPE:
-            commandline_reset(commandline);
+            commandline_reset();
             state_pop_mode(state);
             return;
 
         case KEY_ENTER:
         case '\n':
-            c = commandline_parse(commandline);
-            switch (command_type(c)) {
+            commandline_parse();
+            switch (commandline_type()) {
                 case COMMAND_QUIT:
                     state_set_quit(state, true);
                     break;
                 case COMMAND_WRITE:
-                    action_write(state, command_data(c));
+                    action_write(state, commandline_data());
                     break;
                 case COMMAND_EDIT:
-                    action_edit(state, command_data(c));
+                    action_edit(state, commandline_data());
                 default:
                     break;
             }
 
-            commandline_reset(commandline);
+            commandline_reset();
             state_pop_mode(state);
-            command_destroy(c);
             return;
 
         case KEY_BACKSPACE:
         case '\b':
         case 127:
-            if (commandline_len(commandline) <= 0) {
-                commandline_reset(commandline);
+            if (commandline_len() <= 0) {
+                commandline_reset();
                 state_pop_mode(state);
             }
 
-            commandline_popch(commandline);
+            commandline_popch();
             return;
 
         default:
-            commandline_putch(commandline, state_currkey(state));
+            commandline_putch(state_currkey(state));
             break;
     }
 }
