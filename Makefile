@@ -29,3 +29,4 @@ format:
 
 tags:
 	ctags src/*.c src/include/*.h
+.PHONY: tags
