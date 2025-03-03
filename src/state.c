@@ -41,7 +41,6 @@ struct State *state_create(void)
     state->win = NULL;
 
     state->atlas = atlas_create();
-    state->ui = ui_create();
 
     return state;
 }
@@ -64,7 +63,7 @@ void state_initialise(struct State *state, WINDOW *win)
     }
 
     geometry_initialise(GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
-    ui_initialise(state_ui(state));
+    ui_initialise();
     atlas_initialise(state_atlas(state));
 }
 
@@ -110,7 +109,6 @@ void state_update(struct State *state)
 void state_destroy(struct State *state)
 {
     atlas_destroy(state->atlas);
-    ui_destroy(state->ui);
 
     free(state);
     state = NULL;

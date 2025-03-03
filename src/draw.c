@@ -341,11 +341,11 @@ void wdraw_reticule(WINDOW *win)
     return;
 }
 
-void wdraw_ui(WINDOW *win, struct UserInterface *ui)
+void wdraw_ui(WINDOW *win)
 {
     for (int p = 0; p < NUM_UI_PANELS; p++) {
-        if (ui_show(ui, p)) {
-            wdraw_panel(win, ui_panel(ui, p));
+        if (ui_is_show(p)) {
+            wdraw_panel(win, ui_panel(p));
         }
     }
 }
@@ -397,7 +397,7 @@ void draw_state(struct State *s)
 {
     wdraw_atlas(state_window(s), state_atlas(s));
     wdraw_reticule(state_window(s));
-    wdraw_ui(state_window(s), state_ui(s));
+    wdraw_ui(state_window(s));
     wdraw_statusline(state_window(s), s);
     return;
 }

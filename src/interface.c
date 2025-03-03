@@ -6,73 +6,38 @@
 #include "include/panel.h"
 #include "include/interface.h"
 
-struct UserInterface {
-    struct Panel *panel[NUM_UI_PANELS];
-    bool show[NUM_UI_PANELS];
-};
 
-struct UserInterface *ui_create(void)
+struct Panel *panel[NUM_UI_PANELS] = { 0 };
+bool show[NUM_UI_PANELS] = { 0 };
+
+
+void ui_initialise(void)
 {
-    struct UserInterface *ui = malloc(sizeof(struct UserInterface));
-    if (!ui) {
-        return NULL;
-    }
-
-    for (int i = 0; i < NUM_UI_PANELS; i++) {
-        ui->panel[i] = NULL;
-        ui->show[i] = false;
-    }
-
-    return ui;
+    panel[PANEL_SPLASH] = panel_splash();
+    panel[PANEL_DETAIL] = panel_tile_detail();
+    panel_centre(panel[PANEL_SPLASH], geometry_rmid(), geometry_cmid());
+    show[PANEL_SPLASH] = true;
 }
 
-void ui_initialise(struct UserInterface *ui)
+void ui_update_detail(struct Atlas *atlas)
 {
-    ui->panel[PANEL_SPLASH] = panel_splash();
-    ui->panel[PANEL_DETAIL] = panel_tile_detail();
-    panel_centre(ui->panel[PANEL_SPLASH], geometry_rmid(), geometry_cmid());
-    ui->show[PANEL_SPLASH] = true;
-}
+    struct Chart *chart = atlas_curr(atlas);
+    struct Panel *detail = panel[PANEL_DETAIL];
 
-void ui_update_detail(struct UserInterface *ui, struct Atlas *atlas)
-{
-    struct Panel *detail = ui_panel(ui, PANEL_DETAIL);
     char buf[32];
 
-    panel_remove_line(detail, 1);
     memset(buf, 0, 32);
-    struct Chart *chart = atlas_curr(atlas);
+    panel_remove_line(detail, 1);
     snprintf(buf, 32, "  (%d, %d, %d)", chart_p(chart), chart_q(chart), chart_r(chart));
     panel_add_line(detail, 1, buf);
 
-    panel_remove_line(detail, 2);
     memset(buf, 0, 32);
+    panel_remove_line(detail, 2);
     snprintf(buf, 32, "  Terrain: %s", terrain_name(atlas_terrain(atlas)));
     panel_add_line(detail, 2, buf);
 }
 
-void ui_destroy(struct UserInterface *ui)
-{
-    for (int i = 0; i < NUM_UI_PANELS; i++) {
-        struct Panel *panel = ui->panel[i];
-        if (panel) {
-            panel_destroy(panel);
-        }
-    }
-    free(ui);
-}
 
-void ui_toggle(struct UserInterface *ui, enum UI_PANEL p)
-{
-    ui->show[p] = !(ui->show[p]);
-}
-
-bool ui_show(struct UserInterface *ui, enum UI_PANEL p)
-{
-    return ui->show[p];
-}
-
-struct Panel *ui_panel(struct UserInterface *ui, enum UI_PANEL p)
-{
-    return ui->panel[p];
-}
+void ui_toggle_show(enum UI_PANEL p) { show[p] = !(show[p]); }
+bool ui_is_show(enum UI_PANEL p) { return show[p]; }
+struct Panel *ui_panel(enum UI_PANEL p) { return panel[p]; }

@@ -162,16 +162,16 @@ void panel_centre(struct Panel *p, int r, int c)
 struct Panel *panel_splash(void)
 {
     struct Panel *splash = panel_create(0, 0, 12);
-    panel_add_line(splash, 0, "WELCOME TO HEX                           ");
-    panel_add_line(splash, 1, "                                         ");
-    panel_add_line(splash, 2, "    Navigation:    |    Modes/Options:   ");
-    panel_add_line(splash, 3, "                   |                     ");
-    panel_add_line(splash, 4, "        u   i      |    T/t   Terrain    ");
-    panel_add_line(splash, 5, "         \\ /       |    R/r   Roads      ");
-    panel_add_line(splash, 6, "      h -   - k    |    Y/y   Rivers     ");
-    panel_add_line(splash, 7, "         / \\       |      :   Command    ");
-    panel_add_line(splash, 8, "        n   m      |      ?   Help       ");
-    panel_add_line(splash, 9, "                                         ");
+    panel_add_line(splash, 0,  "WELCOME TO HEX                           ");
+    panel_add_line(splash, 1,  "                                         ");
+    panel_add_line(splash, 2,  "    Navigation:    |    Modes/Options:   ");
+    panel_add_line(splash, 3,  "                   |                     ");
+    panel_add_line(splash, 4,  "        u   i      |    T/t   Terrain    ");
+    panel_add_line(splash, 5,  "         \\ /       |    R/r   Roads     ");
+    panel_add_line(splash, 6,  "      h -   - k    |    Y/y   Rivers     ");
+    panel_add_line(splash, 7,  "         / \\       |      :   Command   ");
+    panel_add_line(splash, 8,  "        n   m      |      ?   Help       ");
+    panel_add_line(splash, 9,  "                                         ");
     panel_add_line(splash, 10, "                                         ");
     panel_add_line(splash, 11, "                      Close: <Enter>     ");
 
