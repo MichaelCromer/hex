@@ -20,7 +20,7 @@ int chart_r(const struct Chart *chart);
 
 struct Atlas;
 struct Atlas *atlas_create(void);
-void atlas_initialise(struct Atlas *atlas, struct Geometry *g);
+void atlas_initialise(struct Atlas *atlas);
 void atlas_destroy(struct Atlas *atlas);
 struct Directory *atlas_directory(const struct Atlas *atlas);
 struct Chart *atlas_root(const struct Atlas *atlas);
@@ -39,6 +39,6 @@ void atlas_create_location(struct Atlas *atlas, enum LOCATION t);
 void atlas_add_location(struct Atlas *atlas, struct Location *location);
 struct Coordinate atlas_viewpoint(struct Atlas *atlas);
 void atlas_recalculate_viewpoint(struct Atlas *atlas);
-void atlas_recalculate_screen(struct Atlas *atlas, struct Geometry *g);
+void atlas_recalculate_screen(struct Atlas *atlas);
 
 #endif

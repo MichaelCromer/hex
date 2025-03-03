@@ -26,11 +26,11 @@ struct UserInterface *ui_create(void)
     return ui;
 }
 
-void ui_initialise(struct UserInterface *ui, struct Geometry *g)
+void ui_initialise(struct UserInterface *ui)
 {
     ui->panel[PANEL_SPLASH] = panel_splash();
     ui->panel[PANEL_DETAIL] = panel_tile_detail();
-    panel_centre(ui->panel[PANEL_SPLASH], geometry_rmid(g), geometry_cmid(g));
+    panel_centre(ui->panel[PANEL_SPLASH], geometry_rmid(), geometry_cmid());
     ui->show[PANEL_SPLASH] = true;
 }
 

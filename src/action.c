@@ -7,6 +7,7 @@
 #include "include/tile.h"
 #include "include/file.h"
 
+
 void action_write(struct State *state, const char *filename)
 {
     FILE *file = fopen(filename, "w");

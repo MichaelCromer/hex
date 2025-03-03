@@ -282,7 +282,6 @@ void read_state(FILE *file, struct State *state)
     }
     struct Atlas *atlas = read_atlas(file);
 
-    atlas_recalculate_screen(atlas, state_geometry(state));
     state_clear_atlas(state);
     state_set_atlas(state, atlas);
 
