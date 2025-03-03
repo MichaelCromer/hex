@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "include/enum.h"
+#include "include/coordinate.h"
 #include "include/geometry.h"
 
 struct Geometry {
@@ -41,47 +43,15 @@ void geometry_destroy(struct Geometry *g)
     g = NULL;
 }
 
-float geometry_slope(struct Geometry *g)
-{
-    return g->slope;
-}
 
-int geometry_tile_dh(struct Geometry *g)
-{
-    return g->tile_dh;
-}
+float geometry_slope(struct Geometry *g) { return g->slope; }
+int geometry_tile_dh(struct Geometry *g) { return g->tile_dh; }
+int geometry_tile_dw(struct Geometry *g) { return g->tile_dw; }
+int geometry_tile_nh(struct Geometry *g) { return g->tile_nh; }
+int geometry_tile_nw(struct Geometry *g) { return g->tile_nw; }
+int geometry_cols(struct Geometry *g) { return g->cols; }
+int geometry_rows(struct Geometry *g) { return g->rows; }
+int geometry_rmid(struct Geometry *g) { return g->rmid; }
+int geometry_cmid(struct Geometry *g) { return g->cmid; }
 
-int geometry_tile_dw(struct Geometry *g)
-{
-    return g->tile_dw;
-}
 
-int geometry_tile_nh(struct Geometry *g)
-{
-    return g->tile_nh;
-}
-
-int geometry_tile_nw(struct Geometry *g)
-{
-    return g->tile_nw;
-}
-
-int geometry_cols(struct Geometry *g)
-{
-    return g->cols;
-}
-
-int geometry_rows(struct Geometry *g)
-{
-    return g->rows;
-}
-
-int geometry_rmid(struct Geometry *g)
-{
-    return g->rmid;
-}
-
-int geometry_cmid(struct Geometry *g)
-{
-    return g->cmid;
-}

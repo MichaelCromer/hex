@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include "include/commandline.h"
+#include "include/coordinate.h"
 #include "include/draw.h"
 #include "include/enum.h"
 #include "include/geometry.h"
@@ -10,6 +11,34 @@
 #include "include/panel.h"
 #include "include/state.h"
 #include "include/tile.h"
+
+
+struct Coordinate screen_L = { 0 };
+struct Coordinate screen_R = { 0 };
+struct Coordinate screen_T = { 0 };
+struct Coordinate screen_B = { 0 };
+struct Coordinate viewpoint = { 0 };
+
+
+void draw_update(struct State *state)
+{
+    int nw = geometry_tile_nw(state_geometry(state));
+    int nh = geometry_tile_nh(state_geometry(state));
+    struct Coordinate o = atlas_coordinate(state_atlas(state));
+
+    screen_L = coordinate_nshift(o, DIRECTION_WW, nw / 2);
+    screen_R = coordinate_nshift(o, DIRECTION_EE, nw / 2);
+    screen_T = coordinate_nshift(o, DIRECTION_NW, nh / 4);
+    screen_B = coordinate_nshift(o, DIRECTION_SW, nh / 4);
+    screen_T = coordinate_nshift(screen_T, DIRECTION_NE, nh / 4);
+    screen_B = coordinate_nshift(screen_B, DIRECTION_SE, nh / 4);
+
+    viewpoint = coordinate_common_ancestor(
+        coordinate_common_ancestor(screen_L, screen_R),
+        coordinate_common_ancestor(screen_T, screen_B)
+    );
+}
+
 
 /*
 *     DRAW 01 - Basic shapes
@@ -287,7 +316,6 @@ void wdraw_chart_with(
     WINDOW *win,
     struct Geometry *g,
     struct Chart *chart,
-    struct Coordinate v,
     struct Coordinate o,
     void (*wdraw_tile)(WINDOW *, struct Geometry *, struct Tile *, int, int)
 )
@@ -295,12 +323,12 @@ void wdraw_chart_with(
     if (!chart || !wdraw_tile) return;
 
     /* don't bother if this chart doesn't overlap with the target viewpoint */
-    if (!coordinate_related(chart_coordinate(chart), v)) return;
+    if (!coordinate_related(chart_coordinate(chart), viewpoint)) return;
 
     /* recurse */
     if (chart_children(chart)) {
         for (int i = 0; i < NUM_CHILDREN; i++) {
-            wdraw_chart_with(win, g, chart_child(chart, i), v, o, wdraw_tile);
+            wdraw_chart_with(win, g, chart_child(chart, i), o, wdraw_tile);
         }
     }
 
@@ -318,11 +346,10 @@ void wdraw_chart_with(
 
 void wdraw_atlas(WINDOW *win, struct Geometry *g, struct Atlas *atlas)
 {
-    struct Coordinate v = atlas_viewpoint(atlas);
     struct Coordinate o = atlas_coordinate(atlas);
 
-    wdraw_chart_with(win, g, atlas_root(atlas), v, o, wdraw_tile_terrain);
-    wdraw_chart_with(win, g, atlas_root(atlas), v, o, wdraw_tile_location);
+    wdraw_chart_with(win, g, atlas_root(atlas), o, wdraw_tile_terrain);
+    wdraw_chart_with(win, g, atlas_root(atlas), o, wdraw_tile_location);
 }
 
 void wdraw_reticule(WINDOW *win, struct Geometry *g)

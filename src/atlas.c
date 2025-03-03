@@ -146,7 +146,6 @@ struct Atlas {
     struct Directory *directory;
     struct Chart *root;
     struct Chart *curr;
-    struct Coordinate screen_L, screen_R, screen_T, screen_B, viewpoint;
 };
 
 struct Atlas *atlas_create(void)
@@ -156,16 +155,10 @@ struct Atlas *atlas_create(void)
     atlas->root = NULL;
     atlas->curr = NULL;
     atlas->directory = NULL;
-    atlas->screen_L = (struct Coordinate) { 0 };
-    atlas->screen_R = (struct Coordinate) { 0 };
-    atlas->screen_T = (struct Coordinate) { 0 };
-    atlas->screen_B = (struct Coordinate) { 0 };
-    atlas->viewpoint = (struct Coordinate) { 0 };
-
     return atlas;
 }
 
-void atlas_initialise(struct Atlas *atlas, struct Geometry *g)
+void atlas_initialise(struct Atlas *atlas)
 {
     if (atlas->root) {
         return;
@@ -173,8 +166,6 @@ void atlas_initialise(struct Atlas *atlas, struct Geometry *g)
 
     atlas->root = chart_create_origin();
     atlas->curr = atlas->root;
-
-    atlas_recalculate_screen(atlas, g);
 }
 
 void atlas_destroy(struct Atlas *atlas)
@@ -185,11 +176,6 @@ void atlas_destroy(struct Atlas *atlas)
 
     chart_destroy(atlas->root);
     directory_destroy(atlas->directory);
-    atlas->screen_L = (struct Coordinate) { 0 };
-    atlas->screen_R = (struct Coordinate) { 0 };
-    atlas->screen_T = (struct Coordinate) { 0 };
-    atlas->screen_B = (struct Coordinate) { 0 };
-    atlas->viewpoint = (struct Coordinate) { 0 };
 
     atlas->root = NULL;
     atlas->curr = NULL;
@@ -250,11 +236,6 @@ void atlas_step(struct Atlas *atlas, enum DIRECTION d)
     struct Chart *n = NULL;
     if ((n = atlas_neighbour(atlas, d))) {
         atlas->curr = n;
-        coordinate_shift(atlas->screen_L, d);
-        coordinate_shift(atlas->screen_R, d);
-        coordinate_shift(atlas->screen_T, d);
-        coordinate_shift(atlas->screen_B, d);
-        atlas_recalculate_viewpoint(atlas);
     }
 }
 
@@ -331,33 +312,4 @@ void atlas_add_location(struct Atlas *atlas, struct Location *location)
         tile_set_location(atlas_tile(atlas), location);
     }
     atlas_goto(atlas, c); /* go back to the old spot */
-}
-
-struct Coordinate atlas_viewpoint(struct Atlas *atlas)
-{
-    return atlas->viewpoint;
-}
-
-void atlas_recalculate_viewpoint(struct Atlas *atlas)
-{
-    atlas->viewpoint = coordinate_common_ancestor(
-        coordinate_common_ancestor(atlas->screen_L, atlas->screen_R),
-        coordinate_common_ancestor(atlas->screen_T, atlas->screen_B)
-    );
-}
-
-void atlas_recalculate_screen(struct Atlas *atlas, struct Geometry *g)
-{
-    int n_h = geometry_tile_nh(g), n_w = geometry_tile_nw(g);
-
-    struct Coordinate c = atlas_coordinate(atlas);
-
-    atlas->screen_L = coordinate_nshift(c, DIRECTION_WW, n_w / 2);
-    atlas->screen_R = coordinate_nshift(c, DIRECTION_EE, n_w / 2);
-    atlas->screen_T = coordinate_nshift(c, DIRECTION_NW, n_h / 4);
-    atlas->screen_T = coordinate_nshift(atlas->screen_T, DIRECTION_NE, n_h / 4);
-    atlas->screen_B = coordinate_nshift(c, DIRECTION_SW, n_h / 4);
-    atlas->screen_B = coordinate_nshift(atlas->screen_B, DIRECTION_SE, n_h / 4);
-
-    atlas_recalculate_viewpoint(atlas);
 }

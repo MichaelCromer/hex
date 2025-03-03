@@ -23,5 +23,7 @@ int geometry_tile_dh(struct Geometry *g);
 int geometry_tile_dw(struct Geometry *g);
 int geometry_tile_nh(struct Geometry *g);
 int geometry_tile_nw(struct Geometry *g);
+struct Coordinate geometry_viewpoint(struct Geometry *g);
+void geometry_step(struct Geometry *g, enum DIRECTION d);
 
 #endif

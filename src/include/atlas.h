@@ -20,7 +20,7 @@ int chart_r(const struct Chart *chart);
 
 struct Atlas;
 struct Atlas *atlas_create(void);
-void atlas_initialise(struct Atlas *atlas, struct Geometry *g);
+void atlas_initialise(struct Atlas *atlas);
 void atlas_destroy(struct Atlas *atlas);
 struct Directory *atlas_directory(const struct Atlas *atlas);
 struct Chart *atlas_root(const struct Atlas *atlas);
