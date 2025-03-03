@@ -26,7 +26,6 @@ struct State {
 
     struct Atlas *atlas;
     struct Commandline *cmd;
-    struct Geometry *geometry;
     struct UserInterface *ui;
 };
 
@@ -42,7 +41,6 @@ struct State *state_create(void)
     state->win = NULL;
 
     state->atlas = atlas_create();
-    state->geometry = geometry_create();
     state->ui = ui_create();
 
     return state;
@@ -65,10 +63,9 @@ void state_initialise(struct State *state, WINDOW *win)
         init_pair(7, COLOR_WHITE, COLOR_BLACK);
     }
 
-    geometry_initialise(state_geometry(state),
-                        GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
-    ui_initialise(state_ui(state), state_geometry(state));
-    atlas_initialise(state_atlas(state), state_geometry(state));
+    geometry_initialise(GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
+    ui_initialise(state_ui(state));
+    atlas_initialise(state_atlas(state));
 }
 
 void state_update(struct State *state)
@@ -113,17 +110,11 @@ void state_update(struct State *state)
 void state_destroy(struct State *state)
 {
     atlas_destroy(state->atlas);
-    geometry_destroy(state->geometry);
     ui_destroy(state->ui);
 
     free(state);
     state = NULL;
     return;
-}
-
-struct Geometry *state_geometry(const struct State *state)
-{
-    return state->geometry;
 }
 
 struct Atlas *state_atlas(const struct State *state)

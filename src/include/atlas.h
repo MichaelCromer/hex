@@ -39,6 +39,6 @@ void atlas_create_location(struct Atlas *atlas, enum LOCATION t);
 void atlas_add_location(struct Atlas *atlas, struct Location *location);
 struct Coordinate atlas_viewpoint(struct Atlas *atlas);
 void atlas_recalculate_viewpoint(struct Atlas *atlas);
-void atlas_recalculate_screen(struct Atlas *atlas, struct Geometry *g);
+void atlas_recalculate_screen(struct Atlas *atlas);
 
 #endif
