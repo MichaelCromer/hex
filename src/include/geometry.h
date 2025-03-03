@@ -3,6 +3,8 @@
 
 #include <ncurses.h>
 
+#include "coordinate.h"
+
 #define GEOMETRY_DEFAULT_ASPECT 0.67f
 #define GEOMETRY_DEFAULT_SCALE  10
 

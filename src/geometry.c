@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "include/coordinate.h"
 #include "include/geometry.h"
 
 float scale;
