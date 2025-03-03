@@ -104,7 +104,7 @@ void state_update(struct State *state)
             break;
     }
 
-    return;
+    geometry_calculate_viewpoint(atlas_coordinate(state_atlas(state)));
 }
 
 void state_destroy(struct State *state)

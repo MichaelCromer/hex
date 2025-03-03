@@ -13,33 +13,6 @@
 #include "include/tile.h"
 
 
-struct Coordinate screen_L = { 0 };
-struct Coordinate screen_R = { 0 };
-struct Coordinate screen_T = { 0 };
-struct Coordinate screen_B = { 0 };
-struct Coordinate viewpoint = { 0 };
-
-
-void draw_update(struct State *state)
-{
-    int nw = geometry_tile_nw();
-    int nh = geometry_tile_nh();
-    struct Coordinate o = atlas_coordinate(state_atlas(state));
-
-    screen_L = coordinate_nshift(o, DIRECTION_WW, nw / 2);
-    screen_R = coordinate_nshift(o, DIRECTION_EE, nw / 2);
-    screen_T = coordinate_nshift(o, DIRECTION_NW, nh / 4);
-    screen_B = coordinate_nshift(o, DIRECTION_SW, nh / 4);
-    screen_T = coordinate_nshift(screen_T, DIRECTION_NE, nh / 4);
-    screen_B = coordinate_nshift(screen_B, DIRECTION_SE, nh / 4);
-
-    viewpoint = coordinate_common_ancestor(
-        coordinate_common_ancestor(screen_L, screen_R),
-        coordinate_common_ancestor(screen_T, screen_B)
-    );
-}
-
-
 /*
 *     DRAW 01 - Basic shapes
  */
@@ -320,7 +293,7 @@ void wdraw_chart_with(
     if (!chart || !wdraw_tile) return;
 
     /* don't bother if this chart doesn't overlap with the target viewpoint */
-    if (!coordinate_related(chart_coordinate(chart), viewpoint)) return;
+    if (!coordinate_related(chart_coordinate(chart), geometry_viewpoint())) return;
 
     /* recurse */
     if (chart_children(chart)) {

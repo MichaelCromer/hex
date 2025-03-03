@@ -10,6 +10,7 @@
 #define ROOT3_INV   0.57735026919f
 
 void geometry_initialise(float scale, float aspect, WINDOW * win);
+void geometry_calculate_viewpoint(struct Coordinate o);
 float geometry_slope(void);
 int geometry_cmid(void);
 int geometry_rmid(void);
@@ -19,5 +20,6 @@ int geometry_tile_dh(void);
 int geometry_tile_dw(void);
 int geometry_tile_nh(void);
 int geometry_tile_nw(void);
+struct Coordinate geometry_viewpoint(void);
 
 #endif

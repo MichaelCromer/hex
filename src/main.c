@@ -37,7 +37,6 @@ int main(void)
         refresh();
 
         state_update(state);
-        draw_update(state);
     }
 
     terminate();
