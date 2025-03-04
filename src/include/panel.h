@@ -20,5 +20,6 @@ struct Panel *panel_tile_detail(void);
 struct Panel *panel_hint(void);
 struct Panel *panel_navigate(void);
 struct Panel *panel_terrain(void);
+struct Panel *panel_road(void);
 
 #endif

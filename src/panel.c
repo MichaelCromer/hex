@@ -195,7 +195,7 @@ struct Panel *panel_navigate(void)
 {
     struct Panel *navigate = panel_create(0, 0, 10);
 
-    panel_add_line(navigate, 0, "NAVIGATION MODE    ");
+    panel_add_line(navigate, 0, "MODE: NAVIGATION   ");
     panel_add_line(navigate, 1, "                   ");
     panel_add_line(navigate, 2, "      u   i        ");
     panel_add_line(navigate, 3, "       \\ /        ");
@@ -214,7 +214,7 @@ struct Panel *panel_terrain(void)
 {
     struct Panel *terrain = panel_create(0, 0, 14);
 
-    panel_add_line(terrain, 0,  "TERRAIN MODE       ");
+    panel_add_line(terrain, 0,  "MODE: TERRAIN      ");
     panel_add_line(terrain, 1,  "                   ");
     panel_add_line(terrain, 2,  "  uihknm : paint   ");
     panel_add_line(terrain, 3,  "  UIHKNM : drag    ");
@@ -230,4 +230,22 @@ struct Panel *panel_terrain(void)
     panel_add_line(terrain, 13, "    c : tundra     ");
 
     return terrain;
+}
+
+
+struct Panel *panel_road(void)
+{
+    struct Panel *road = panel_create(0, 0, 9);
+
+    panel_add_line(road, 0,  "MODE: ROAD         ");
+    panel_add_line(road, 1,  "                   ");
+    panel_add_line(road, 2,  "  uihknm : move    ");
+    panel_add_line(road, 3,  "  UIHKNM : drag    ");
+    panel_add_line(road, 4,  "                   ");
+    panel_add_line(road, 5,  "  Drag over once   ");
+    panel_add_line(road, 6,  "  to place road,   ");
+    panel_add_line(road, 7,  "  drag a second    ");
+    panel_add_line(road, 8,  "  time to remove   ");
+
+    return road;
 }

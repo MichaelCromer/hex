@@ -10,13 +10,14 @@ enum UI_COLOUR {
 };
 enum UI_COLOUR colour_test(void);
 
-#define NUM_UI_PANELS 5
+#define NUM_UI_PANELS 6
 enum UI_PANEL {
     PANEL_SPLASH,
     PANEL_DETAIL,
     PANEL_HINT,
     PANEL_NAVIGATE,
     PANEL_TERRAIN,
+    PANEL_ROAD,
     PANEL_NONE,
 };
 
