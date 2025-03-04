@@ -195,16 +195,39 @@ struct Panel *panel_navigate(void)
 {
     struct Panel *navigate = panel_create(0, 0, 10);
 
-    panel_add_line(navigate, 0,  "NAVIGATION MODE    ");
-    panel_add_line(navigate, 1,  "                   ");
-    panel_add_line(navigate, 2,  "      u   i        ");
-    panel_add_line(navigate, 3,  "       \\ /        ");
-    panel_add_line(navigate, 4,  "    h -   - k      ");
-    panel_add_line(navigate, 5,  "       / \\        ");
-    panel_add_line(navigate, 6,  "      n   m        ");
-    panel_add_line(navigate, 7,  "                   ");
-    panel_add_line(navigate, 8,  "  uihknm : 1 step  ");
-    panel_add_line(navigate, 9,  "  UIHKNM : 3 step  ");
+    panel_add_line(navigate, 0, "NAVIGATION MODE    ");
+    panel_add_line(navigate, 1, "                   ");
+    panel_add_line(navigate, 2, "      u   i        ");
+    panel_add_line(navigate, 3, "       \\ /        ");
+    panel_add_line(navigate, 4, "    h -   - k      ");
+    panel_add_line(navigate, 5, "       / \\        ");
+    panel_add_line(navigate, 6, "      n   m        ");
+    panel_add_line(navigate, 7, "                   ");
+    panel_add_line(navigate, 8, "  uihknm : 1 step  ");
+    panel_add_line(navigate, 9, "  UIHKNM : 3 step  ");
 
     return navigate;
+}
+
+
+struct Panel *panel_terrain(void)
+{
+    struct Panel *terrain = panel_create(0, 0, 14);
+
+    panel_add_line(terrain, 0,  "TERRAIN MODE       ");
+    panel_add_line(terrain, 1,  "                   ");
+    panel_add_line(terrain, 2,  "  uihknm : paint   ");
+    panel_add_line(terrain, 3,  "  UIHKNM : drag    ");
+    panel_add_line(terrain, 4,  "                   ");
+    panel_add_line(terrain, 5,  "    q : water      ");
+    panel_add_line(terrain, 6,  "    w : mountain   ");
+    panel_add_line(terrain, 7,  "    e : hills      ");
+    panel_add_line(terrain, 8,  "    a : plains     ");
+    panel_add_line(terrain, 9,  "    s : forest     ");
+    panel_add_line(terrain, 10, "    d : swamp      ");
+    panel_add_line(terrain, 11, "    z : desert     ");
+    panel_add_line(terrain, 12, "    x : jungle     ");
+    panel_add_line(terrain, 13, "    c : tundra     ");
+
+    return terrain;
 }

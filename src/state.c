@@ -29,6 +29,7 @@ struct State {
     struct UserInterface *ui;
 };
 
+
 struct State *state_create(void)
 {
     struct State *state = malloc(sizeof(struct State));
@@ -108,6 +109,7 @@ void state_update(struct State *state)
             break;
     }
 
+    ui_update(state);
     geometry_calculate_viewpoint(atlas_coordinate(state_atlas(state)));
 }
 

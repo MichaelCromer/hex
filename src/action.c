@@ -50,21 +50,12 @@ void action_mode(struct State *state, enum MODE m)
     } else {
         state_push_mode(state, m);
     }
-
-    if (ui_is_show(PANEL_HINT)) {
-        ui_toggle_show(mode_panel(state_mode(state)));
-        ui_toggle_show(mode_panel(m));
-    }
 }
 
 void action_move(struct State *state, enum DIRECTION d, int steps)
 {
     struct Atlas *atlas = state_atlas(state);
-
     for (int i = 0; i < steps; i++) { atlas_step(atlas, d); }
-
-    ui_update_detail(atlas);
-    return;
 }
 
 void action_paint_terrain(struct State *state, enum TERRAIN t)
@@ -98,8 +89,6 @@ void action_paint_terrain(struct State *state, enum TERRAIN t)
             location_set_type(tile_location(tile), LOCATION_NONE);
         }
     }
-
-    ui_update_detail(atlas);
 }
 
 void action_paint_road(struct State *state, enum DIRECTION d)
