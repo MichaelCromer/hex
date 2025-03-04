@@ -5,6 +5,7 @@
 #include "atlas.h"
 #include "state.h"
 
+void action_hint(struct State *state);
 void action_capture(struct State *state, key k);
 void action_navigate(struct State *state, key k);
 void action_terrain(struct State *state, key k);

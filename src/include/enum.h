@@ -10,10 +10,13 @@ enum UI_COLOUR {
 };
 enum UI_COLOUR colour_test(void);
 
-#define NUM_UI_PANELS 2
+#define NUM_UI_PANELS 4
 enum UI_PANEL {
     PANEL_SPLASH,
-    PANEL_DETAIL
+    PANEL_DETAIL,
+    PANEL_HINT,
+    PANEL_NAVIGATE,
+    PANEL_NONE,
 };
 
 enum MODE {
@@ -33,6 +36,8 @@ enum MODE {
 const char *mode_name(enum MODE m);
 int mode_colour(enum MODE m);
 bool mode_is_await(enum MODE m);
+enum UI_PANEL mode_panel(enum MODE m);
+
 
 #define NUM_TERRAIN 9
 #define NUM_TERRAIN_CHOPTS 24

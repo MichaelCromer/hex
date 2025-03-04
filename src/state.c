@@ -72,6 +72,11 @@ void state_update(struct State *state)
     key k = wgetch(state_window(state));
     state->currkey = k;
 
+    if (k == '?') {
+        action_hint(state);
+        return;
+    }
+
     switch (state_mode(state)) {
         case MODE_CAPTURE:
             action_capture(state, k);

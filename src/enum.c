@@ -253,3 +253,12 @@ bool mode_is_await(enum MODE m)
     }
     return false;;
 }
+
+
+enum UI_PANEL mode_panel(enum MODE m)
+{
+    switch (m) {
+        case MODE_NAVIGATE: return PANEL_NAVIGATE;
+        default: return PANEL_NONE;
+    }
+}

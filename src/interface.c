@@ -15,9 +15,26 @@ void ui_initialise(void)
 {
     panel[PANEL_SPLASH] = panel_splash();
     panel[PANEL_DETAIL] = panel_tile_detail();
+    panel[PANEL_HINT] = panel_hint();
+    panel[PANEL_NAVIGATE] = panel_navigate();
+
     panel_centre(panel[PANEL_SPLASH], geometry_rmid(), geometry_cmid());
+
+    panel_set_rc(
+        panel[PANEL_HINT],
+        1,
+        geometry_cols() - panel_width(panel[PANEL_HINT]) - 1
+    );
+
+    panel_set_rc(
+        panel[PANEL_NAVIGATE],
+        1 + panel_height(panel[PANEL_HINT]),
+        geometry_cols() - panel_width(panel[PANEL_NAVIGATE]) - 1
+    );
+
     show[PANEL_SPLASH] = true;
 }
+
 
 void ui_update_detail(struct Atlas *atlas)
 {

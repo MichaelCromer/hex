@@ -30,6 +30,14 @@ void action_edit(struct State *state, const char *filename)
     fclose(file);
 }
 
+
+void action_hint(struct State *state)
+{
+    ui_toggle_show(PANEL_HINT);
+    ui_toggle_show(mode_panel(state_mode(state)));
+}
+
+
 void action_mode(struct State *state, enum MODE m)
 {
     if (state_await(state)) {
@@ -42,15 +50,18 @@ void action_mode(struct State *state, enum MODE m)
     } else {
         state_push_mode(state, m);
     }
+
+    if (ui_is_show(PANEL_HINT)) {
+        ui_toggle_show(mode_panel(state_mode(state)));
+        ui_toggle_show(mode_panel(m));
+    }
 }
 
 void action_move(struct State *state, enum DIRECTION d, int steps)
 {
     struct Atlas *atlas = state_atlas(state);
 
-    for (int i = steps; i > 0; i--) {
-        atlas_step(atlas, d);
-    }
+    for (int i = 0; i < steps; i++) { atlas_step(atlas, d); }
 
     ui_update_detail(atlas);
     return;
