@@ -261,11 +261,13 @@ enum UI_PANEL mode_panel(enum MODE m)
         case MODE_NAVIGATE:
             return PANEL_NAVIGATE;
         case MODE_TERRAIN:
-        case MODE_AWAIT_TERRAIN:
             return PANEL_TERRAIN;
+        case MODE_AWAIT_TERRAIN:
+            return PANEL_AWAIT_TERRAIN;
         case MODE_ROAD:
-        case MODE_AWAIT_ROAD:
             return PANEL_ROAD;
+        case MODE_AWAIT_ROAD:
+            return PANEL_AWAIT_ROAD;
         default: return PANEL_NONE;
     }
 }

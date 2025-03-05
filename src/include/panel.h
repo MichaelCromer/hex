@@ -21,5 +21,7 @@ struct Panel *panel_hint(void);
 struct Panel *panel_navigate(void);
 struct Panel *panel_terrain(void);
 struct Panel *panel_road(void);
+struct Panel *panel_await_terrain(void);
+struct Panel *panel_await_road(void);
 
 #endif

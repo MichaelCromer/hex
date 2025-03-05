@@ -19,6 +19,8 @@ void ui_initialise(void)
     panel[PANEL_NAVIGATE] = panel_navigate();
     panel[PANEL_TERRAIN] = panel_terrain();
     panel[PANEL_ROAD] = panel_road();
+    panel[PANEL_AWAIT_TERRAIN] = panel_await_terrain();
+    panel[PANEL_AWAIT_ROAD] = panel_await_road();
 
     panel_centre(panel[PANEL_SPLASH], geometry_rmid(), geometry_cmid());
 
@@ -44,6 +46,18 @@ void ui_initialise(void)
         panel[PANEL_ROAD],
         panel_height(panel[PANEL_HINT]),
         geometry_cols() - panel_width(panel[PANEL_ROAD]) - 1
+    );
+
+    panel_set_rc(
+        panel[PANEL_AWAIT_TERRAIN],
+        panel_height(panel[PANEL_HINT]),
+        geometry_cols() - panel_width(panel[PANEL_AWAIT_TERRAIN]) - 1
+    );
+
+    panel_set_rc(
+        panel[PANEL_AWAIT_ROAD],
+        panel_height(panel[PANEL_HINT]),
+        geometry_cols() - panel_width(panel[PANEL_AWAIT_ROAD]) - 1
     );
 
     show[PANEL_SPLASH] = true;
@@ -78,7 +92,12 @@ void ui_update(struct State *state)
     show[PANEL_NAVIGATE] = false;
     show[PANEL_TERRAIN] = false;
     show[PANEL_ROAD] = false;
-    show[mode_panel(state_mode(state))] = true;
+    show[PANEL_AWAIT_TERRAIN] = false;
+    show[PANEL_AWAIT_ROAD] = false;
+
+    enum UI_PANEL p = mode_panel(state_mode(state));
+    if (p == PANEL_NONE) return;
+    show[p] = true;
 }
 
 

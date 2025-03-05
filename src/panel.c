@@ -146,19 +146,13 @@ void panel_centre(struct Panel *p, int r, int c)
 
 struct Panel *panel_splash(void)
 {
-    struct Panel *splash = panel_create(0, 0, 12);
-    panel_add_line(splash, 0,  "WELCOME TO HEX                         ");
-    panel_add_line(splash, 1,  "                                       ");
-    panel_add_line(splash, 2,  "  Navigation:    |  Modes/Options:     ");
-    panel_add_line(splash, 3,  "                 |                     ");
-    panel_add_line(splash, 4,  "      u   i      |  T/t   Terrain      ");
-    panel_add_line(splash, 5,  "       \\ /       |  R/r   Roads       ");
-    panel_add_line(splash, 6,  "    h -   - k    |  Y/y   Rivers       ");
-    panel_add_line(splash, 7,  "       / \\       |    :   Command     ");
-    panel_add_line(splash, 8,  "      n   m      |    ?   Help         ");
-    panel_add_line(splash, 9,  "                                       ");
-    panel_add_line(splash, 10, "                                       ");
-    panel_add_line(splash, 11, "                    Close: <Enter>     ");
+    struct Panel *splash = panel_create(0, 0, 6);
+    panel_add_line(splash, 0, "WELCOME TO HEX                                 ");
+    panel_add_line(splash, 1, "                                               ");
+    panel_add_line(splash, 2, "  A ncurses hex map editor with modal editing. ");
+    panel_add_line(splash, 3, "  Press <?> while editing for contextual help. ");
+    panel_add_line(splash, 4, "                                               ");
+    panel_add_line(splash, 5, "                              Close: <Enter>   ");
 
     return splash;
 }
@@ -216,7 +210,7 @@ struct Panel *panel_terrain(void)
 
     panel_add_line(terrain, 0,  "MODE: TERRAIN      ");
     panel_add_line(terrain, 1,  "                   ");
-    panel_add_line(terrain, 2,  "  uihknm : paint   ");
+    panel_add_line(terrain, 2,  "  uihknm : move    ");
     panel_add_line(terrain, 3,  "  UIHKNM : drag    ");
     panel_add_line(terrain, 4,  "                   ");
     panel_add_line(terrain, 5,  "    q : water      ");
@@ -228,6 +222,26 @@ struct Panel *panel_terrain(void)
     panel_add_line(terrain, 11, "    z : desert     ");
     panel_add_line(terrain, 12, "    x : jungle     ");
     panel_add_line(terrain, 13, "    c : tundra     ");
+
+    return terrain;
+}
+
+
+struct Panel *panel_await_terrain(void)
+{
+    struct Panel *terrain = panel_create(0, 0, 11);
+
+    panel_add_line(terrain, 0,  "MODE: (terrain)    ");
+    panel_add_line(terrain, 1,  "                   ");
+    panel_add_line(terrain, 2,  "    q : water      ");
+    panel_add_line(terrain, 3,  "    w : mountain   ");
+    panel_add_line(terrain, 4,  "    e : hills      ");
+    panel_add_line(terrain, 5,  "    a : plains     ");
+    panel_add_line(terrain, 6,  "    s : forest     ");
+    panel_add_line(terrain, 7,  "    d : swamp      ");
+    panel_add_line(terrain, 8,  "    z : desert     ");
+    panel_add_line(terrain, 9,  "    x : jungle     ");
+    panel_add_line(terrain, 10, "    c : tundra     ");
 
     return terrain;
 }
@@ -248,4 +262,34 @@ struct Panel *panel_road(void)
     panel_add_line(road, 8,  "  time to remove   ");
 
     return road;
+}
+
+
+struct Panel *panel_await_road(void)
+{
+    struct Panel *road = panel_create(0, 0, 9);
+
+    panel_add_line(road, 0,  "MODE: (road)       ");
+    panel_add_line(road, 1,  "                   ");
+    panel_add_line(road, 2,  "  uihknm : paint   ");
+
+    return road;
+}
+
+
+struct Panel *panel_river(void)
+{
+    struct Panel *river = panel_create(0, 0, 12);
+
+    panel_add_line(river, 0,  "MODE: RIVER        ");
+    panel_add_line(river, 1,  "                   ");
+    panel_add_line(river, 2,  "  uihknm : move    ");
+    panel_add_line(river, 3,  "  UIHKNM : drag    ");
+    panel_add_line(river, 4,  "                   ");
+    panel_add_line(river, 5,  "  Drag over once   ");
+    panel_add_line(river, 6,  "  to place road,   ");
+    panel_add_line(river, 7,  "  drag a second    ");
+    panel_add_line(river, 8,  "  time to remove   ");
+
+    return river;
 }
