@@ -10,7 +10,6 @@
 #include "include/geometry.h"
 #include "include/interface.h"
 #include "include/key.h"
-#include "include/panel.h"
 #include "include/state.h"
 
 struct State {

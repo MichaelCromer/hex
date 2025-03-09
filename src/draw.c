@@ -8,7 +8,6 @@
 #include "include/geometry.h"
 #include "include/atlas.h"
 #include "include/interface.h"
-#include "include/panel.h"
 #include "include/state.h"
 #include "include/tile.h"
 
@@ -69,11 +68,9 @@ void wdraw_panel(WINDOW *win, struct Panel *p)
     int w = panel_width(p), h = panel_height(p);
     wdraw_box(win, r, c, w, h);
 
-    for (int i = 0; i < panel_len(p); i++) {
+    for (size_t i = 0; i < panel_len(p); i++) {
         char *line = panel_line(p, i);
-        if (!line) {
-            continue;
-        }
+        if (!line) continue;
         mvwprintw(win, r + 2 + i, c + 2, "%s", line);
     }
 }

@@ -10,7 +10,7 @@ enum UI_COLOUR {
 };
 enum UI_COLOUR colour_test(void);
 
-#define NUM_UI_PANELS 8
+#define NUM_UI_PANELS 10
 enum UI_PANEL {
     PANEL_SPLASH,
     PANEL_DETAIL,
@@ -20,6 +20,8 @@ enum UI_PANEL {
     PANEL_AWAIT_TERRAIN,
     PANEL_ROAD,
     PANEL_AWAIT_ROAD,
+    PANEL_RIVER,
+    PANEL_AWAIT_RIVER,
     PANEL_NONE,
 };
 
