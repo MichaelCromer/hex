@@ -272,6 +272,12 @@ enum UI_PANEL mode_panel(enum MODE m)
             return PANEL_RIVER;
         case MODE_AWAIT_RIVER:
             return PANEL_AWAIT_RIVER;
+        case MODE_LOCATION:
+            return PANEL_LOCATION;
+        case MODE_AWAIT_LOCATION:
+            return PANEL_AWAIT_LOCATION;
+        case MODE_COMMAND:
+            return PANEL_COMMAND;
         default: return PANEL_NONE;
     }
 }

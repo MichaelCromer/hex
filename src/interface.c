@@ -214,23 +214,43 @@ void ui_initialise(void)
     panel_add_line(river, 2,  "  uihknm : move    ");
     panel_add_line(river, 3,  "  UIHKNM : drag    ");
     panel_add_line(river, 4,  "                   ");
-    panel_add_line(river, 5,  "  Drag over once   ");
-    panel_add_line(river, 6,  "  to place road,   ");
-    panel_add_line(river, 7,  "  drag a second    ");
-    panel_add_line(river, 8,  "  time to remove   ");
+    panel_add_line(river, 5,  "  Can only drag    ");
+    panel_add_line(river, 6,  "  existing river   ");
+    panel_add_line(river, 7,  "  placed via the   ");
+    panel_add_line(river, 8,  "  (river) mode     ");
     panel[PANEL_RIVER] = river;
 
     struct Panel *await_river = panel_create(12);
     panel_add_line(await_river, 0,  "MODE: (river)      ");
     panel_add_line(await_river, 1,  "                   ");
-    panel_add_line(await_river, 2,  "  uihknm : move    ");
-    panel_add_line(await_river, 3,  "  UIHKNM : drag    ");
-    panel_add_line(await_river, 4,  "                   ");
-    panel_add_line(await_river, 5,  "  Drag over once   ");
-    panel_add_line(await_river, 6,  "  to place road,   ");
-    panel_add_line(await_river, 7,  "  drag a second    ");
-    panel_add_line(await_river, 8,  "  time to remove   ");
+    panel_add_line(await_river, 2,  "  uihknm : paint   ");
     panel[PANEL_AWAIT_RIVER] = await_river;
+
+    struct Panel *location = panel_create(12);
+    panel_add_line(location, 0,  "MODE: LOCATION     ");
+    panel_add_line(location, 1,  "                   ");
+    panel_add_line(location, 2,  "  uihknm : move    ");
+    panel_add_line(location, 3,  "                   ");
+    panel_add_line(location, 4,  "    a : interest   ");
+    panel_add_line(location, 5,  "    s : settlement ");
+    panel_add_line(location, 6,  "    d : dungeon    ");
+    panel[PANEL_LOCATION] = location;
+
+    struct Panel *await_location = panel_create(12);
+    panel_add_line(await_location, 0,  "MODE: (location)   ");
+    panel_add_line(await_location, 1,  "                   ");
+    panel_add_line(await_location, 2,  "    a : feature    ");
+    panel_add_line(await_location, 3,  "    s : settlement ");
+    panel_add_line(await_location, 4,  "    d : dungeon    ");
+    panel[PANEL_AWAIT_LOCATION] = await_location;
+
+    struct Panel *command = panel_create(12);
+    panel_add_line(command, 0,  "MODE: COMMAND      ");
+    panel_add_line(command, 1,  "                   ");
+    panel_add_line(command, 2,  "    q[uit]         ");
+    panel_add_line(command, 3,  "    w[rite] <path> ");
+    panel_add_line(command, 4,  "    e[dit]  <path> ");
+    panel[PANEL_COMMAND] = command;
 
     panel_centre(panel[PANEL_SPLASH], geometry_rmid(), geometry_cmid());
 
@@ -277,17 +297,10 @@ void ui_update(struct State *state)
      * help/hint panels
      */
     if (!show[PANEL_HINT]) return;
-    show[PANEL_NAVIGATE] = false;
-    show[PANEL_TERRAIN] = false;
-    show[PANEL_AWAIT_TERRAIN] = false;
-    show[PANEL_ROAD] = false;
-    show[PANEL_AWAIT_ROAD] = false;
-    show[PANEL_RIVER] = false;
-    show[PANEL_AWAIT_RIVER] = false;
-
-    enum UI_PANEL p = mode_panel(state_mode(state));
-    if (p == PANEL_NONE) return;
-    show[p] = true;
+    for (enum UI_PANEL p = PANEL_NAVIGATE; p < PANEL_NONE; p++) show[p] = false;
+    enum UI_PANEL curr = mode_panel(state_mode(state));
+    if (curr == PANEL_NONE) return;
+    show[curr] = true;
 }
 
 
