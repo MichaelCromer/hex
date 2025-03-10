@@ -18,9 +18,7 @@ struct Tile *tile_create(void)
 {
     struct Tile *tile = malloc(sizeof(struct Tile));
 
-    if (tile_count == 0) {
-        tile_count = (unsigned int)time(NULL);
-    }
+    if (tile_count == 0) tile_count = (unsigned int)time(NULL);
     tile_count = 1664525*tile_count + 1013904223;
     tile->seed = tile_count;
     tile->terrain = TERRAIN_UNKNOWN;

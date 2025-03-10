@@ -198,9 +198,7 @@ struct Tile *read_tile(char *str)
 
 struct Chart *read_chart(char *line)
 {
-    if (!line) {
-        return NULL;
-    }
+    if (!line) return NULL;
 
     char delim[2] = { FILE_SEP_MAJ, '\0' };
 

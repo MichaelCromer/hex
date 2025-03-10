@@ -43,11 +43,6 @@ struct Chart *chart_create_ancestor(struct Chart *chart1, struct Chart *chart2)
     return chart_create(a);
 }
 
-struct Chart *chart_create_origin(void)
-{
-    return chart_create(coordinate_origin());
-}
-
 struct Chart **chart_children(const struct Chart *chart)
 {
     return chart->children;
@@ -55,27 +50,19 @@ struct Chart **chart_children(const struct Chart *chart)
 
 struct Chart *chart_child(const struct Chart *chart, enum CHILDREN c)
 {
-    if (!chart || !chart->children) {
-        return NULL;
-    }
-
+    if (!chart || !chart->children) return NULL;
     return chart->children[c];
 }
 
 void chart_set_child(struct Chart *chart, enum CHILDREN c, struct Chart *child)
 {
-    if (!chart || chart_child(chart, c)) {
-        return;
-    }
-
+    if (!chart || chart_child(chart, c)) return;
     chart->children[c] = child;
 }
 
 void chart_destroy(struct Chart *chart)
 {
-    if (!chart) {
-        return;
-    }
+    if (!chart) return;
 
     if (chart->tile) {
         tile_destroy(chart->tile);
@@ -101,9 +88,7 @@ struct Coordinate chart_coordinate(const struct Chart *chart)
 
 struct Tile *chart_tile(const struct Chart *chart)
 {
-    if (!chart) {
-        return NULL;
-    }
+    if (!chart) return NULL;
     return chart->tile;
 }
 
@@ -139,6 +124,7 @@ enum TERRAIN chart_terrain(const struct Chart *chart)
     return tile_terrain(chart_tile(chart));
 }
 
+
 struct Atlas {
     struct Directory *directory;
     struct Chart *root;
@@ -161,15 +147,13 @@ void atlas_initialise(struct Atlas *atlas)
         return;
     }
 
-    atlas->root = chart_create_origin();
+    atlas->root = chart_create(coordinate_origin());
     atlas->curr = atlas->root;
 }
 
 void atlas_destroy(struct Atlas *atlas)
 {
-    if (!atlas) {
-        return;
-    }
+    if (!atlas) return;
 
     chart_destroy(atlas->root);
     directory_destroy(atlas->directory);
@@ -207,12 +191,12 @@ struct Tile *atlas_tile(const struct Atlas *atlas)
 
 enum TERRAIN atlas_terrain(const struct Atlas *atlas)
 {
-    return tile_terrain(chart_tile(atlas_curr(atlas)));
+    return tile_terrain(atlas_tile(atlas));
 }
 
 void atlas_set_terrain(struct Atlas *atlas, enum TERRAIN t)
 {
-    tile_set_terrain(chart_tile(atlas_curr(atlas)), t);
+    tile_set_terrain(atlas_tile(atlas), t);
 }
 
 struct Chart *atlas_neighbour(const struct Atlas *atlas, enum DIRECTION d)
@@ -231,9 +215,7 @@ void atlas_goto(struct Atlas *atlas, struct Coordinate c)
 void atlas_step(struct Atlas *atlas, enum DIRECTION d)
 {
     struct Chart *n = NULL;
-    if ((n = atlas_neighbour(atlas, d))) {
-        atlas->curr = n;
-    }
+    if ((n = atlas_neighbour(atlas, d))) atlas->curr = n;
 }
 
 struct Chart *atlas_find(const struct Atlas *atlas, struct Coordinate c)
@@ -303,10 +285,11 @@ void atlas_create_location(struct Atlas *atlas, enum LOCATION t)
 void atlas_add_location(struct Atlas *atlas, struct Location *location)
 {
     directory_insert(&(atlas->directory), location);
-    struct Coordinate c = atlas_coordinate(atlas); /* store the old spot */
+    struct Coordinate c = atlas_coordinate(atlas);
+
     atlas_goto(atlas, location_coordinate(location));
     if (coordinate_equals(location_coordinate(location), atlas_coordinate(atlas))) {
         tile_set_location(atlas_tile(atlas), location);
     }
-    atlas_goto(atlas, c); /* go back to the old spot */
+    atlas_goto(atlas, c);
 }
