@@ -55,17 +55,14 @@ void action_mode(struct State *state, enum MODE m)
 void action_move(struct State *state, enum DIRECTION d, int steps)
 {
     struct Atlas *atlas = state_atlas(state);
-    for (int i = 0; i < steps; i++) { atlas_step(atlas, d); }
+    atlas_goto(atlas, coordinate_nshift(atlas_coordinate(atlas), d, steps));
 }
 
 void action_paint_terrain(struct State *state, enum TERRAIN t)
 {
     struct Atlas *atlas = state_atlas(state);
 
-    if (atlas_terrain(atlas) == TERRAIN_UNKNOWN) {
-        atlas_create_neighbours(atlas);
-    }
-
+    if (atlas_terrain(atlas) == TERRAIN_UNKNOWN) atlas_create_neighbours(atlas);
     atlas_set_terrain(atlas, t);
 
     if (terrain_impassable(t)) {

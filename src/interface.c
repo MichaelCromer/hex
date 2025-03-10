@@ -298,6 +298,7 @@ void ui_update(struct State *state)
      */
     if (!show[PANEL_HINT]) return;
     for (enum UI_PANEL p = PANEL_NAVIGATE; p < PANEL_NONE; p++) show[p] = false;
+
     enum UI_PANEL curr = mode_panel(state_mode(state));
     if (curr == PANEL_NONE) return;
     show[curr] = true;

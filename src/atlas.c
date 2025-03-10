@@ -115,10 +115,7 @@ void chart_clear_tile(struct Chart *chart)
 
 void chart_set_tile(struct Chart *chart, struct Tile *tile)
 {
-    if (!chart || chart_tile(chart) || !tile) {
-        return;
-    }
-
+    if (!chart || chart_tile(chart) || !tile) return;
     chart->tile = tile;
 }
 

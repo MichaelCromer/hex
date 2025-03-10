@@ -1,3 +1,4 @@
+[X] action_move should use an atlas_move rather than iterate atlas_step
 [X] fix draw setup so that terrain, then rivers, then roads, then features are drawn, in layers
 [X] wdraw basic shapes probably can be implemented natively with ncurses
 [X] add state mode colour and other ui info into the ui struct
@@ -26,7 +27,6 @@
 [ ] unknown terrain only drawn in terrain painting mode
 [ ] map zoom with plus minus keys
 [ ] is there a better way to check if I need to create neighbours than to see if the current terrain is TERRAIN_UNKNOWN
-[ ] action_move should use an atlas_move rather than iterate atlas_step
 [ ] action_move inside action_navigate should not have magic number parameters
 [ ] chart p q r candidates for deprecation
 [ ] chart_tile candidate for deprecation, expose only atlas
