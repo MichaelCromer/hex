@@ -366,27 +366,10 @@ void wdraw_statusline(WINDOW *win, struct State *s)
     waddstr(win, mode_name(state_mode(s)));
     attroff(COLOR_PAIR(mode_colour(state_mode(s))));
 
-    switch (state_mode(s)) {
-        case MODE_COMMAND:
-            addch(' ');
-            addch(':');
-            addstr(commandline_str());
-            break;
-        case MODE_TERRAIN:
-        case MODE_AWAIT_TERRAIN:
-            addch(' ');
-            attron(COLOR_PAIR(COLOR_YELLOW));
-            for (const char *c = terrain_statusline(); *c != '\0'; c++) {
-                if (*c == ' ') {
-                    attron(COLOR_PAIR(COLOR_YELLOW));
-                } else if (*c == ':') {
-                    attroff(COLOR_PAIR(COLOR_YELLOW));
-                }
-                addch(*c);
-            }
-            break;
-        default:
-            break;
+    if (MODE_COMMAND == state_mode(s)) {
+        addch(' ');
+        addch(':');
+        addstr(commandline_str());
     }
 }
 
