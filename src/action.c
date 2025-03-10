@@ -30,6 +30,14 @@ void action_edit(struct State *state, const char *filename)
     fclose(file);
 }
 
+
+void action_hint(struct State *state)
+{
+    ui_toggle_show(PANEL_HINT);
+    ui_toggle_show(mode_panel(state_mode(state)));
+}
+
+
 void action_mode(struct State *state, enum MODE m)
 {
     if (state_await(state)) {
@@ -47,13 +55,7 @@ void action_mode(struct State *state, enum MODE m)
 void action_move(struct State *state, enum DIRECTION d, int steps)
 {
     struct Atlas *atlas = state_atlas(state);
-
-    for (int i = steps; i > 0; i--) {
-        atlas_step(atlas, d);
-    }
-
-    ui_update_detail(state_ui(state), atlas);
-    return;
+    for (int i = 0; i < steps; i++) { atlas_step(atlas, d); }
 }
 
 void action_paint_terrain(struct State *state, enum TERRAIN t)
@@ -87,8 +89,6 @@ void action_paint_terrain(struct State *state, enum TERRAIN t)
             location_set_type(tile_location(tile), LOCATION_NONE);
         }
     }
-
-    ui_update_detail(state_ui(state), atlas);
 }
 
 void action_paint_road(struct State *state, enum DIRECTION d)
@@ -181,13 +181,9 @@ void action_paint_location(struct State *state, enum LOCATION t)
 
 void action_capture(struct State *state, key k)
 {
-    if (k != KEY_ENTER && k != '\n') {
-        return;
-    }
+    if (k != KEY_ENTER && k != '\n') return;
 
-    if (ui_show(state_ui(state), PANEL_SPLASH)) {
-        ui_toggle(state_ui(state), PANEL_SPLASH);
-    }
+    if (ui_is_show(PANEL_SPLASH)) ui_toggle_show(PANEL_SPLASH);
 
     state_push_mode(state, MODE_NAVIGATE);
 }
@@ -199,13 +195,11 @@ void action_navigate(struct State *state, key k)
         return;
     }
 
-    if (key_is_mode(k)) {
-        action_mode(state, key_mode(k));
-    }
+    if (key_is_mode(k)) action_mode(state, key_mode(k));
 
     switch (k) {
         case KEY_TOGGLE_DETAIL:
-            ui_toggle(state_ui(state), PANEL_DETAIL);
+            ui_toggle_show(PANEL_DETAIL);
             return;
         default:
             break;

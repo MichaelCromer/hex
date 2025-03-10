@@ -10,14 +10,26 @@ enum UI_COLOUR {
 };
 enum UI_COLOUR colour_test(void);
 
-#define NUM_UI_PANELS 2
+#define NUM_UI_PANELS 13
 enum UI_PANEL {
     PANEL_SPLASH,
-    PANEL_DETAIL
+    PANEL_DETAIL,
+    PANEL_HINT,
+    PANEL_NAVIGATE,
+    PANEL_TERRAIN,
+    PANEL_AWAIT_TERRAIN,
+    PANEL_ROAD,
+    PANEL_AWAIT_ROAD,
+    PANEL_RIVER,
+    PANEL_AWAIT_RIVER,
+    PANEL_LOCATION,
+    PANEL_AWAIT_LOCATION,
+    PANEL_COMMAND,
+    PANEL_NONE,
 };
 
+
 enum MODE {
-    MODE_NONE,
     MODE_CAPTURE,
     MODE_NAVIGATE,
     MODE_TERRAIN,
@@ -28,11 +40,14 @@ enum MODE {
     MODE_AWAIT_RIVER,
     MODE_LOCATION,
     MODE_AWAIT_LOCATION,
-    MODE_COMMAND
+    MODE_COMMAND,
+    MODE_NONE,
 };
 const char *mode_name(enum MODE m);
 int mode_colour(enum MODE m);
 bool mode_is_await(enum MODE m);
+enum UI_PANEL mode_panel(enum MODE m);
+
 
 #define NUM_TERRAIN 9
 #define NUM_TERRAIN_CHOPTS 24

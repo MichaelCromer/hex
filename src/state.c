@@ -10,7 +10,6 @@
 #include "include/geometry.h"
 #include "include/interface.h"
 #include "include/key.h"
-#include "include/panel.h"
 #include "include/state.h"
 
 struct State {
@@ -29,6 +28,7 @@ struct State {
     struct UserInterface *ui;
 };
 
+
 struct State *state_create(void)
 {
     struct State *state = malloc(sizeof(struct State));
@@ -41,7 +41,6 @@ struct State *state_create(void)
     state->win = NULL;
 
     state->atlas = atlas_create();
-    state->ui = ui_create();
 
     return state;
 }
@@ -64,7 +63,7 @@ void state_initialise(struct State *state, WINDOW *win)
     }
 
     geometry_initialise(GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
-    ui_initialise(state_ui(state));
+    ui_initialise();
     atlas_initialise(state_atlas(state));
 }
 
@@ -72,6 +71,11 @@ void state_update(struct State *state)
 {
     key k = wgetch(state_window(state));
     state->currkey = k;
+
+    if (k == '?') {
+        action_hint(state);
+        return;
+    }
 
     switch (state_mode(state)) {
         case MODE_CAPTURE:
@@ -104,13 +108,13 @@ void state_update(struct State *state)
             break;
     }
 
+    ui_update(state);
     geometry_calculate_viewpoint(atlas_coordinate(state_atlas(state)));
 }
 
 void state_destroy(struct State *state)
 {
     atlas_destroy(state->atlas);
-    ui_destroy(state->ui);
 
     free(state);
     state = NULL;
