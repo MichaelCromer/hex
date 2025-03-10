@@ -18,12 +18,12 @@ executable is `./build/hex` for you to use as you see fit.
  - [X] navigate tiles
  - [X] paint terrain, roads, rivers, and map features
  - [X] simple colours and ui
- - [X] commandline (q[uit], w[rite], e[dit])
+ - [X] commandline (`q[uit]`, `w[rite]`, `e[dit]`)
+ - [X] contextual help/hint ui panels
 
 ### IN PROGRESS
 
- - [ ] panels on the left for map detail info, panels on the right for help
- - [ ] statusline shows mode-appropriate hints
+ - [ ] full/adaptive colour
 
 ### Roadmap to 1.0
 
@@ -32,11 +32,9 @@ Definite targets
  - [ ] consistent UI/UX
      - - [ ] 'j' _always_ toggles view of tile detail
      - - [ ] directional keys _always_ move the reticule
-     - - [ ] 'await'-style modes return to previous mode afterwards
  - [ ] expanded commands and options
-     - - [ ] '?' for contextual help/commands, :h[elp] for more in-depth help viewer
+     - - [ ] :h[elp] for more in-depth help viewer
      - - [ ] repeat/undo last action
- - [ ] full/adaptive colour
 
 ### Midterm Goals
 
