@@ -21,7 +21,6 @@ struct State {
     enum MODE lastmode;
 
     WINDOW *win;
-    enum UI_COLOUR colour;
 
     struct Atlas *atlas;
     struct Commandline *cmd;
@@ -37,7 +36,6 @@ struct State *state_create(void)
     state->reticule = false;
     state->currkey = 0;
     state->mode = MODE_NONE;
-    state->colour = COLOUR_NONE;
     state->win = NULL;
 
     state->atlas = atlas_create();
@@ -49,18 +47,6 @@ void state_initialise(struct State *state, WINDOW *win)
 {
     state->win = win;
     state_push_mode(state, MODE_CAPTURE);
-
-    state->colour = colour_test();
-    if (state_colour(state) == COLOUR_SOME || state_colour(state) == COLOUR_MANY) {
-        start_color();
-        init_pair(1, COLOR_RED, COLOR_BLACK);
-        init_pair(2, COLOR_GREEN, COLOR_BLACK);
-        init_pair(3, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(4, COLOR_BLUE, COLOR_BLACK);
-        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(6, COLOR_CYAN, COLOR_BLACK);
-        init_pair(7, COLOR_WHITE, COLOR_BLACK);
-    }
 
     geometry_initialise(GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
     ui_initialise();
@@ -182,11 +168,6 @@ bool state_quit(struct State *state)
 void state_set_quit(struct State *state, bool quit)
 {
     state->quit = quit;
-}
-
-enum UI_COLOUR state_colour(struct State *state)
-{
-    return state->colour;
 }
 
 bool state_await(struct State *state)

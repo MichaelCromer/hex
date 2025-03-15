@@ -21,7 +21,6 @@ enum MODE state_mode(const struct State *state);
 enum MODE state_lastmode(const struct State *state);
 void state_push_mode(struct State *state, enum MODE mode);
 void state_pop_mode(struct State *state);
-enum UI_COLOUR state_colour(struct State *state);
 bool state_await(struct State *state);
 WINDOW *state_window(struct State *state);
 bool state_quit(struct State *state);

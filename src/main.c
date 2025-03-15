@@ -15,6 +15,7 @@ void initialise(void)
     curs_set(0);                /* disable cursor                                   */
     ESCDELAY = 10;
 
+    colour_initialise();
     state = state_create();
     state_initialise(state, stdscr);
 }

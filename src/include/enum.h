@@ -3,12 +3,20 @@
 
 #include <stdbool.h>
 
-enum UI_COLOUR {
-    COLOUR_NONE,
-    COLOUR_SOME,
-    COLOUR_MANY
+enum COLOUR_PAIR {
+    COLOUR_PAIR_RED = 1,
+    COLOUR_PAIR_GREEN,
+    COLOUR_PAIR_YELLOW,
+    COLOUR_PAIR_BLUE,
+    COLOUR_PAIR_MAGENTA,
+    COLOUR_PAIR_CYAN,
+    COLOUR_PAIR_WHITE,
+    COLOUR_PAIR_RIVER,
+    COLOUR_PAIR_ROAD,
+    COLOUR_PAIR_MOUNTAIN,
 };
-enum UI_COLOUR colour_test(void);
+
+void colour_initialise(void);
 
 #define NUM_UI_PANELS 13
 enum UI_PANEL {
@@ -66,7 +74,7 @@ enum TERRAIN {
 };
 const char *terrain_name(enum TERRAIN t);
 const char *terrain_chopts(enum TERRAIN t);
-int terrain_colour(enum TERRAIN t);
+int terrain_colour(enum TERRAIN t, char c);
 bool terrain_impassable(enum TERRAIN t);
 const char *terrain_statusline(void);
 

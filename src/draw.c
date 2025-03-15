@@ -251,33 +251,36 @@ void wdraw_tile_location(WINDOW *win, struct Tile *tile, int r0, int c0)
 void wdraw_tile_terrain(WINDOW *win, struct Tile *tile, int r0, int c0)
 {
     int w = geometry_tile_dw(), h = geometry_tile_dh();
+    enum TERRAIN t = tile_terrain(tile);
 
-    attron(COLOR_PAIR(terrain_colour(tile_terrain(tile))));
     for (int c = -w; c <= w; c++) {
         int dh = (c < 0)
             ? floor((w + c)*geometry_slope())
             : floor((w - c)*geometry_slope());
         for (int r = -(h + dh); r <= (h + dh); r++) {
+            char ch = tile_getch(tile, c, r);
+            enum COLOUR_PAIR p = terrain_colour(t, ch);
+            attron(COLOR_PAIR(p));
             mvwaddch(win, r0 + r, c0 + c, tile_getch(tile, c, r));
+            attroff(COLOR_PAIR(p));
         }
     }
-    attroff(COLOR_PAIR(terrain_colour(tile_terrain(tile))));
 
-    attron(COLOR_PAIR(COLOR_YELLOW));
+    attron(COLOR_PAIR(COLOUR_PAIR_ROAD));
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         if (tile_road(tile, i)) {
             wdraw_road(win, r0, c0, i);
         }
     }
-    attroff(COLOR_PAIR(COLOR_YELLOW));
+    attroff(COLOR_PAIR(COLOUR_PAIR_ROAD));
 
-    attron(COLOR_PAIR(COLOR_CYAN));
+    attron(COLOR_PAIR(COLOUR_PAIR_RIVER));
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         if (tile_river(tile, i)) {
             wdraw_river(win, r0, c0, i);
         }
     }
-    attroff(COLOR_PAIR(COLOR_CYAN));
+    attroff(COLOR_PAIR(COLOUR_PAIR_RIVER));
 }
 
 void wdraw_chart_with(

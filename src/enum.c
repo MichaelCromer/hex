@@ -8,11 +8,37 @@
 
 /*  COLOUR : Functions */
 
-enum UI_COLOUR colour_test(void)
+void colour_initialise(void)
 {
-    return (has_colors())
-        ? ((can_change_color())? COLOUR_MANY : COLOUR_SOME)
-        : COLOUR_NONE;
+    if (!can_change_color()) return;
+    bool full = can_change_color();
+
+    start_color();
+
+    if (!full) {
+        init_pair(COLOUR_PAIR_RED, COLOR_RED, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_GREEN, COLOR_GREEN, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_YELLOW, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_BLUE, COLOR_BLUE, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_CYAN, COLOR_CYAN, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_WHITE, COLOR_WHITE, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_RIVER, COLOR_BLACK, COLOR_BLUE);
+        init_pair(COLOUR_PAIR_ROAD, COLOR_BLACK, COLOR_YELLOW);
+        init_pair(COLOUR_PAIR_MOUNTAIN, COLOR_BLACK, COLOR_WHITE);
+    } else {
+        init_pair(COLOUR_PAIR_RED, COLOR_RED, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_GREEN, COLOR_GREEN, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_YELLOW, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_BLUE, COLOR_BLUE, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_CYAN, COLOR_CYAN, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_WHITE, COLOR_WHITE, COLOR_BLACK);
+        init_pair(COLOUR_PAIR_RIVER, COLOR_BLACK, COLOR_BLUE);
+        init_pair(COLOUR_PAIR_ROAD, COLOR_BLACK, COLOR_YELLOW);
+        init_pair(COLOUR_PAIR_MOUNTAIN, COLOR_BLACK, COLOR_YELLOW);
+        init_pair(COLOUR_PAIR_MOUNTAIN, COLOR_BLACK, COLOR_WHITE);
+    }
 }
 
 /*******************************************************************************
@@ -63,9 +89,6 @@ const char *terrain_chopts_desert = "            ..........nn";
 const char *terrain_chopts_jungle = "       ttttt TTT 444 #%@";
 const char *terrain_chopts_swamp = "                iijj%~%~";
 const char *terrain_chopts_tundra = "                  ..o=-_";
-
-const char *terrain_hints =
-    "q:water w:mountain e:hills a:plains s:forest d:swamp z:desert x:jungle c:tundra";
 
 /*  TERRAIN : Functions */
 
@@ -122,13 +145,15 @@ const char *terrain_chopts(enum TERRAIN t)
     }
 }
 
-int terrain_colour(enum TERRAIN t)
+int terrain_colour(enum TERRAIN t, char c)
 {
+    if (c == ' ') return COLOR_WHITE;
+
     switch (t) {
         case TERRAIN_WATER:
             return COLOR_BLUE;
         case TERRAIN_MOUNTAINS:
-            return COLOR_WHITE;
+            return COLOUR_PAIR_MOUNTAIN;
         case TERRAIN_PLAINS:
             return COLOR_GREEN;
         case TERRAIN_HILLS:
@@ -159,11 +184,6 @@ bool terrain_impassable(enum TERRAIN t)
             break;
     }
     return false;
-}
-
-const char *terrain_statusline(void)
-{
-    return terrain_hints;
 }
 
 /*******************************************************************************
