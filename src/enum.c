@@ -1,6 +1,6 @@
 #include <ncurses.h>
 
-#include "include/enum.h"
+#include "hdr/enum.h"
 
 /*******************************************************************************
  *  COLOUR

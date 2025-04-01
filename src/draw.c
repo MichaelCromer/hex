@@ -1,15 +1,15 @@
 #include <ncurses.h>
 #include <math.h>
 
-#include "include/commandline.h"
-#include "include/coordinate.h"
-#include "include/draw.h"
-#include "include/enum.h"
-#include "include/geometry.h"
-#include "include/atlas.h"
-#include "include/interface.h"
-#include "include/state.h"
-#include "include/tile.h"
+#include "hdr/commandline.h"
+#include "hdr/coordinate.h"
+#include "hdr/draw.h"
+#include "hdr/enum.h"
+#include "hdr/geometry.h"
+#include "hdr/atlas.h"
+#include "hdr/interface.h"
+#include "hdr/state.h"
+#include "hdr/tile.h"
 
 
 /*

@@ -3,9 +3,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "include/atlas.h"
-#include "include/coordinate.h"
-#include "include/tile.h"
+#include "hdr/atlas.h"
+#include "hdr/coordinate.h"
+#include "hdr/tile.h"
 
 struct Chart {
     struct Coordinate coordinate;

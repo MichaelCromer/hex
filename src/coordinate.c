@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/coordinate.h"
+#include "hdr/coordinate.h"
 
 const struct Coordinate COORDINATE_ORIGIN = { 0, 0, 0, 0 };
 const struct Coordinate COORDINATE_DELTA_EE = { 1, 0, -1, 0 };

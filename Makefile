@@ -2,31 +2,27 @@ CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -g
 CLIBS = -lncurses -lm
 
-SRCDIR = src
-BLDDIR = build
+SRC_DIR = ./src
+HDR_DIR = $(SRC_DIR)/hdr
+BLD_DIR = ./bld
+OBJ_DIR = $(BLD_DIR)/obj
 TARGET = hex
 
-SRC = $(wildcard $(SRCDIR)/*.c)
-OBJ = $(SRC:%.c=$(BLDDIR)/%.o)
+SRC = $(wildcard $(SRC_DIR)/*.c)
+HDR = $(wildcard $(HDR_DIR)/*.h)
+OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
-$(BLDDIR)/$(TARGET): $(OBJ)
+$(BLD_DIR)/$(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $@ $(CLIBS)
 
-$(BLDDIR)/%.o: %.c
-	mkdir -p $(dir $@)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-clean:
-	rm -rf $(BLDDIR)
-	make
+$(OBJ_DIR) $(BLD_DIR):
+	mkdir -p $@
+
+clean: ; rm -rf $(OBJ_DIR)
 .PHONY: clean
 
-format:
-	indent -npro -linux -l88 -nut -i4 -cli4 src/*.c src/include/*.h
-	find -name '*~' -delete
-	sed -i '/ + \| - /s/ \([*\/]\) /\1/g' src/*.c src/include/*.h
-.PHONY: format
-
-tags:
-	ctags src/*.c src/include/*.h
+tags: ; ctags $(SRC) $(HDR)
 .PHONY: tags

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "include/commandline.h"
+#include "hdr/commandline.h"
 
 #define COMMANDLINE_BUFFER_SIZE 1024
 #define COMMAND_WORD_QUIT   "quit"

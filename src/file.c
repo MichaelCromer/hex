@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/atlas.h"
-#include "include/coordinate.h"
-#include "include/file.h"
-#include "include/tile.h"
+#include "hdr/atlas.h"
+#include "hdr/coordinate.h"
+#include "hdr/file.h"
+#include "hdr/tile.h"
 
 #define FILE_MARKER_ROOT "===ROOT==="
 #define FILE_MARKER_CURR "===CURR==="

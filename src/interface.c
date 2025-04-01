@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/atlas.h"
-#include "include/interface.h"
-#include "include/state.h"
+#include "hdr/atlas.h"
+#include "hdr/interface.h"
+#include "hdr/state.h"
 
 
 struct Panel {

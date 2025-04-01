@@ -1,11 +1,11 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "include/action.h"
-#include "include/commandline.h"
-#include "include/interface.h"
-#include "include/tile.h"
-#include "include/file.h"
+#include "hdr/action.h"
+#include "hdr/commandline.h"
+#include "hdr/interface.h"
+#include "hdr/tile.h"
+#include "hdr/file.h"
 
 
 void action_write(struct State *state, const char *filename)

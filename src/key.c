@@ -1,6 +1,6 @@
 #include <ctype.h>
 
-#include "include/key.h"
+#include "hdr/key.h"
 
 enum DIRECTION key_direction(key k)
 {

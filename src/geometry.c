@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "include/geometry.h"
+#include "hdr/geometry.h"
 
 float scale;
 float aspect;

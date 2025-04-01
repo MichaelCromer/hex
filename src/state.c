@@ -4,13 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "include/action.h"
-#include "include/atlas.h"
-#include "include/enum.h"
-#include "include/geometry.h"
-#include "include/interface.h"
-#include "include/key.h"
-#include "include/state.h"
+#include "hdr/action.h"
+#include "hdr/atlas.h"
+#include "hdr/enum.h"
+#include "hdr/geometry.h"
+#include "hdr/interface.h"
+#include "hdr/key.h"
+#include "hdr/state.h"
 
 struct State {
     bool quit;

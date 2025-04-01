@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-#include "include/tile.h"
+#include "hdr/tile.h"
 
 static unsigned int tile_count = 0;
 

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "include/location.h"
+#include "hdr/location.h"
 
 struct Location {
     struct Coordinate c;
