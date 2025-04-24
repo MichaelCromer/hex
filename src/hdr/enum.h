@@ -14,6 +14,7 @@ enum COLOUR_PAIR {
     COLOUR_PAIR_RIVER,
     COLOUR_PAIR_ROAD,
     COLOUR_PAIR_MOUNTAIN,
+    COLOUR_PAIR_FOREST,
 };
 
 void colour_initialise(void);

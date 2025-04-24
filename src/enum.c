@@ -26,6 +26,7 @@ void colour_initialise(void)
         init_pair(COLOUR_PAIR_RIVER, COLOR_BLACK, COLOR_BLUE);
         init_pair(COLOUR_PAIR_ROAD, COLOR_BLACK, COLOR_YELLOW);
         init_pair(COLOUR_PAIR_MOUNTAIN, COLOR_BLACK, COLOR_WHITE);
+        init_pair(COLOUR_PAIR_FOREST, COLOR_BLACK, COLOR_GREEN);
     } else {
         init_pair(COLOUR_PAIR_RED, COLOR_RED, COLOR_BLACK);
         init_pair(COLOUR_PAIR_GREEN, COLOR_GREEN, COLOR_BLACK);
@@ -36,8 +37,8 @@ void colour_initialise(void)
         init_pair(COLOUR_PAIR_WHITE, COLOR_WHITE, COLOR_BLACK);
         init_pair(COLOUR_PAIR_RIVER, COLOR_BLACK, COLOR_BLUE);
         init_pair(COLOUR_PAIR_ROAD, COLOR_BLACK, COLOR_YELLOW);
-        init_pair(COLOUR_PAIR_MOUNTAIN, COLOR_BLACK, COLOR_YELLOW);
         init_pair(COLOUR_PAIR_MOUNTAIN, COLOR_BLACK, COLOR_WHITE);
+        init_pair(COLOUR_PAIR_FOREST, COLOR_BLACK, COLOR_GREEN);
     }
 }
 
@@ -159,7 +160,7 @@ int terrain_colour(enum TERRAIN t, char c)
         case TERRAIN_HILLS:
             return COLOR_YELLOW;
         case TERRAIN_FOREST:
-            return COLOR_GREEN;
+            return COLOUR_PAIR_FOREST;
         case TERRAIN_DESERT:
             return COLOR_YELLOW;
         case TERRAIN_JUNGLE:
