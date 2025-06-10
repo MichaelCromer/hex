@@ -24,6 +24,7 @@ executable is `./build/hex` for you to use as you see fit.
 ### IN PROGRESS
 
  - [ ] full/adaptive colour
+ - [ ] improved commandline usefulness (<C-h>, <C-w>, <C-u>, tab complete, etc)
 
 ### Roadmap to 1.0
 
