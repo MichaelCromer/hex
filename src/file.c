@@ -1,6 +1,8 @@
 #include <ctype.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -63,17 +65,23 @@ void write_tile(FILE *file, const struct Tile *tile)
     fprintf(file, "%d", tile_terrain(tile));
     fputc(FILE_SEP_MED, file);
 
+    /* road byte [..r1r2r3r4r5r6] */
+    uint8_t roads = 0;
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
-        fprintf(file, "%d", tile_road(tile, i));
-        fputc(FILE_SEP_MIN, file);
+        roads *= 2;
+        roads += (tile_road(tile, i)) ? 1 : 0;
     }
-
+    fprintf(file, "%d", roads);
     fputc(FILE_SEP_MED, file);
 
+    /* river byte [..r1r2r3r4r5r6] */
+    uint8_t rivers = 0;
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
-        fprintf(file, "%d", tile_river(tile, i));
-        fputc(FILE_SEP_MIN, file);
+        rivers *= 2;
+        rivers += (tile_river(tile, i)) ? 1 : 0;
     }
+    fprintf(file, "%d", rivers);
+    fputc(FILE_SEP_MED, file);
 }
 
 void write_chart(FILE *file, const struct Chart *chart)
@@ -157,7 +165,7 @@ struct Coordinate read_coordinate(char *str)
 }
 
 /* expected format:
- *  [SEED];[TERRAIN];[ROAD1],[ROAD2],...,[ROAD6],;[RIVER1],[RIVER2],...,[RIVER6],
+ *  [SEED];[TERRAIN];[ROAD1..ROAD6];[RIVER1..RIVER6]
  */
 struct Tile *read_tile(char *str)
 {
@@ -166,7 +174,7 @@ struct Tile *read_tile(char *str)
     }
 
     char delim_med[2] = { FILE_SEP_MED, '\0' };
-    char delim_min[2] = { FILE_SEP_MIN, '\0' };
+
     char *str_seed = strtok(str, delim_med);
     char *str_terrain = strtok(NULL, delim_med);
     char *str_roads = strtok(NULL, delim_med);
@@ -177,21 +185,15 @@ struct Tile *read_tile(char *str)
     tile_set_seed(tile, strtol(str_seed, NULL, 10));
     tile_set_terrain(tile, (enum TERRAIN)strtol(str_terrain, NULL, 10));
 
-    int i = 0;
-    char *str_road = strtok(str_roads, delim_min);
-    do {
-        tile_set_road(tile, (enum DIRECTION)i, (bool)strtol(str_road, NULL, 10));
-        str_road = strtok(NULL, delim_min);
-        i++;
-    } while (i < NUM_DIRECTIONS);
+    uint8_t roads = strtol(str_roads, NULL, 10);
+    uint8_t rivers = strtol(str_rivers, NULL, 10);
+    for (size_t i = NUM_DIRECTIONS; i > 0; i--) {
+        tile_set_road(tile, (i - 1), (roads % 2));
+        tile_set_river(tile, (i - 1), (rivers % 2));
 
-    int j = 0;
-    char *str_river = strtok(str_rivers, delim_min);
-    do {
-        tile_set_river(tile, (enum DIRECTION)i, (bool)strtol(str_river, NULL, 10));
-        str_river = strtok(NULL, delim_min);
-        j++;
-    } while (j < NUM_DIRECTIONS);
+        roads >>= 1;
+        rivers >>= 1;
+    }
 
     return tile;
 }
@@ -234,12 +236,15 @@ struct Atlas *read_atlas(FILE *file)
     char *buf = malloc(LINE_MAX);
     memset(buf, 0, LINE_MAX);
 
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t nread = 0;
+
     /* read in charts */
-    while (fgets(buf, LINE_MAX, file)) {
-        if (strcmp(buf, FILE_MARKER_CURR "\n") == 0) {
-            break;
-        }
-        atlas_insert(atlas, read_chart(buf));
+    while ((nread = getline(&line, &len, file)) > 0) {
+        if (line[nread - 1] == '\n') line[nread - 1] = '\0';
+        if (strcmp(line, FILE_MARKER_CURR) == 0) break;
+        atlas_insert(atlas, read_chart(line));
     }
 
     /* set the current coordinate */
