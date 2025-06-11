@@ -12,6 +12,8 @@ const char *commandline_data(void);
 
 void commandline_putch(char ch);
 char commandline_popch(void);
+void commandline_clearword(void);
+void commandline_clearline(void);
 void commandline_parse(void);
 
 #endif

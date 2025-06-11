@@ -52,7 +52,6 @@ char commandline_popch(void)
 
 char *commandline_curr(void) { return buffer + curr; }
 
-
 char *commandline_next(void)
 {
     if (curr >= len) return (buffer + len);
@@ -71,6 +70,29 @@ char *commandline_to_next(int (test)(int))
 bool commandline_match(char *keyword, char *c, size_t L)
 {
     return ((L > 0) && (L <= strlen(keyword)) && !strncmp(keyword, c, L));
+}
+
+
+void commandline_clearchar(void)
+{
+    if (len == 0) return;
+    buffer[--len] = '\0';
+}
+
+
+void commandline_clearword(void)
+{
+    if (len == 0) return;
+    while (isspace(buffer[len - 1])) commandline_clearchar();
+    while (isgraph(buffer[len - 1])) commandline_clearchar();
+}
+
+
+void commandline_clearline(void)
+{
+    memset(buffer, 0, COMMANDLINE_BUFFER_SIZE);
+    len = 0;
+    curr = 0;
 }
 
 

@@ -274,7 +274,15 @@ void action_command(struct State *state, key k)
             }
 
             commandline_popch();
-            return;
+            break;
+
+        case 23:
+            commandline_clearword();
+            break;
+
+        case 21:
+            commandline_clearline();
+            break;
 
         default:
             commandline_putch(state_currkey(state));
