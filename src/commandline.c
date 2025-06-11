@@ -36,8 +36,13 @@ void commandline_reset(void)
 
 void commandline_putch(char ch)
 {
+    /* -1 offset so has null terminator */
     if (len >= COMMANDLINE_BUFFER_SIZE - 1) return;
-    buffer[len++] = ch;
+    for (size_t i = len; i > curr; i--) {
+        buffer[i] = buffer[i - 1];
+    }
+    buffer[curr++] = ch;
+    len++;
 }
 
 
@@ -45,6 +50,7 @@ char commandline_popch(void)
 {
     if (len <= 0) return 0;
     char ch = buffer[len - 1];
+    curr--;
     buffer[--len] = 0;
     return ch;
 }
@@ -56,6 +62,13 @@ char *commandline_next(void)
 {
     if (curr >= len) return (buffer + len);
     return buffer + (++curr);
+}
+
+
+char *commandline_prev(void)
+{
+    if (curr <= 0) return (buffer);
+    return buffer + (--curr);
 }
 
 
@@ -73,18 +86,11 @@ bool commandline_match(char *keyword, char *c, size_t L)
 }
 
 
-void commandline_clearchar(void)
-{
-    if (len == 0) return;
-    buffer[--len] = '\0';
-}
-
-
 void commandline_clearword(void)
 {
     if (len == 0) return;
-    while (isspace(buffer[len - 1])) commandline_clearchar();
-    while (isgraph(buffer[len - 1])) commandline_clearchar();
+    while (isspace(buffer[len - 1])) commandline_popch();
+    while (isgraph(buffer[len - 1])) commandline_popch();
 }
 
 
