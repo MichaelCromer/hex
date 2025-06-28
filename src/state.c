@@ -58,7 +58,7 @@ void state_update(struct State *state)
     key k = wgetch(state_window(state));
     state->currkey = k;
 
-    if (k == '?') {
+    if ((MODE_COMMAND != state_mode(state)) && (k == '?')) {
         action_hint(state);
         return;
     }

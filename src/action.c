@@ -50,6 +50,9 @@ void action_mode(struct State *state, enum MODE m)
     } else {
         state_push_mode(state, m);
     }
+
+    if (MODE_COMMAND == m) { curs_set(1); }
+    else { curs_set(0); }
 }
 
 void action_move(struct State *state, enum DIRECTION d, int steps)
@@ -243,7 +246,7 @@ void action_command(struct State *state, key k)
         case KEY_ESCAPE:
             commandline_reset();
             state_pop_mode(state);
-            return;
+            break;
 
         case KEY_ENTER:
         case '\n':
@@ -263,7 +266,7 @@ void action_command(struct State *state, key k)
 
             commandline_reset();
             state_pop_mode(state);
-            return;
+            break;
 
         case KEY_BACKSPACE:
         case '\b':
@@ -271,23 +274,28 @@ void action_command(struct State *state, key k)
             if (commandline_len() <= 0) {
                 commandline_reset();
                 state_pop_mode(state);
+                break;
             }
 
             commandline_popch();
-            break;
+            return;
 
         case 23:
             commandline_clearword();
-            break;
+            return;
 
         case 21:
             commandline_clearline();
-            break;
+            return;
+
+        case '\t':
+            return;
 
         default:
             commandline_putch(state_currkey(state));
-            break;
+            return;
     }
+    curs_set(0);
 }
 
 void action_road(struct State *state, key k)
