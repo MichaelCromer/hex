@@ -373,6 +373,10 @@ void wdraw_statusline(WINDOW *win, struct State *s)
         addch(' ');
         addch(':');
         addstr(commandline_str());
+
+        int x, y;
+        getyx(win, y, x);
+        wmove(win, y, x - (commandline_len() - commandline_curr()));
     }
 }
 

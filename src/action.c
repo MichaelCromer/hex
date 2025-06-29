@@ -288,6 +288,14 @@ void action_command(struct State *state, key k)
             commandline_clearline();
             return;
 
+        case KEY_LEFT:
+            commandline_prev();
+            return;
+
+        case KEY_RIGHT:
+            commandline_next();
+            return;
+
         case '\t':
             return;
 

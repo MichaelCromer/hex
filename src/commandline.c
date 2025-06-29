@@ -49,14 +49,19 @@ void commandline_putch(char ch)
 char commandline_popch(void)
 {
     if (len <= 0) return 0;
-    char ch = buffer[len - 1];
+    if (curr <= 0) return 0;
+    char tmp = buffer[curr - 1];
+    for (size_t i = curr - 1; i < len - 1; i++) {
+        buffer[i] = buffer[i + 1];
+    }
+    buffer[--len] = '\0';
     curr--;
-    buffer[--len] = 0;
-    return ch;
+    return tmp;
 }
 
 
-char *commandline_curr(void) { return buffer + curr; }
+size_t commandline_curr(void) { return curr; }
+
 
 char *commandline_next(void)
 {
@@ -74,7 +79,7 @@ char *commandline_prev(void)
 
 char *commandline_to_next(int (test)(int))
 {
-    char *c = commandline_curr();
+    char *c = buffer + curr;
     while (!test(*c) && (curr < len)) c = commandline_next();
     return c;
 }
