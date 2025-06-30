@@ -300,7 +300,7 @@ void action_command(key k)
             return;
 
         default:
-            commandline_putch(state_currkey());
+            commandline_putch(state_key_curr());
             return;
     }
     curs_set(0);
