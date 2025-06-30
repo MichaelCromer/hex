@@ -12,7 +12,7 @@ void ui_initialise(void);
 void ui_toggle_show(enum UI_PANEL p);
 bool ui_is_show(enum UI_PANEL p);
 struct Panel *ui_panel(enum UI_PANEL p);
-void ui_update(struct State *state);
+void ui_update(void);
 
 int panel_row(struct Panel *p);
 int panel_col(struct Panel *p);

@@ -12,170 +12,164 @@
 #include "hdr/key.h"
 #include "hdr/state.h"
 
-struct State {
-    bool quit;
-    bool reticule;
+bool quit = false;
+bool reticule = true;
 
-    key currkey;
-    enum MODE mode;
-    enum MODE lastmode;
+key key_curr = 0;
 
-    WINDOW *win;
-
-    struct Atlas *atlas;
-    struct Commandline *cmd;
-    struct UserInterface *ui;
-};
+enum MODE mode_curr = MODE_NONE;
+enum MODE mode_prev = MODE_NONE;
+WINDOW *window = NULL;
+struct Atlas *atlas = NULL;
 
 
-struct State *state_create(void)
+void state_initialise(WINDOW *win)
 {
-    struct State *state = malloc(sizeof(struct State));
-
-    state->quit = false;
-    state->reticule = false;
-    state->currkey = 0;
-    state->mode = MODE_NONE;
-    state->win = NULL;
-
-    state->atlas = atlas_create();
-
-    return state;
-}
-
-void state_initialise(struct State *state, WINDOW *win)
-{
-    state->win = win;
-    state_push_mode(state, MODE_CAPTURE);
+    window = win;
+    state_push_mode(MODE_CAPTURE);
 
     geometry_initialise(GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
     ui_initialise();
-    atlas_initialise(state_atlas(state));
+
+    atlas = atlas_create();
+    atlas_initialise(atlas);
 }
 
-void state_update(struct State *state)
+void state_update(void)
 {
-    key k = wgetch(state_window(state));
-    state->currkey = k;
+    key k = wgetch(state_window());
+    key_curr = k;
 
-    if ((MODE_COMMAND != state_mode(state)) && (k == '?')) {
-        action_hint(state);
+    if ((MODE_COMMAND != state_mode()) && (k == '?')) {
+        action_hint();
         return;
     }
 
-    switch (state_mode(state)) {
+    switch (state_mode()) {
         case MODE_CAPTURE:
-            action_capture(state, k);
+            action_capture(k);
             break;
         case MODE_NAVIGATE:
-            action_navigate(state, k);
+            action_navigate(k);
             break;
         case MODE_TERRAIN:
         case MODE_AWAIT_TERRAIN:
-            action_terrain(state, k);
+            action_terrain(k);
             break;
         case MODE_COMMAND:
-            action_command(state, k);
+            action_command(k);
             break;
         case MODE_ROAD:
         case MODE_AWAIT_ROAD:
-            action_road(state, k);
+            action_road(k);
             break;
         case MODE_AWAIT_RIVER:
         case MODE_RIVER:
-            action_river(state, k);
+            action_river(k);
             break;
         case MODE_AWAIT_LOCATION:
         case MODE_LOCATION:
-            action_location(state, k);
+            action_location(k);
             break;
         case MODE_NONE:
         default:
             break;
     }
 
-    ui_update(state);
-    geometry_calculate_viewpoint(atlas_coordinate(state_atlas(state)));
+    ui_update();
+    geometry_calculate_viewpoint(atlas_coordinate(state_atlas()));
 }
 
-void state_destroy(struct State *state)
-{
-    atlas_destroy(state->atlas);
 
-    free(state);
-    state = NULL;
-    return;
-}
-
-struct Atlas *state_atlas(const struct State *state)
+void state_clear_atlas(void)
 {
-    return state->atlas;
-}
-
-void state_set_atlas(struct State *state, struct Atlas *atlas)
-{
-    if (state_atlas(state)) {
+    if (!atlas) {
         return;
     }
-    state->atlas = atlas;
+    atlas_destroy(atlas);
+    atlas = NULL;
 }
 
-void state_clear_atlas(struct State *state)
+
+void state_deinitialise(void)
 {
-    if (!state_atlas(state)) {
+    quit = false;
+    reticule = true;
+
+    key_curr = 0;
+    mode_curr = MODE_NONE;
+    mode_prev = MODE_NONE;
+    window = NULL;
+
+    state_clear_atlas();
+}
+
+
+struct Atlas *state_atlas(void)
+{
+    return atlas;
+}
+
+
+void state_set_atlas(struct Atlas *a)
+{
+    if (atlas) {
         return;
     }
-    atlas_destroy(state_atlas(state));
-    state->atlas = NULL;
+    atlas = a;
 }
 
-struct UserInterface *state_ui(const struct State *state)
+
+enum MODE state_mode(void)
 {
-    return state->ui;
+    return mode_curr;
 }
 
-enum MODE state_mode(const struct State *state)
+
+enum MODE state_lastmode(void)
 {
-    return state->mode;
+    return mode_prev;
 }
 
-enum MODE state_lastmode(const struct State *state)
+
+void state_push_mode(enum MODE mode)
 {
-    return state->lastmode;
+    mode_prev = mode_curr;
+    mode_curr = mode;
 }
 
-void state_push_mode(struct State *state, enum MODE mode)
+
+void state_pop_mode(void)
 {
-    state->lastmode = state->mode;
-    state->mode = mode;
+    mode_curr = mode_prev;
 }
 
-void state_pop_mode(struct State *state)
+
+key state_currkey(void)
 {
-    state->mode = state->lastmode;
+    return key_curr;
 }
 
-key state_currkey(struct State *state)
+
+bool state_quit(void)
 {
-    return state->currkey;
+    return quit;
 }
 
-bool state_quit(struct State *state)
+
+void state_set_quit(bool q)
 {
-    return state->quit;
+    quit = q;
 }
 
-void state_set_quit(struct State *state, bool quit)
+
+bool state_await(void)
 {
-    state->quit = quit;
+    return mode_is_await(mode_curr);
 }
 
-bool state_await(struct State *state)
-{
-    return mode_is_await(state_mode(state));
-}
 
-WINDOW *state_window(struct State *state)
+WINDOW *state_window(void)
 {
-    return state->win;
+    return window;
 }

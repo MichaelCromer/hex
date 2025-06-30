@@ -350,7 +350,7 @@ void wdraw_ui(WINDOW *win)
     }
 }
 
-void wdraw_statusline(WINDOW *win, struct State *s)
+void wdraw_statusline(WINDOW *win)
 {
     int r0 = geometry_rows() - 1,
         c0 = 0, w = geometry_cols() - 1;
@@ -358,18 +358,18 @@ void wdraw_statusline(WINDOW *win, struct State *s)
     mvwhline(win, r0, c0, ' ', w);
     wmove(win, r0, c0 + 1);
 
-    if (state_await(s)) {
-        attron(COLOR_PAIR(mode_colour(state_lastmode(s))));
-        waddstr(win, mode_name(state_lastmode(s)));
-        attroff(COLOR_PAIR(mode_colour(state_lastmode(s))));
+    if (state_await()) {
+        attron(COLOR_PAIR(mode_colour(state_lastmode())));
+        waddstr(win, mode_name(state_lastmode()));
+        attroff(COLOR_PAIR(mode_colour(state_lastmode())));
         addch(' ');
     }
 
-    attron(COLOR_PAIR(mode_colour(state_mode(s))));
-    waddstr(win, mode_name(state_mode(s)));
-    attroff(COLOR_PAIR(mode_colour(state_mode(s))));
+    attron(COLOR_PAIR(mode_colour(state_mode())));
+    waddstr(win, mode_name(state_mode()));
+    attroff(COLOR_PAIR(mode_colour(state_mode())));
 
-    if (MODE_COMMAND == state_mode(s)) {
+    if (MODE_COMMAND == state_mode()) {
         addch(' ');
         addch(':');
         addstr(commandline_str());
@@ -380,11 +380,11 @@ void wdraw_statusline(WINDOW *win, struct State *s)
     }
 }
 
-void draw_state(struct State *s)
+void draw_state(void)
 {
-    wdraw_atlas(state_window(s), state_atlas(s));
-    wdraw_reticule(state_window(s));
-    wdraw_ui(state_window(s));
-    wdraw_statusline(state_window(s), s);
+    wdraw_atlas(state_window(), state_atlas());
+    wdraw_reticule(state_window());
+    wdraw_ui(state_window());
+    wdraw_statusline(state_window());
     return;
 }
