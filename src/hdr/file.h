@@ -3,7 +3,7 @@
 
 #include "state.h"
 
-void write_state(FILE *file, struct State *state);
-void read_state(FILE *file, struct State *state);
+void write_state(FILE *file);
+void read_state(FILE *file);
 
 #endif

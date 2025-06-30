@@ -5,13 +5,13 @@
 #include "atlas.h"
 #include "state.h"
 
-void action_hint(struct State *state);
-void action_capture(struct State *state, key k);
-void action_navigate(struct State *state, key k);
-void action_terrain(struct State *state, key k);
-void action_command(struct State *state, key k);
-void action_road(struct State *state, key k);
-void action_river(struct State *state, key k);
-void action_location(struct State *state, key k);
+void action_hint(void);
+void action_capture(key k);
+void action_navigate(key k);
+void action_terrain(key k);
+void action_command(key k);
+void action_road(key k);
+void action_river(key k);
+void action_location(key k);
 
 #endif

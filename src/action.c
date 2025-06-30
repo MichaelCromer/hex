@@ -8,62 +8,62 @@
 #include "hdr/file.h"
 
 
-void action_write(struct State *state, const char *filename)
+void action_write(const char *filename)
 {
     FILE *file = fopen(filename, "w");
     if (!file) {
         return;
     }
 
-    write_state(file, state);
+    write_state(file);
     fclose(file);
 }
 
-void action_edit(struct State *state, const char *filename)
+void action_edit(const char *filename)
 {
     FILE *file = fopen(filename, "r");
     if (!file) {
         return;
     }
 
-    read_state(file, state);
+    read_state(file);
     fclose(file);
 }
 
 
-void action_hint(struct State *state)
+void action_hint(void)
 {
     ui_toggle_show(PANEL_HINT);
-    ui_toggle_show(mode_panel(state_mode(state)));
+    ui_toggle_show(mode_panel(state_mode()));
 }
 
 
-void action_mode(struct State *state, enum MODE m)
+void action_mode(enum MODE m)
 {
-    if (state_await(state)) {
-        state_pop_mode(state);
+    if (state_await()) {
+        state_pop_mode();
         return;
     }
 
-    if ((m == state_mode(state)) || (m == MODE_NONE)) {
-        state_push_mode(state, MODE_NAVIGATE);
+    if ((state_mode() == m) || (MODE_NONE == m)) {
+        state_push_mode(MODE_NAVIGATE);
     } else {
-        state_push_mode(state, m);
+        state_push_mode(m);
     }
 
     if (MODE_COMMAND == m) { curs_set(1); }
     else { curs_set(0); }
 }
 
-void action_move(struct State *state, enum DIRECTION d, int steps)
+void action_move(enum DIRECTION d, int steps)
 {
-    struct Atlas *atlas = state_atlas(state);
+    struct Atlas *atlas = state_atlas();
     atlas_goto(atlas, coordinate_nshift(atlas_coordinate(atlas), d, steps));
 }
 
-void action_paint_terrain(struct State *state, enum TERRAIN t)
+void action_paint_terrain(enum TERRAIN t)
 {
-    struct Atlas *atlas = state_atlas(state);
+    struct Atlas *atlas = state_atlas();
 
     if (atlas_terrain(atlas) == TERRAIN_UNKNOWN) atlas_create_neighbours(atlas);
     atlas_set_terrain(atlas, t);
@@ -91,13 +91,13 @@ void action_paint_terrain(struct State *state, enum TERRAIN t)
     }
 }
 
-void action_paint_road(struct State *state, enum DIRECTION d)
+void action_paint_road(enum DIRECTION d)
 {
-    struct Atlas *atlas = state_atlas(state);
+    struct Atlas *atlas = state_atlas();
     struct Tile *tile = atlas_tile(atlas);
     struct Tile *neighbour = chart_tile(atlas_neighbour(atlas, d));
 
-    action_move(state, d, 1);
+    action_move(d, 1);
 
     if (terrain_impassable(tile_terrain(tile))
         || terrain_impassable(tile_terrain(neighbour))) {
@@ -108,9 +108,9 @@ void action_paint_road(struct State *state, enum DIRECTION d)
     tile_toggle_road(neighbour, direction_opposite(d));
 }
 
-void action_paint_river(struct State *state, enum DIRECTION d)
+void action_paint_river(enum DIRECTION d)
 {
-    struct Atlas *atlas = state_atlas(state);
+    struct Atlas *atlas = state_atlas();
     struct Tile *tile = atlas_tile(atlas);
     struct Tile *neighbour = chart_tile(atlas_neighbour(atlas, d));
 
@@ -123,21 +123,21 @@ void action_paint_river(struct State *state, enum DIRECTION d)
     tile_toggle_river(neighbour, direction_opposite(d));
 }
 
-void action_drag_river(struct State *state, enum DIRECTION d)
+void action_drag_river(enum DIRECTION d)
 {
-    struct Tile *tile = atlas_tile(state_atlas(state));
+    struct Tile *tile = atlas_tile(state_atlas());
 
     if (tile_river(tile, direction_next(d)) || tile_river(tile, direction_prev(d))) {
-        action_move(state, d, 1);
+        action_move(d, 1);
 
         if (tile_river(tile, direction_next(d))) {
             enum DIRECTION e = direction_prev(direction_opposite(d));
-            action_paint_river(state, e);
+            action_paint_river(e);
         }
 
         if (tile_river(tile, direction_prev(d))) {
             enum DIRECTION e = direction_next(direction_opposite(d));
-            action_paint_river(state, e);
+            action_paint_river(e);
         }
 
         return;
@@ -148,30 +148,30 @@ void action_drag_river(struct State *state, enum DIRECTION d)
 
         if (tile_river(tile, direction_next(e))) {
             enum DIRECTION f = direction_next(direction_next(e));
-            action_paint_river(state, f);
+            action_paint_river(f);
         }
 
         if (tile_river(tile, direction_prev(e))) {
             enum DIRECTION f = direction_prev(direction_prev(e));
-            action_paint_river(state, f);
+            action_paint_river(f);
         }
 
         return;
     }
 
-    action_move(state, d, 1);
+    action_move(d, 1);
 }
 
-void action_paint_location(struct State *state, enum LOCATION t)
+void action_paint_location(enum LOCATION t)
 {
-    struct Tile *tile = atlas_tile(state_atlas(state));
+    struct Tile *tile = atlas_tile(state_atlas());
 
     if (terrain_impassable(tile_terrain(tile))) {
         return;
     }
 
     if (!tile_location(tile)) {
-        atlas_create_location(state_atlas(state), t);
+        atlas_create_location(state_atlas(), t);
     } else if (location_type(tile_location(tile)) == t) {
         location_set_type(tile_location(tile), LOCATION_NONE);
     } else {
@@ -179,23 +179,23 @@ void action_paint_location(struct State *state, enum LOCATION t)
     }
 }
 
-void action_capture(struct State *state, key k)
+void action_capture(key k)
 {
     if (k != KEY_ENTER && k != '\n') return;
 
     if (ui_is_show(PANEL_SPLASH)) ui_toggle_show(PANEL_SPLASH);
 
-    state_push_mode(state, MODE_NAVIGATE);
+    state_push_mode(MODE_NAVIGATE);
 }
 
-void action_navigate(struct State *state, key k)
+void action_navigate(key k)
 {
     if (key_is_direction(k)) {
-        action_move(state, key_direction(k), (key_is_special(k)) ? 3 : 1);
+        action_move(key_direction(k), (key_is_special(k)) ? 3 : 1);
         return;
     }
 
-    if (key_is_mode(k)) action_mode(state, key_mode(k));
+    if (key_is_mode(k)) action_mode(key_mode(k));
 
     switch (k) {
         case KEY_TOGGLE_DETAIL:
@@ -206,29 +206,29 @@ void action_navigate(struct State *state, key k)
     }
 }
 
-void action_terrain(struct State *state, key k)
+void action_terrain(key k)
 {
-    if (state_await(state)) {
+    if (state_await()) {
         if (key_is_terrain(k)) {
-            action_paint_terrain(state, key_terrain(k));
+            action_paint_terrain(key_terrain(k));
         }
 
-        action_mode(state, key_mode(k));
+        action_mode(key_mode(k));
         return;
     }
 
     if (key_is_terrain(k)) {
-        action_paint_terrain(state, key_terrain(k));
+        action_paint_terrain(key_terrain(k));
         return;
     }
 
     if (key_is_direction(k)) {
-        enum TERRAIN t = atlas_terrain(state_atlas(state));
-        action_move(state, key_direction(k), 1);
+        enum TERRAIN t = atlas_terrain(state_atlas());
+        action_move(key_direction(k), 1);
 
         if (key_is_special(k)) {
             if (t != TERRAIN_UNKNOWN) {
-                action_paint_terrain(state, t);
+                action_paint_terrain(t);
             }
         }
 
@@ -236,16 +236,16 @@ void action_terrain(struct State *state, key k)
     }
 
     if (key_is_mode(k)) {
-        action_mode(state, key_mode(k));
+        action_mode(key_mode(k));
     }
 }
 
-void action_command(struct State *state, key k)
+void action_command(key k)
 {
     switch (k) {
         case KEY_ESCAPE:
             commandline_reset();
-            state_pop_mode(state);
+            state_pop_mode();
             break;
 
         case KEY_ENTER:
@@ -253,19 +253,19 @@ void action_command(struct State *state, key k)
             commandline_parse();
             switch (commandline_type()) {
                 case COMMAND_QUIT:
-                    state_set_quit(state, true);
+                    state_set_quit(true);
                     break;
                 case COMMAND_WRITE:
-                    action_write(state, commandline_data());
+                    action_write(commandline_data());
                     break;
                 case COMMAND_EDIT:
-                    action_edit(state, commandline_data());
+                    action_edit(commandline_data());
                 default:
                     break;
             }
 
             commandline_reset();
-            state_pop_mode(state);
+            state_pop_mode();
             break;
 
         case KEY_BACKSPACE:
@@ -273,7 +273,7 @@ void action_command(struct State *state, key k)
         case 127:
             if (commandline_len() <= 0) {
                 commandline_reset();
-                state_pop_mode(state);
+                state_pop_mode();
                 break;
             }
 
@@ -300,79 +300,81 @@ void action_command(struct State *state, key k)
             return;
 
         default:
-            commandline_putch(state_currkey(state));
+            commandline_putch(state_currkey());
             return;
     }
     curs_set(0);
 }
 
-void action_road(struct State *state, key k)
+void action_road(key k)
 {
-    if (state_await(state)) {
+    if (state_await()) {
         if (key_is_direction(k)) {
-            action_paint_road(state, key_direction(k));
+            action_paint_road(key_direction(k));
         }
 
-        action_mode(state, key_mode(k));
+        action_mode(key_mode(k));
         return;
     }
 
     if (key_is_direction(k)) {
         if (key_is_special(k)) {
-            action_paint_road(state, key_direction(k));
+            action_paint_road(key_direction(k));
         } else {
-            action_move(state, key_direction(k), 1);
+            action_move(key_direction(k), 1);
         }
         return;
     }
 
     if (key_is_mode(k)) {
-        action_mode(state, key_mode(k));
+        action_mode(key_mode(k));
     }
 }
 
-void action_river(struct State *state, key k)
+
+void action_river(key k)
 {
-    if (state_await(state)) {
+    if (state_await()) {
         if (key_is_direction(k)) {
-            action_paint_river(state, key_direction(k));
+            action_paint_river(key_direction(k));
         }
 
-        action_mode(state, key_mode(k));
+        action_mode(key_mode(k));
         return;
     }
 
     if (key_is_direction(k)) {
         if (key_is_special(k)) {
-            action_drag_river(state, key_direction(k));
+            action_drag_river(key_direction(k));
         } else {
-            action_move(state, key_direction(k), 1);
+            action_move(key_direction(k), 1);
         }
         return;
     }
 
     if (key_is_mode(k)) {
-        action_mode(state, key_mode(k));
+        action_mode(key_mode(k));
         return;
     }
 }
 
-void action_location(struct State *state, key k)
+
+void action_location(key k)
 {
-    if (state_await(state)) {
-        action_mode(state, key_mode(k));
+    if (state_await()) {
+        action_mode(key_mode(k));
     }
 
     if (key_is_location(k)) {
-        action_paint_location(state, key_location(k));
+        action_paint_location(key_location(k));
     }
 
     if (key_is_direction(k)) {
-        action_move(state, key_direction(k), 1);
+        action_move(key_direction(k), 1);
     }
 
     if (key_is_mode(k)) {
-        action_mode(state, key_mode(k));
+        action_mode(key_mode(k));
         return;
     }
 }

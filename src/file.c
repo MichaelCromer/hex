@@ -132,13 +132,13 @@ void write_atlas(FILE *file, const struct Atlas *atlas)
     write_directory(file, atlas_directory(atlas));
 }
 
-void write_state(FILE *file, struct State *state)
+void write_state(FILE *file)
 {
-    if (!file || !state) {
+    if (!file) {
         return;
     }
 
-    write_atlas(file, state_atlas(state));
+    write_atlas(file, state_atlas());
 
     return;
 }
@@ -268,7 +268,7 @@ struct Atlas *read_atlas(FILE *file)
 }
 
 
-void read_state(FILE *file, struct State *state)
+void read_state(FILE *file)
 {
     if (!file) {
         return;
@@ -285,8 +285,8 @@ void read_state(FILE *file, struct State *state)
     }
     struct Atlas *atlas = read_atlas(file);
 
-    state_clear_atlas(state);
-    state_set_atlas(state, atlas);
+    state_clear_atlas();
+    state_set_atlas(atlas);
 
     free(buf);
 }

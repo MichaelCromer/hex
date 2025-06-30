@@ -272,12 +272,12 @@ void ui_initialise(void)
 }
 
 
-void ui_update(struct State *state)
+void ui_update(void)
 {
     /*
      *  tile detail panel
      */
-    struct Atlas *atlas = state_atlas(state);
+    struct Atlas *atlas = state_atlas();
     struct Chart *chart = atlas_curr(atlas);
     struct Panel *detail = panel[PANEL_DETAIL];
 
@@ -299,7 +299,7 @@ void ui_update(struct State *state)
     if (!show[PANEL_HINT]) return;
     for (enum UI_PANEL p = PANEL_NAVIGATE; p < PANEL_NONE; p++) show[p] = false;
 
-    enum UI_PANEL curr = mode_panel(state_mode(state));
+    enum UI_PANEL curr = mode_panel(state_mode());
     if (curr == PANEL_NONE) return;
     show[curr] = true;
 }

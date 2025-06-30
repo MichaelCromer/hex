@@ -16,8 +16,7 @@ void initialise(void)
     ESCDELAY = 10;
 
     colour_initialise();
-    state = state_create();
-    state_initialise(state, stdscr);
+    state_initialise(stdscr);
 }
 
 void terminate(void)
@@ -25,19 +24,19 @@ void terminate(void)
     erase();
     endwin();
 
-    state_destroy(state);
+    state_deinitialise();
 }
 
 int main(void)
 {
     initialise();
 
-    while (!state_quit(state)) {
+    while (!state_quit()) {
         erase();
-        draw_state(state);
+        draw_state();
         refresh();
 
-        state_update(state);
+        state_update();
     }
 
     terminate();
