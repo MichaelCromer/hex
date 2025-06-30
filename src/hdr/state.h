@@ -7,6 +7,8 @@
 
 struct State;
 
+key state_key_curr(void);
+bool state_quit(void);
 void state_initialise(WINDOW * win);
 void state_update(void);
 void state_deinitialise(void);
@@ -19,8 +21,6 @@ void state_push_mode(enum MODE mode);
 void state_pop_mode(void);
 bool state_await(void);
 WINDOW *state_window(void);
-bool state_quit(void);
 void state_set_quit(bool quit);
-key state_currkey(void);
 
 #endif

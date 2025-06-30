@@ -14,13 +14,22 @@
 
 bool quit = false;
 bool reticule = true;
-
 key key_curr = 0;
-
 enum MODE mode_curr = MODE_NONE;
 enum MODE mode_prev = MODE_NONE;
 WINDOW *window = NULL;
 struct Atlas *atlas = NULL;
+
+
+bool state_quit(void) { return quit; }
+bool state_reticule(void) { return reticule; }
+key state_key_curr(void) { return key_curr; }
+void state_set_quit(bool q) { quit = q; }
+bool state_await(void) { return mode_is_await(mode_curr); }
+WINDOW *state_window(void) { return window; }
+enum MODE state_mode(void) { return mode_curr; }
+enum MODE state_lastmode(void) { return mode_prev; }
+struct Atlas *state_atlas(void) { return atlas; }
 
 
 void state_initialise(WINDOW *win)
@@ -105,30 +114,12 @@ void state_deinitialise(void)
 }
 
 
-struct Atlas *state_atlas(void)
-{
-    return atlas;
-}
-
-
 void state_set_atlas(struct Atlas *a)
 {
     if (atlas) {
         return;
     }
     atlas = a;
-}
-
-
-enum MODE state_mode(void)
-{
-    return mode_curr;
-}
-
-
-enum MODE state_lastmode(void)
-{
-    return mode_prev;
 }
 
 
@@ -142,34 +133,4 @@ void state_push_mode(enum MODE mode)
 void state_pop_mode(void)
 {
     mode_curr = mode_prev;
-}
-
-
-key state_currkey(void)
-{
-    return key_curr;
-}
-
-
-bool state_quit(void)
-{
-    return quit;
-}
-
-
-void state_set_quit(bool q)
-{
-    quit = q;
-}
-
-
-bool state_await(void)
-{
-    return mode_is_await(mode_curr);
-}
-
-
-WINDOW *state_window(void)
-{
-    return window;
 }
