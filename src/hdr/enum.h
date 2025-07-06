@@ -16,7 +16,6 @@ enum COLOUR_PAIR {
     COLOUR_PAIR_MOUNTAIN,
     COLOUR_PAIR_FOREST,
 };
-
 void colour_initialise(void);
 
 #define NUM_UI_PANELS 13
@@ -113,6 +112,7 @@ enum CHILDREN {
     CHILD8
 };
 
+
 enum COMMAND {
     COMMAND_NONE,
     COMMAND_ERROR,
@@ -120,5 +120,15 @@ enum COMMAND {
     COMMAND_WRITE,
     COMMAND_EDIT,
 };
+
+
+enum STATUS {
+    STATUS_OK,
+    STATUS_SUCCESS_WRITE,
+    STATUS_SUCCESS_EDIT,
+    STATUS_FAIL_WRITE,
+    STATUS_FAIL_EDIT,
+};
+const char *status_string(enum STATUS s);
 
 #endif

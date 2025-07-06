@@ -2,9 +2,9 @@
 
 #include "hdr/enum.h"
 
-/*******************************************************************************
+/*======================================================================================
  *  COLOUR
- ******************************************************************************/
+ */
 
 /*  COLOUR : Functions */
 
@@ -42,9 +42,9 @@ void colour_initialise(void)
     }
 }
 
-/*******************************************************************************
+/*======================================================================================
  *  DIRECTION
- ******************************************************************************/
+ */
 
 /*  DIRECTION : Functions */
 
@@ -63,9 +63,9 @@ enum DIRECTION direction_prev(enum DIRECTION d)
     return (d + NUM_DIRECTIONS - 1) % NUM_DIRECTIONS;
 }
 
-/*******************************************************************************
+/*======================================================================================
  *  TERRAIN
- ******************************************************************************/
+ */
 
 /*  TERRAIN : Constants */
 
@@ -187,9 +187,9 @@ bool terrain_impassable(enum TERRAIN t)
     return false;
 }
 
-/*******************************************************************************
+/*======================================================================================
  *  MODE
- ******************************************************************************/
+ */
 
 /*  MODE : Constants */
 
@@ -299,6 +299,37 @@ enum UI_PANEL mode_panel(enum MODE m)
             return PANEL_AWAIT_LOCATION;
         case MODE_COMMAND:
             return PANEL_COMMAND;
-        default: return PANEL_NONE;
+        default:
+            return PANEL_NONE;
+    }
+}
+
+
+/*======================================================================================
+ *  STATUS
+ */
+
+/*  STATUS : Constants */
+
+const char *statusstr_success_write = "Wrote file ";
+const char *statusstr_success_edit = "Editing file ";
+const char *statusstr_fail_write = "ERROR: failed to write to file ";
+const char *statusstr_fail_edit = "ERROR: failed to read file ";
+
+
+const char *status_string(enum STATUS s)
+{
+    switch (s) {
+        case STATUS_SUCCESS_WRITE:
+            return statusstr_success_write;
+        case STATUS_SUCCESS_EDIT:
+            return statusstr_success_edit;
+        case STATUS_FAIL_WRITE:
+            return statusstr_fail_write;
+        case STATUS_FAIL_EDIT:
+            return statusstr_fail_edit;
+        case STATUS_OK:
+        default:
+            return NULL;
     }
 }
