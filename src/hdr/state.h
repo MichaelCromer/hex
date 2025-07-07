@@ -12,6 +12,9 @@ bool state_quit(void);
 void state_initialise(WINDOW * win);
 void state_update(void);
 void state_deinitialise(void);
+enum STATUS state_status(void);
+const char *state_filename(void);
+void state_set_filename(const char *str);
 struct Atlas *state_atlas(void);
 void state_set_atlas(struct Atlas *atlas);
 void state_clear_atlas(void);
@@ -21,6 +24,7 @@ void state_push_mode(enum MODE mode);
 void state_pop_mode(void);
 bool state_await(void);
 WINDOW *state_window(void);
+void state_set_status(enum STATUS s);
 void state_set_quit(bool quit);
 
 #endif

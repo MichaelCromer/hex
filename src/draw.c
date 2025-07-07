@@ -358,6 +358,13 @@ void wdraw_statusline(WINDOW *win)
     mvwhline(win, r0, c0, ' ', w);
     wmove(win, r0, c0 + 1);
 
+    if (STATUS_OK != state_status()) {
+        attron(COLOR_PAIR(COLOUR_PAIR_RED));
+        waddstr(win, status_string(state_status()));
+        attron(COLOR_PAIR(COLOUR_PAIR_RED));
+        return;
+    }
+
     if (state_await()) {
         attron(COLOR_PAIR(mode_colour(state_lastmode())));
         waddstr(win, mode_name(state_lastmode()));

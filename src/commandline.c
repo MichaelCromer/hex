@@ -13,13 +13,13 @@
 char buffer[COMMANDLINE_BUFFER_SIZE] = { 0 };
 size_t len = 0;
 size_t curr = 0;
-enum COMMAND type = COMMAND_NONE;
+enum COMMAND command = COMMAND_NONE;
 char *data = NULL;
 
 
 size_t commandline_len(void) { return len; }
 const char *commandline_str(void) { return buffer; }
-enum COMMAND commandline_type(void) { return type; }
+enum COMMAND commandline_command(void) { return command; }
 const char *commandline_data(void) { return data; }
 
 
@@ -28,7 +28,7 @@ void commandline_reset(void)
     memset(buffer, 0, COMMANDLINE_BUFFER_SIZE);
     len = 0;
     curr = 0;
-    type = COMMAND_NONE;
+    command = COMMAND_NONE;
     if (data) free(data);
     data = NULL;
 }
@@ -77,7 +77,7 @@ char *commandline_prev(void)
 }
 
 
-char *commandline_to_next(int (test)(int))
+char *commandline_find(int (test)(int))
 {
     char *c = buffer + curr;
     while (!test(*c) && (curr < len)) c = commandline_next();
@@ -109,27 +109,31 @@ void commandline_clearline(void)
 
 void commandline_parse(void)
 {
-    curr = 0;
+    char *c0 = NULL, *c1 = NULL;
+    size_t L = 0;
 
-    char *c0 = commandline_to_next(isgraph);
-    char *c1 = commandline_to_next(isspace);
-    size_t L = c1 - c0;
+    curr = 0;
+    if (data) free(data);
+
+    c0 = commandline_find(isgraph);
+    c1 = commandline_find(isspace);
+    L = c1 - c0;
 
     if (commandline_match(COMMAND_WORD_QUIT, c0, L))  {
-        type = COMMAND_QUIT;
+        command = COMMAND_QUIT;
     } else if (commandline_match(COMMAND_WORD_WRITE, c0, L))  {
-        type = COMMAND_WRITE;
+        command = COMMAND_WRITE;
     } else if (commandline_match(COMMAND_WORD_EDIT, c0, L))  {
-        type = COMMAND_EDIT;
+        command = COMMAND_EDIT;
     } else {
-        type = COMMAND_ERROR;
+        command = COMMAND_ERROR;
     }
 
-    if ((type == COMMAND_QUIT) || (type == COMMAND_ERROR)) return;
+    if ((command == COMMAND_QUIT) || (command == COMMAND_ERROR)) return;
 
-    c0 = commandline_to_next(isgraph);
-    c1 = commandline_to_next(isspace);
+    c0 = commandline_find(isgraph);
+    c1 = commandline_find(isspace);
     L = c1 - c0;
-    if (data) free(data);
-    data = strndup(c0, L);
+
+    if (L) { data = strndup(c0, L); }
 }

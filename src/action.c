@@ -10,24 +10,38 @@
 
 void action_write(const char *filename)
 {
-    FILE *file = fopen(filename, "w");
+    FILE *file = NULL;
+
+    if (filename) {
+        file = fopen(filename, "w");
+    } else {
+        if (!state_filename()) return;
+        file = fopen(state_filename(), "w");
+    }
+
     if (!file) {
+        state_set_status(STATUS_ERROR_WRITE);
         return;
     }
 
     write_state(file);
     fclose(file);
+    state_set_status(STATUS_SUCCESS_WRITE);
 }
+
 
 void action_edit(const char *filename)
 {
     FILE *file = fopen(filename, "r");
     if (!file) {
+        state_set_status(STATUS_ERROR_EDIT);
         return;
     }
 
+    state_set_filename(filename);
     read_state(file);
     fclose(file);
+    state_set_status(STATUS_SUCCESS_EDIT);
 }
 
 
@@ -55,11 +69,13 @@ void action_mode(enum MODE m)
     else { curs_set(0); }
 }
 
+
 void action_move(enum DIRECTION d, int steps)
 {
     struct Atlas *atlas = state_atlas();
     atlas_goto(atlas, coordinate_nshift(atlas_coordinate(atlas), d, steps));
 }
+
 
 void action_paint_terrain(enum TERRAIN t)
 {
@@ -91,6 +107,7 @@ void action_paint_terrain(enum TERRAIN t)
     }
 }
 
+
 void action_paint_road(enum DIRECTION d)
 {
     struct Atlas *atlas = state_atlas();
@@ -108,6 +125,7 @@ void action_paint_road(enum DIRECTION d)
     tile_toggle_road(neighbour, direction_opposite(d));
 }
 
+
 void action_paint_river(enum DIRECTION d)
 {
     struct Atlas *atlas = state_atlas();
@@ -122,6 +140,7 @@ void action_paint_river(enum DIRECTION d)
     tile_toggle_river(tile, d);
     tile_toggle_river(neighbour, direction_opposite(d));
 }
+
 
 void action_drag_river(enum DIRECTION d)
 {
@@ -162,6 +181,7 @@ void action_drag_river(enum DIRECTION d)
     action_move(d, 1);
 }
 
+
 void action_paint_location(enum LOCATION t)
 {
     struct Tile *tile = atlas_tile(state_atlas());
@@ -179,14 +199,17 @@ void action_paint_location(enum LOCATION t)
     }
 }
 
+
 void action_capture(key k)
 {
-    if (k != KEY_ENTER && k != '\n') return;
+    (void) k;
 
     if (ui_is_show(PANEL_SPLASH)) ui_toggle_show(PANEL_SPLASH);
+    if (STATUS_OK != state_status()) { state_set_status(STATUS_OK); }
 
-    state_push_mode(MODE_NAVIGATE);
+    action_mode(MODE_NAVIGATE);
 }
+
 
 void action_navigate(key k)
 {
@@ -205,6 +228,7 @@ void action_navigate(key k)
             break;
     }
 }
+
 
 void action_terrain(key k)
 {
@@ -240,6 +264,7 @@ void action_terrain(key k)
     }
 }
 
+
 void action_command(key k)
 {
     switch (k) {
@@ -251,7 +276,7 @@ void action_command(key k)
         case KEY_ENTER:
         case '\n':
             commandline_parse();
-            switch (commandline_type()) {
+            switch (commandline_command()) {
                 case COMMAND_QUIT:
                     state_set_quit(true);
                     break;
@@ -305,6 +330,7 @@ void action_command(key k)
     }
     curs_set(0);
 }
+
 
 void action_road(key k)
 {

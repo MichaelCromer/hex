@@ -6,7 +6,7 @@
 void commandline_reset(void);
 
 size_t commandline_len(void);
-enum COMMAND commandline_type(void);
+enum COMMAND commandline_command(void);
 const char *commandline_str(void);
 const char *commandline_data(void);
 

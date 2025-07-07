@@ -324,9 +324,9 @@ const char *status_string(enum STATUS s)
             return statusstr_success_write;
         case STATUS_SUCCESS_EDIT:
             return statusstr_success_edit;
-        case STATUS_FAIL_WRITE:
+        case STATUS_ERROR_WRITE:
             return statusstr_fail_write;
-        case STATUS_FAIL_EDIT:
+        case STATUS_ERROR_EDIT:
             return statusstr_fail_edit;
         case STATUS_OK:
         default:

@@ -126,8 +126,8 @@ enum STATUS {
     STATUS_OK,
     STATUS_SUCCESS_WRITE,
     STATUS_SUCCESS_EDIT,
-    STATUS_FAIL_WRITE,
-    STATUS_FAIL_EDIT,
+    STATUS_ERROR_WRITE,
+    STATUS_ERROR_EDIT,
 };
 const char *status_string(enum STATUS s);
 
