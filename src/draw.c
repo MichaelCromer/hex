@@ -360,7 +360,7 @@ void wdraw_statusline(WINDOW *win)
 
     if (STATUS_OK != state_status()) {
         attron(COLOR_PAIR(COLOUR_PAIR_RED));
-        waddstr(win, status_string(state_status()));
+        waddstr(win, state_message());
         attron(COLOR_PAIR(COLOUR_PAIR_RED));
         return;
     }

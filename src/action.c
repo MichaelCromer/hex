@@ -8,7 +8,7 @@
 #include "hdr/file.h"
 
 
-void action_alert(enum STATUS s, char *str)
+void action_message(enum STATUS s, const char *str)
 {
     state_set_status(s);
     state_message_concat(status_string(s));
@@ -44,7 +44,7 @@ void action_edit(const char *filename)
     if (file) {
         read_state(file);
         fclose(file);
-        state_set_status(STATUS_SUCCESS_EDIT_OLD);
+        action_message(STATUS_SUCCESS_EDIT_OLD, filename);
     } else {
         state_set_status(STATUS_SUCCESS_EDIT_NEW);
     }
@@ -212,6 +212,7 @@ void action_capture(key k)
 
     if (ui_is_show(PANEL_SPLASH)) ui_toggle_show(PANEL_SPLASH);
     if (STATUS_OK != state_status()) { state_set_status(STATUS_OK); }
+    if (state_message()) { state_message_clear(); }
 
     action_mode(MODE_NAVIGATE);
 }

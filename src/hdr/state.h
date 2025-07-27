@@ -31,5 +31,6 @@ void state_set_quit(bool quit);
 char *state_message(void);
 void state_clear_message();
 void state_message_concat(const char *str);
+void state_message_clear(void);
 
 #endif

@@ -201,8 +201,20 @@ void state_pop_mode(void)
 void state_message_concat(const char *str)
 {
     if (!str) return;
+    if (!message) {
+        message = strdup(str);
+        return;
+    }
     char *tmp = realloc(message, strlen(str) + ((message) ? strlen(message) : 0));
     if (!tmp) return;
     message = tmp;
     strcat(message, str);
+}
+
+
+void state_message_clear(void)
+{
+    if (!message) return;
+    free(message);
+    message = NULL;
 }
