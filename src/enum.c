@@ -312,7 +312,8 @@ enum UI_PANEL mode_panel(enum MODE m)
 /*  STATUS : Constants */
 
 const char *statusstr_success_write = "Wrote file ";
-const char *statusstr_success_edit = "Editing file ";
+const char *statusstr_success_edit_new = "New file ";
+const char *statusstr_success_edit_old = "Opened file ";
 const char *statusstr_fail_write = "ERROR: failed to write to file ";
 const char *statusstr_fail_edit = "ERROR: failed to read file ";
 
@@ -322,8 +323,10 @@ const char *status_string(enum STATUS s)
     switch (s) {
         case STATUS_SUCCESS_WRITE:
             return statusstr_success_write;
-        case STATUS_SUCCESS_EDIT:
-            return statusstr_success_edit;
+        case STATUS_SUCCESS_EDIT_NEW:
+            return statusstr_success_edit_new;
+        case STATUS_SUCCESS_EDIT_OLD:
+            return statusstr_success_edit_old;
         case STATUS_ERROR_WRITE:
             return statusstr_fail_write;
         case STATUS_ERROR_EDIT:

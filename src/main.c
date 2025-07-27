@@ -1,11 +1,16 @@
+#include <limits.h>
 #include <ncurses.h>
+#include <stdio.h>
 
+#include "hdr/action.h"
 #include "hdr/draw.h"
 #include "hdr/state.h"
 
+
 struct State *state = NULL;
 
-void initialise(void)
+
+void initialise(const char *filename)
 {
     initscr();                  /* init the lib                                     */
     cbreak();                   /* send by char (raw ignores ssigs! use cbreak)     */
@@ -16,8 +21,9 @@ void initialise(void)
     ESCDELAY = 10;
 
     colour_initialise();
-    state_initialise(stdscr);
+    state_initialise(stdscr, filename);
 }
+
 
 void terminate(void)
 {
@@ -27,9 +33,15 @@ void terminate(void)
     state_deinitialise();
 }
 
-int main(void)
+
+int main(int argc, char *argv[])
 {
-    initialise();
+    if (argc > 2) {
+        fprintf(stderr, "\nToo many arguments\n");
+        return 1;
+    }
+
+    initialise((argc == 2) ? argv[1] : NULL);
 
     while (!state_quit()) {
         erase();

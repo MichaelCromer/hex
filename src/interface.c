@@ -267,8 +267,6 @@ void ui_initialise(void)
             geometry_cols() - panel_width(panel[p]) - 1
         );
     }
-
-    show[PANEL_SPLASH] = true;
 }
 
 

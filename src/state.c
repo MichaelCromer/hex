@@ -1,8 +1,10 @@
+#include <limits.h>
 #include <math.h>
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "hdr/action.h"
 #include "hdr/atlas.h"
@@ -17,10 +19,12 @@ bool quit = false;
 bool reticule = true;
 bool modified = false;
 char *filename = NULL;
+char *cwd = NULL;
+enum STATUS status = STATUS_OK;
+char *message = NULL;
 key key_curr = 0;
 enum MODE mode_curr = MODE_NONE;
 enum MODE mode_prev = MODE_NONE;
-enum STATUS status = STATUS_OK;
 WINDOW *window = NULL;
 struct Atlas *atlas = NULL;
 
@@ -29,6 +33,7 @@ bool state_quit(void) { return quit; }
 bool state_reticule(void) { return reticule; }
 bool state_modified(void) { return modified; }
 const char *state_filename(void) { return filename; }
+const char *state_cwd(void) { return cwd; }
 key state_key_curr(void) { return key_curr; }
 bool state_await(void) { return mode_is_await(mode_curr); }
 WINDOW *state_window(void) { return window; }
@@ -36,19 +41,33 @@ enum MODE state_mode(void) { return mode_curr; }
 enum MODE state_lastmode(void) { return mode_prev; }
 enum STATUS state_status(void) { return status; }
 struct Atlas *state_atlas(void) { return atlas; }
+char *state_message(void) { return message; }
 
 
-void state_initialise(WINDOW *win)
+void state_initialise(WINDOW *win, const char *str_filename)
 {
     window = win;
-    state_push_mode(MODE_CAPTURE);
 
     geometry_initialise(GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
     ui_initialise();
 
     atlas = atlas_create();
     atlas_initialise(atlas);
+
+    char cwd[PATH_MAX] = { 0 };
+    getcwd(cwd, PATH_MAX);
+    state_set_cwd(cwd);
+
+    state_push_mode(MODE_NAVIGATE);
+    if (!str_filename) {
+        state_push_mode(MODE_CAPTURE);
+        ui_toggle_show(PANEL_SPLASH);
+    } else {
+        state_set_filename(str_filename);
+        action_edit(filename);
+    }
 }
+
 
 void state_update(void)
 {
@@ -103,6 +122,14 @@ void state_update(void)
 
 void state_set_quit(bool q) { quit = q; }
 void state_set_modified(bool m) { modified = m; }
+void state_set_status(enum STATUS s) { status = s; }
+
+
+void state_set_cwd(const char *str_cwd)
+{
+    if (!str_cwd || cwd) return;
+    cwd = strdup(str_cwd);
+}
 
 
 void state_set_atlas(struct Atlas *a)
@@ -135,6 +162,13 @@ void state_clear_filename(void)
 }
 
 
+void state_clear_message(void)
+{
+    if (message) free(message);
+    message = NULL;
+}
+
+
 void state_deinitialise(void)
 {
     quit = false;
@@ -164,7 +198,11 @@ void state_pop_mode(void)
 }
 
 
-void state_set_status(enum STATUS s)
+void state_message_concat(const char *str)
 {
-    status = s;
+    if (!str) return;
+    char *tmp = realloc(message, strlen(str) + ((message) ? strlen(message) : 0));
+    if (!tmp) return;
+    message = tmp;
+    strcat(message, str);
 }

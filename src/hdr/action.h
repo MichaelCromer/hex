@@ -5,6 +5,7 @@
 #include "atlas.h"
 #include "state.h"
 
+void action_edit(const char *filename);
 void action_hint(void);
 void action_capture(key k);
 void action_navigate(key k);

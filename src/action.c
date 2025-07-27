@@ -8,6 +8,14 @@
 #include "hdr/file.h"
 
 
+void action_alert(enum STATUS s, char *str)
+{
+    state_set_status(s);
+    state_message_concat(status_string(s));
+    state_message_concat(str);
+}
+
+
 void action_write(const char *filename)
 {
     FILE *file = NULL;
@@ -33,15 +41,13 @@ void action_write(const char *filename)
 void action_edit(const char *filename)
 {
     FILE *file = fopen(filename, "r");
-    if (!file) {
-        state_set_status(STATUS_ERROR_EDIT);
-        return;
+    if (file) {
+        read_state(file);
+        fclose(file);
+        state_set_status(STATUS_SUCCESS_EDIT_OLD);
+    } else {
+        state_set_status(STATUS_SUCCESS_EDIT_NEW);
     }
-
-    state_set_filename(filename);
-    read_state(file);
-    fclose(file);
-    state_set_status(STATUS_SUCCESS_EDIT);
 }
 
 
