@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -g
+CFLAGS = -Wall -Wextra -Wpedantic
 CLIBS = -lncurses -lm
 
 SRC_DIR = ./src
@@ -12,16 +12,26 @@ SRC = $(wildcard $(SRC_DIR)/*.c)
 HDR = $(wildcard $(HDR_DIR)/*.h)
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
-$(BLD_DIR)/$(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $@ $(CLIBS)
+
+$(BLD_DIR)/$(TARGET): $(OBJ) | $(BLD_DIR)
+	$(CC) $(CFLAGS) $(OBJ) -o $@ $(CLIBS)
+
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+
 $(OBJ_DIR) $(BLD_DIR): ; mkdir -p $@
+
+
+.PHONY: dev
+dev : CFLAGS += -g -fsanitize=address,leak,undefined
+dev : clean $(BLD_DIR)/$(TARGET)
+
 
 clean: ; rm -rf $(OBJ_DIR)
 .PHONY: clean
+
 
 tags: ; ctags $(SRC) $(HDR)
 .PHONY: tags
