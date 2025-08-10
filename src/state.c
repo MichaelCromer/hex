@@ -205,7 +205,7 @@ void state_message_concat(const char *str)
         message = strdup(str);
         return;
     }
-    char *tmp = realloc(message, strlen(str) + ((message) ? strlen(message) : 0));
+    char *tmp = realloc(message, strlen(message) + strlen(str) + 1);
     if (!tmp) return;
     message = tmp;
     strcat(message, str);
