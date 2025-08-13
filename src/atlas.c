@@ -149,9 +149,7 @@ struct Atlas *atlas_create(void)
 
 void atlas_initialise(struct Atlas *atlas)
 {
-    if (atlas->root) {
-        return;
-    }
+    if (atlas->root) return;
 
     atlas->root = chart_create(coordinate_origin());
     atlas->curr = atlas->root;
