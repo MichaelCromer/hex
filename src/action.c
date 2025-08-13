@@ -79,7 +79,19 @@ void action_mode(enum MODE m)
 void action_move(enum DIRECTION d, int steps)
 {
     struct Atlas *atlas = state_atlas();
-    atlas_goto(atlas, coordinate_nshift(atlas_coordinate(atlas), d, steps));
+
+    if (MODE_TERRAIN == state_mode()) {
+        atlas_goto(atlas, coordinate_nshift(atlas_coordinate(atlas), d, steps));
+        return;
+    }
+
+    struct Chart *neighbour = NULL;
+    while (steps--) {
+        neighbour = atlas_neighbour(atlas, d);
+        if (!neighbour) continue;
+        if (TERRAIN_UNKNOWN == tile_terrain(chart_tile(neighbour))) continue;
+        atlas_goto(atlas, coordinate_shift(atlas_coordinate(atlas), d));
+    }
 }
 
 

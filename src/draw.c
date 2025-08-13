@@ -16,6 +16,7 @@
 *     DRAW 01 - Basic shapes
  */
 
+
 void wdraw_border(WINDOW *win, int r0, int c0, int w, int h)
 {
     mvwhline(win, r0, c0, ACS_HLINE, w - 1);
@@ -29,6 +30,7 @@ void wdraw_border(WINDOW *win, int r0, int c0, int w, int h)
     mvwaddch(win, r0 + h - 1, c0 + w - 1, ACS_PLUS);
 }
 
+
 void wdraw_rectangle(WINDOW *win, int r0, int c0, int w, int h, char bg)
 {
     for (int r = 0; r < h; r++) {
@@ -36,11 +38,13 @@ void wdraw_rectangle(WINDOW *win, int r0, int c0, int w, int h, char bg)
     }
 }
 
+
 void wdraw_box(WINDOW *win, int r0, int c0, int w, int h)
 {
     wdraw_rectangle(win, r0, c0, w, h, ' ');
     wdraw_border(win, r0, c0, w, h);
 }
+
 
 void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
 {
@@ -58,9 +62,11 @@ void wdraw_line(WINDOW *win, int r0, int c0, int r1, int c1, char ch)
     }
 }
 
+
 /*
 *     DRAW 02 - Panels
  */
+
 
 void wdraw_panel(WINDOW *win, struct Panel *p)
 {
@@ -75,9 +81,11 @@ void wdraw_panel(WINDOW *win, struct Panel *p)
     }
 }
 
+
 /*
 *     DRAW 03 - Charts and terrain
  */
+
 
 void wdraw_road(WINDOW *win, int r, int c, enum DIRECTION d)
 {
@@ -112,6 +120,7 @@ void wdraw_road(WINDOW *win, int r, int c, enum DIRECTION d)
 
     wdraw_line(win, r, c, r + dr, c + dc, '#');
 }
+
 
 void wdraw_river(WINDOW *win, int r, int c, enum DIRECTION d)
 {
@@ -161,6 +170,7 @@ void wdraw_river(WINDOW *win, int r, int c, enum DIRECTION d)
     wdraw_line(win, r0, c0, r1, c1, '~');
 }
 
+
 void wdraw_settlement(WINDOW *win, int r0, int c0)
 {
     int w = geometry_tile_dw() - 1, h = geometry_tile_dh();
@@ -190,6 +200,7 @@ void wdraw_settlement(WINDOW *win, int r0, int c0)
     mvwaddch(win, r - 1, c + w, '+');
 }
 
+
 void wdraw_feature(WINDOW *win, int r0, int c0)
 {
     int w = geometry_tile_dw(), h = geometry_tile_dh();
@@ -205,6 +216,7 @@ void wdraw_feature(WINDOW *win, int r0, int c0)
     wdraw_rectangle(win, r + h, c + w, 2, 2, '#');
     wdraw_box(win, r0 - 1, c0 - 1, 3, 3);
 }
+
 
 void wdraw_dungeon(WINDOW *win, int r0, int c0)
 {
@@ -225,6 +237,7 @@ void wdraw_dungeon(WINDOW *win, int r0, int c0)
     mvwvline(win, r, c + w, '#', h);
     mvwvline(win, r, c + w - 1, '#', h);
 }
+
 
 void wdraw_tile_location(WINDOW *win, struct Tile *tile, int r0, int c0)
 {
@@ -248,21 +261,26 @@ void wdraw_tile_location(WINDOW *win, struct Tile *tile, int r0, int c0)
     }
 }
 
+
 void wdraw_tile_terrain(WINDOW *win, struct Tile *tile, int r0, int c0)
 {
     int w = geometry_tile_dw(), h = geometry_tile_dh();
     enum TERRAIN t = tile_terrain(tile);
+    char t_char = 0;
+    enum COLOUR_PAIR t_colour = 0;
+
+    if ((MODE_TERRAIN != state_mode()) && (TERRAIN_UNKNOWN == t)) return;
 
     for (int c = -w; c <= w; c++) {
         int dh = (c < 0)
             ? floor((w + c)*geometry_slope())
             : floor((w - c)*geometry_slope());
         for (int r = -(h + dh); r <= (h + dh); r++) {
-            char ch = tile_getch(tile, c, r);
-            enum COLOUR_PAIR p = terrain_colour(t, ch);
-            attron(COLOR_PAIR(p));
+            t_char = tile_getch(tile, c, r);
+            t_colour = terrain_colour(t, t_char);
+            attron(COLOR_PAIR(t_colour));
             mvwaddch(win, r0 + r, c0 + c, tile_getch(tile, c, r));
-            attroff(COLOR_PAIR(p));
+            attroff(COLOR_PAIR(t_colour));
         }
     }
 
@@ -282,6 +300,7 @@ void wdraw_tile_terrain(WINDOW *win, struct Tile *tile, int r0, int c0)
     }
     attroff(COLOR_PAIR(COLOUR_PAIR_RIVER));
 }
+
 
 void wdraw_chart_with(
     WINDOW *win,
@@ -314,6 +333,7 @@ void wdraw_chart_with(
     }
 }
 
+
 void wdraw_atlas(WINDOW *win, struct Atlas *atlas)
 {
     struct Coordinate o = atlas_coordinate(atlas);
@@ -321,6 +341,7 @@ void wdraw_atlas(WINDOW *win, struct Atlas *atlas)
     wdraw_chart_with(win, atlas_root(atlas), o, wdraw_tile_terrain);
     wdraw_chart_with(win, atlas_root(atlas), o, wdraw_tile_location);
 }
+
 
 void wdraw_reticule(WINDOW *win)
 {
@@ -341,6 +362,7 @@ void wdraw_reticule(WINDOW *win)
     return;
 }
 
+
 void wdraw_ui(WINDOW *win)
 {
     for (int p = 0; p < NUM_UI_PANELS; p++) {
@@ -349,6 +371,7 @@ void wdraw_ui(WINDOW *win)
         }
     }
 }
+
 
 void wdraw_statusline(WINDOW *win)
 {
@@ -387,11 +410,13 @@ void wdraw_statusline(WINDOW *win)
     }
 }
 
+
 void draw_state(void)
 {
-    wdraw_atlas(state_window(), state_atlas());
-    wdraw_reticule(state_window());
-    wdraw_ui(state_window());
-    wdraw_statusline(state_window());
-    return;
+    WINDOW *win = state_window();
+
+    wdraw_atlas(win, state_atlas());
+    wdraw_reticule(win);
+    wdraw_ui(win);
+    wdraw_statusline(win);
 }
