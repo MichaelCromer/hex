@@ -18,10 +18,10 @@ static inline uint32_t xorshift(uint32_t x)
 struct Tile
 {
     struct Location *location;
-    unsigned int seed;
+    uint32_t seed;
     enum TERRAIN terrain;
-    bool roads[NUM_DIRECTIONS];
-    bool rivers[NUM_DIRECTIONS];
+    uint8_t roads;
+    uint8_t rivers;
 };
 
 
@@ -36,114 +36,64 @@ struct Tile *tile_create(void)
     tile->seed = global_seed;
     tile->terrain = TERRAIN_UNKNOWN;
     tile->location = NULL;
-
-    for (int i = 0; i < NUM_DIRECTIONS; i++) {
-        tile->roads[i] = false;
-        tile->rivers[i] = false;
-    }
+    tile->roads = 0;
+    tile->rivers = 0;
 
     return tile;
 }
 
-void tile_destroy(struct Tile *tile)
-{
-    free(tile);
-}
 
-unsigned int tile_seed(const struct Tile *tile)
-{
-    return tile->seed;
-}
+void tile_destroy(struct Tile *tile) { free(tile); }
+uint32_t tile_seed(const struct Tile *tile) { return tile->seed; }
+enum TERRAIN tile_terrain(const struct Tile *tile) { return tile->terrain; }
+uint8_t tile_roads(const struct Tile *tile) { return tile->roads; }
+uint8_t tile_rivers(const struct Tile *tile) { return tile->rivers; }
+void tile_set_seed(struct Tile *tile, uint32_t seed) { tile->seed = seed; }
+void tile_set_terrain(struct Tile *tile, enum TERRAIN t) { tile->terrain = t; }
+void tile_set_roads(struct Tile *tile, uint8_t roads) { tile->roads = roads; }
+void tile_set_rivers(struct Tile *tile, uint8_t rivers) { tile->rivers = rivers; }
+void tile_clear_roads(struct Tile *tile) { tile->roads = 0; }
+struct Location *tile_location(struct Tile *tile) { return tile->location; }
+void tile_clear_rivers(struct Tile *tile) { tile->rivers = 0; }
 
-void tile_set_seed(struct Tile *tile, unsigned int seed)
-{
-    tile->seed = seed;
-}
-
-enum TERRAIN tile_terrain(const struct Tile *tile)
-{
-    return tile->terrain;
-}
-
-void tile_set_terrain(struct Tile *tile, enum TERRAIN t)
-{
-    if (!tile) {
-        return;
-    }
-    tile->terrain = t;
-}
 
 bool tile_road(const struct Tile *tile, enum DIRECTION d)
 {
-    return tile->roads[d];
+    return tile->roads & (1 << d);
 }
+
 
 void tile_set_road(struct Tile *tile, enum DIRECTION d, bool b)
 {
-    if (!tile) {
-        return;
-    }
-    tile->roads[d] = b;
+    if (b) tile->roads |= (1 << d);
+    else tile->roads ^= tile->roads & (1 << d);
 }
+
 
 void tile_toggle_road(struct Tile *tile, enum DIRECTION d)
 {
-    if (!tile) {
-        return;
-    }
-    tile->roads[d] = !tile->roads[d];
+    tile->roads ^= (1 << d);
 }
 
-void tile_clear_roads(struct Tile *tile)
-{
-    if (!tile) {
-        return;
-    }
-
-    for (int i = 0; i < NUM_DIRECTIONS; i++) {
-        tile_set_road(tile, i, false);
-    }
-}
 
 bool tile_river(const struct Tile *tile, enum DIRECTION d)
 {
-    return tile->rivers[d];
+    return tile->rivers & (1 << d);
 }
+
 
 void tile_set_river(struct Tile *tile, enum DIRECTION d, bool b)
 {
-    if (!tile) {
-        return;
-    }
-    tile->rivers[d] = b;
+    if (b) tile->rivers |= (1 << d);
+    else tile->rivers ^= tile->rivers & (1 << d);
 }
+
 
 void tile_toggle_river(struct Tile *tile, enum DIRECTION d)
 {
-    if (!tile) {
-        return;
-    }
-    tile->rivers[d] = !tile->rivers[d];
+    tile->rivers ^= (1 << d);
 }
 
-void tile_clear_rivers(struct Tile *tile)
-{
-    if (!tile) {
-        return;
-    }
-
-    for (int i = 0; i < NUM_DIRECTIONS; i++) {
-        tile_set_river(tile, i, false);
-    }
-}
-
-struct Location *tile_location(struct Tile *tile)
-{
-    if (!tile) {
-        return NULL;
-    }
-    return tile->location;
-}
 
 void tile_set_location(struct Tile *tile, struct Location *location)
 {
@@ -152,6 +102,7 @@ void tile_set_location(struct Tile *tile, struct Location *location)
     }
     tile->location = location;
 }
+
 
 char tile_getch(struct Tile *tile, int x, int y)
 {
