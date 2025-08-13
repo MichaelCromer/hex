@@ -106,10 +106,10 @@ void panel_set_rc(struct Panel *p, int r, int c)
 }
 
 
-void panel_centre(struct Panel *p, int H, int W)
+void panel_centre(struct Panel *p)
 {
-    p->r0 = H - p->h/2;
-    p->c0 = W - p->w/2;
+    int H = geometry_rmid(), W = geometry_cmid();
+    panel_set_rc(p, H - p->h/2, W - p->w/2);
 }
 
 
@@ -134,7 +134,7 @@ void ui_initialise(void)
     panel_add_line(detail, 2, "    TERRAIN: NONE");
     panel[PANEL_DETAIL] = detail;
 
-    struct Panel *hint = panel_create(12);
+    struct Panel *hint = panel_create(9);
     panel_add_line(hint, 0, "MODES AND OPTIONS  ");
     panel_add_line(hint, 1, "                   ");
     panel_add_line(hint, 2, "  T/t   Terrain    ");
@@ -176,57 +176,39 @@ void ui_initialise(void)
     panel_add_line(terrain, 13, "    c : tundra     ");
     panel[PANEL_TERRAIN] = terrain;
 
-    struct Panel *await_terrain = panel_create(11);
-    panel_add_line(await_terrain, 0,  "MODE: (terrain)    ");
-    panel_add_line(await_terrain, 1,  "                   ");
-    panel_add_line(await_terrain, 2,  "    q : water      ");
-    panel_add_line(await_terrain, 3,  "    w : mountain   ");
-    panel_add_line(await_terrain, 4,  "    e : hills      ");
-    panel_add_line(await_terrain, 5,  "    a : plains     ");
-    panel_add_line(await_terrain, 6,  "    s : forest     ");
-    panel_add_line(await_terrain, 7,  "    d : swamp      ");
-    panel_add_line(await_terrain, 8,  "    z : desert     ");
-    panel_add_line(await_terrain, 9,  "    x : jungle     ");
-    panel_add_line(await_terrain, 10, "    c : tundra     ");
-    panel[PANEL_AWAIT_TERRAIN] = await_terrain;
-
-    struct Panel *road = panel_create(9);
+    struct Panel *road = panel_create(12);
     panel_add_line(road, 0,  "MODE: ROAD         ");
     panel_add_line(road, 1,  "                   ");
     panel_add_line(road, 2,  "  uihknm : move    ");
     panel_add_line(road, 3,  "  UIHKNM : drag    ");
-    panel_add_line(road, 4,  "                   ");
-    panel_add_line(road, 5,  "  Drag over once   ");
-    panel_add_line(road, 6,  "  to place road,   ");
-    panel_add_line(road, 7,  "  drag a second    ");
-    panel_add_line(road, 8,  "  time to remove   ");
+    panel_add_line(road, 4,  "  weadzx : paint   ");
+    panel_add_line(road, 5,  "                   ");
+    panel_add_line(road, 6,  "  Drag over once   ");
+    panel_add_line(road, 7,  "  to place road,   ");
+    panel_add_line(road, 8,  "  drag a second    ");
+    panel_add_line(road, 9,  "  time to remove.  ");
+    panel_add_line(road, 10, "  Painting adds    ");
+    panel_add_line(road, 11, "  partial roads.   ");
     panel[PANEL_ROAD] = road;
-
-    struct Panel *await_road = panel_create(9);
-    panel_add_line(await_road, 0,  "MODE: (road)       ");
-    panel_add_line(await_road, 1,  "                   ");
-    panel_add_line(await_road, 2,  "  uihknm : paint   ");
-    panel[PANEL_AWAIT_ROAD] = await_road;
 
     struct Panel *river = panel_create(12);
     panel_add_line(river, 0,  "MODE: RIVER        ");
     panel_add_line(river, 1,  "                   ");
     panel_add_line(river, 2,  "  uihknm : move    ");
     panel_add_line(river, 3,  "  UIHKNM : drag    ");
-    panel_add_line(river, 4,  "                   ");
-    panel_add_line(river, 5,  "  Can only drag    ");
-    panel_add_line(river, 6,  "  existing river   ");
-    panel_add_line(river, 7,  "  placed via the   ");
-    panel_add_line(river, 8,  "  (river) mode     ");
+    panel_add_line(river, 4,  "  weadzx : paint   ");
+    panel_add_line(river, 5,  "                   ");
+    panel_add_line(river, 6,  "  Drag over once   ");
+    panel_add_line(river, 7,  "  to place river,  ");
+    panel_add_line(river, 8,  "  drag a second    ");
+    panel_add_line(river, 9,  "  time to remove.  ");
+    panel_add_line(river, 9,  "  Can only drag    ");
+    panel_add_line(river, 9,  "  existing rivers. ");
+    panel_add_line(river, 10, "  Painting adds    ");
+    panel_add_line(river, 11, "  river segment.   ");
     panel[PANEL_RIVER] = river;
 
-    struct Panel *await_river = panel_create(12);
-    panel_add_line(await_river, 0,  "MODE: (river)      ");
-    panel_add_line(await_river, 1,  "                   ");
-    panel_add_line(await_river, 2,  "  uihknm : paint   ");
-    panel[PANEL_AWAIT_RIVER] = await_river;
-
-    struct Panel *location = panel_create(12);
+    struct Panel *location = panel_create(7);
     panel_add_line(location, 0,  "MODE: LOCATION     ");
     panel_add_line(location, 1,  "                   ");
     panel_add_line(location, 2,  "  uihknm : move    ");
@@ -236,15 +218,7 @@ void ui_initialise(void)
     panel_add_line(location, 6,  "    d : dungeon    ");
     panel[PANEL_LOCATION] = location;
 
-    struct Panel *await_location = panel_create(12);
-    panel_add_line(await_location, 0,  "MODE: (location)   ");
-    panel_add_line(await_location, 1,  "                   ");
-    panel_add_line(await_location, 2,  "    a : feature    ");
-    panel_add_line(await_location, 3,  "    s : settlement ");
-    panel_add_line(await_location, 4,  "    d : dungeon    ");
-    panel[PANEL_AWAIT_LOCATION] = await_location;
-
-    struct Panel *command = panel_create(12);
+    struct Panel *command = panel_create(5);
     panel_add_line(command, 0,  "MODE: COMMAND      ");
     panel_add_line(command, 1,  "                   ");
     panel_add_line(command, 2,  "    q[uit]         ");
@@ -252,7 +226,7 @@ void ui_initialise(void)
     panel_add_line(command, 4,  "    e[dit]  <path> ");
     panel[PANEL_COMMAND] = command;
 
-    panel_centre(panel[PANEL_SPLASH], geometry_rmid(), geometry_cmid());
+    panel_centre(panel[PANEL_SPLASH]);
 
     panel_set_rc(
         panel[PANEL_HINT],
@@ -260,7 +234,8 @@ void ui_initialise(void)
         geometry_cols() - panel_width(panel[PANEL_HINT]) - 1
     );
 
-    for (enum UI_PANEL p = PANEL_NAVIGATE; p < PANEL_NONE; p++) {
+    /* TODO this is super fragile */
+    for (enum UI_PANEL p = PANEL_NAVIGATE; p <= PANEL_LOCATION; p++) {
         panel_set_rc(
             panel[p],
             panel_height(panel[PANEL_HINT]),
