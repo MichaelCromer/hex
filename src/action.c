@@ -220,7 +220,7 @@ void action_paint_location(enum LOCATION t)
 
 void action_capture(key k)
 {
-    (void) k;
+    if ((KEY_ENTER != k) && ('\n' != k)) return;
 
     if (ui_is_show(PANEL_SPLASH)) ui_toggle_show(PANEL_SPLASH);
     if (STATUS_OK != state_status()) { state_set_status(STATUS_OK); }
@@ -251,18 +251,8 @@ void action_navigate(key k)
 
 void action_terrain(key k)
 {
-    if (state_await()) {
-        if (key_is_terrain(k)) {
-            action_paint_terrain(key_terrain(k));
-        }
-
-        action_mode(key_mode(k));
-        return;
-    }
-
     if (key_is_terrain(k)) {
         action_paint_terrain(key_terrain(k));
-        return;
     }
 
     if (key_is_direction(k)) {
@@ -274,13 +264,9 @@ void action_terrain(key k)
                 action_paint_terrain(t);
             }
         }
-
-        return;
     }
 
-    if (key_is_mode(k)) {
-        action_mode(key_mode(k));
-    }
+    if (key_is_mode(k) || state_await()) action_mode(key_mode(k));
 }
 
 
@@ -353,39 +339,22 @@ void action_command(key k)
 
 void action_road(key k)
 {
-    if (state_await()) {
-        if (key_is_direction(k)) {
-            action_paint_road(key_direction(k));
-        }
-
-        action_mode(key_mode(k));
-        return;
-    }
-
     if (key_is_direction(k)) {
         if (key_is_special(k)) {
             action_paint_road(key_direction(k));
         } else {
             action_move(key_direction(k), 1);
         }
-        return;
     }
 
-    if (key_is_mode(k)) {
-        action_mode(key_mode(k));
-    }
+    if (key_is_mode(k) || state_await()) action_mode(key_mode(k));
 }
 
 
 void action_river(key k)
 {
-    if (state_await()) {
-        if (key_is_direction(k)) {
-            action_paint_river(key_direction(k));
-        }
-
-        action_mode(key_mode(k));
-        return;
+    if (key_is_river(k)) {
+        action_paint_river(key_river_direction(k));
     }
 
     if (key_is_direction(k)) {
@@ -394,32 +363,15 @@ void action_river(key k)
         } else {
             action_move(key_direction(k), 1);
         }
-        return;
     }
 
-    if (key_is_mode(k)) {
-        action_mode(key_mode(k));
-        return;
-    }
+    if (key_is_mode(k) || state_await()) action_mode(key_mode(k));
 }
 
 
 void action_location(key k)
 {
-    if (state_await()) {
-        action_mode(key_mode(k));
-    }
-
-    if (key_is_location(k)) {
-        action_paint_location(key_location(k));
-    }
-
-    if (key_is_direction(k)) {
-        action_move(key_direction(k), 1);
-    }
-
-    if (key_is_mode(k)) {
-        action_mode(key_mode(k));
-        return;
-    }
+    if (key_is_location(k)) action_paint_location(key_location(k));
+    if (key_is_direction(k)) action_move(key_direction(k), 1);
+    if (key_is_mode(k) || state_await()) action_mode(key_mode(k));
 }

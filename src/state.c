@@ -59,6 +59,7 @@ void state_initialise(WINDOW *win, const char *str_filename)
     state_set_cwd(cwd);
 
     state_push_mode(MODE_NAVIGATE);
+    state_push_mode(MODE_NAVIGATE);
     if (!str_filename) {
         state_push_mode(MODE_CAPTURE);
         ui_toggle_show(PANEL_SPLASH);
@@ -74,6 +75,7 @@ void state_update(void)
     key k = wgetch(state_window());
     key_curr = k;
 
+    /* TODO remove magic value '?' */
     if ((MODE_COMMAND != state_mode()) && (k == '?')) {
         action_hint();
         return;

@@ -5,7 +5,7 @@
 
 #include "enum.h"
 
-#define              KEY_ESCAPE 27
+#define              KEY_ESCAPE (27)
 #define        KEY_MODE_TERRAIN 'T'
 #define  KEY_MODE_AWAIT_TERRAIN 't'
 #define           KEY_MODE_ROAD 'R'
@@ -44,9 +44,16 @@
 #define      KEY_TERRAIN_JUNGLE 'x'
 #define      KEY_TERRAIN_TUNDRA 'c'
 
-#define     KEY_LOCATION_FEATURE 'a'
-#define  KEY_LOCATION_SETTLEMENT 's'
-#define     KEY_LOCATION_DUNGEON 'd'
+#define            KEY_RIVER_EE 'd'
+#define            KEY_RIVER_NE 'e'
+#define            KEY_RIVER_NW 'w'
+#define            KEY_RIVER_WW 'a'
+#define            KEY_RIVER_SW 'z'
+#define            KEY_RIVER_SE 'x'
+
+#define    KEY_LOCATION_FEATURE 'a'
+#define KEY_LOCATION_SETTLEMENT 's'
+#define    KEY_LOCATION_DUNGEON 'd'
 
 typedef int key;
 
@@ -55,7 +62,9 @@ bool key_is_special(key k);
 bool key_is_terrain(key k);
 bool key_is_mode(key k);
 bool key_is_location(key k);
+bool key_is_river(key k);
 
+enum DIRECTION key_river_direction(key k);
 enum DIRECTION key_direction(key k);
 enum TERRAIN key_terrain(key k);
 enum MODE key_mode(key k);

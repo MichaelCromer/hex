@@ -104,6 +104,46 @@ bool key_is_terrain(key k)
     return false;
 }
 
+
+bool key_is_river(key k)
+{
+    switch (k) {
+        case KEY_RIVER_EE:
+        case KEY_RIVER_NE:
+        case KEY_RIVER_NW:
+        case KEY_RIVER_WW:
+        case KEY_RIVER_SW:
+        case KEY_RIVER_SE:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+
+enum DIRECTION key_river_direction(key k)
+{
+    switch (k) {
+        case KEY_RIVER_EE:
+            return DIRECTION_EE;
+        case KEY_RIVER_NE:
+            return DIRECTION_NE;
+        case KEY_RIVER_NW:
+            return DIRECTION_NW;
+        case KEY_RIVER_WW:
+            return DIRECTION_WW;
+        case KEY_RIVER_SW:
+            return DIRECTION_SW;
+        case KEY_RIVER_SE:
+            return DIRECTION_SE;
+        default:
+            break;
+    }
+    return DIRECTION_XX;
+}
+
+
 bool key_is_mode(key k)
 {
     switch (k) {
