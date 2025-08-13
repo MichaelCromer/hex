@@ -1,26 +1,39 @@
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <time.h>
 
 #include "hdr/tile.h"
 
-static unsigned int tile_count = 0;
 
-struct Tile {
+static inline uint32_t xorshift(uint32_t x)
+{
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    return x;
+}
+
+
+struct Tile
+{
+    struct Location *location;
     unsigned int seed;
     enum TERRAIN terrain;
     bool roads[NUM_DIRECTIONS];
     bool rivers[NUM_DIRECTIONS];
-    struct Location *location;
 };
+
 
 struct Tile *tile_create(void)
 {
+    static uint32_t global_seed = 0;
+    if (global_seed == 0) global_seed = (uint32_t) time(NULL);
+    global_seed = xorshift(global_seed);
+
     struct Tile *tile = malloc(sizeof(struct Tile));
 
-    if (tile_count == 0) tile_count = (unsigned int)time(NULL);
-    tile_count = 1664525*tile_count + 1013904223;
-    tile->seed = tile_count;
+    tile->seed = global_seed;
     tile->terrain = TERRAIN_UNKNOWN;
     tile->location = NULL;
 
@@ -143,10 +156,7 @@ void tile_set_location(struct Tile *tile, struct Location *location)
 char tile_getch(struct Tile *tile, int x, int y)
 {
     const char *chopts = terrain_chopts(tile_terrain(tile));
-    int offset = (int)tile_terrain(tile);
-
-    unsigned int val = (unsigned int)((tile->seed + offset) ^ (x*9973 + y*1009));
-    val = (1664525*val + 1013904223) % NUM_TERRAIN_CHOPTS;
-
-    return chopts[val];
+    uint32_t offset = tile->seed + tile_terrain(tile);
+    uint32_t val = (x + xorshift(y + offset)) ^ (xorshift(x + offset) * y);
+    return chopts[xorshift(val) % NUM_TERRAIN_CHOPTS];
 }
