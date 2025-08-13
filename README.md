@@ -103,7 +103,6 @@ Definite targets
      - - [ ] 'j' _always_ toggles view of tile detail
      - - [ ] directional keys _always_ move the reticule
  - [ ] expanded commands and options
-     - - [ ] :h[elp] for more in-depth help viewer
      - - [ ] repeat/undo last action
 
 ### Midterm Goals
@@ -116,6 +115,7 @@ Subject to change
  - [ ] searchable locations
  - [ ] single tile focus deep zoom
  - [ ] set/goto map marks
+ - [ ] :h[elp] for more in-depth help viewer
 
 ### Longterm Goals
 
