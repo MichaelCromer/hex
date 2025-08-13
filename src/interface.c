@@ -276,14 +276,14 @@ void ui_update(void)
      *  tile detail panel
      */
     struct Atlas *atlas = state_atlas();
-    struct Chart *chart = atlas_curr(atlas);
+    //struct Chart *chart = atlas_curr(atlas);
     struct Panel *detail = panel[PANEL_DETAIL];
 
     char buf[32];
 
     memset(buf, 0, 32);
     panel_remove_line(detail, 1);
-    snprintf(buf, 32, "  (%d, %d, %d)", chart_p(chart), chart_q(chart), chart_r(chart));
+    snprintf(buf, 32, "  (%d, %d, %d)", 0, 0 ,0);
     panel_add_line(detail, 1, buf);
 
     memset(buf, 0, 32);

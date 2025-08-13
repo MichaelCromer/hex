@@ -296,7 +296,7 @@ void wdraw_chart_with(
     if (!coordinate_related(chart_coordinate(chart), geometry_viewpoint())) return;
 
     /* recurse */
-    if (chart_children(chart)) {
+    if (chart_has_children(chart)) {
         for (int i = 0; i < NUM_CHILDREN; i++) {
             wdraw_chart_with(win, chart_child(chart, i), o, wdraw_tile);
         }

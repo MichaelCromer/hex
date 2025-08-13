@@ -97,7 +97,7 @@ void write_chart(FILE *file, const struct Chart *chart)
     }
     fputc('\n', file);
 
-    if (!chart_children(chart)) {
+    if (!chart_has_children(chart)) {
         return;
     }
 
