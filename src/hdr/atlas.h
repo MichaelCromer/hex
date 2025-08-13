@@ -8,15 +8,13 @@
 
 struct Chart;
 struct Chart *chart_create(struct Coordinate c);
-struct Chart **chart_children(const struct Chart *chart);
+bool chart_has_children(const struct Chart *chart);
+bool chart_has_tile(const struct Chart *chart);
 struct Chart *chart_child(const struct Chart *chart, enum CHILDREN c);
 struct Coordinate chart_coordinate(const struct Chart *chart);
 struct Tile *chart_tile(const struct Chart *chart);
 void chart_clear_tile(struct Chart *chart);
 void chart_set_tile(struct Chart *chart, struct Tile *tile);
-int chart_p(const struct Chart *chart);
-int chart_q(const struct Chart *chart);
-int chart_r(const struct Chart *chart);
 
 struct Atlas;
 struct Atlas *atlas_create(void);

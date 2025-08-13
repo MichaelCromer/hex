@@ -56,31 +56,19 @@ void write_location(FILE *file, const struct Location *location)
 
 void write_tile(FILE *file, const struct Tile *tile)
 {
-    if (!file || !tile) {
-        return;
-    }
+    if (!file || !tile) return;
 
     fprintf(file, "%u", tile_seed(tile));
     fputc(FILE_SEP_MED, file);
     fprintf(file, "%d", tile_terrain(tile));
     fputc(FILE_SEP_MED, file);
 
-    /* road byte [..r1r2r3r4r5r6] */
-    uint8_t roads = 0;
-    for (int i = 0; i < NUM_DIRECTIONS; i++) {
-        roads *= 2;
-        roads += (tile_road(tile, i)) ? 1 : 0;
-    }
-    fprintf(file, "%d", roads);
+    /* road byte [..r6r5r4r3r2r1] */
+    fprintf(file, "%d", tile_roads(tile));
     fputc(FILE_SEP_MED, file);
 
-    /* river byte [..r1r2r3r4r5r6] */
-    uint8_t rivers = 0;
-    for (int i = 0; i < NUM_DIRECTIONS; i++) {
-        rivers *= 2;
-        rivers += (tile_river(tile, i)) ? 1 : 0;
-    }
-    fprintf(file, "%d", rivers);
+    /* river byte [..r6r5r4r3r2r1] */
+    fprintf(file, "%d", tile_rivers(tile));
     fputc(FILE_SEP_MED, file);
 }
 
@@ -97,7 +85,7 @@ void write_chart(FILE *file, const struct Chart *chart)
     }
     fputc('\n', file);
 
-    if (!chart_children(chart)) {
+    if (!chart_has_children(chart)) {
         return;
     }
 
@@ -187,13 +175,9 @@ struct Tile *read_tile(char *str)
 
     uint8_t roads = strtol(str_roads, NULL, 10);
     uint8_t rivers = strtol(str_rivers, NULL, 10);
-    for (size_t i = NUM_DIRECTIONS; i > 0; i--) {
-        tile_set_road(tile, (i - 1), (roads % 2));
-        tile_set_river(tile, (i - 1), (rivers % 2));
 
-        roads >>= 1;
-        rivers >>= 1;
-    }
+    tile_set_roads(tile, roads);
+    tile_set_rivers(tile, rivers);
 
     return tile;
 }

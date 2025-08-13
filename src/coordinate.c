@@ -1,11 +1,10 @@
 #include <math.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "hdr/coordinate.h"
 
-const struct Coordinate COORDINATE_ORIGIN = { 0, 0, 0, 0 };
+const struct Coordinate COORDINATE_DELTA_XX = { 0, 0, 0, 0 };
 const struct Coordinate COORDINATE_DELTA_EE = { 1, 0, -1, 0 };
 const struct Coordinate COORDINATE_DELTA_NE = { 1, -1, 0, 0 };
 const struct Coordinate COORDINATE_DELTA_NW = { 0, -1, 1, 0 };
@@ -13,15 +12,19 @@ const struct Coordinate COORDINATE_DELTA_WW = { -1, 0, 1, 0 };
 const struct Coordinate COORDINATE_DELTA_SW = { -1, 1, 0, 0 };
 const struct Coordinate COORDINATE_DELTA_SE = { 0, 1, -1, 0 };
 
-struct Coordinate coordinate(int p, int q, int r, int m)
+
+struct Coordinate coordinate(int32_t p, int32_t q, int32_t r, uint32_t m)
 {
     return (struct Coordinate) {p, q, r, m};
 }
 
-struct Coordinate coordinate_origin(void)
-{
-    return COORDINATE_ORIGIN;
-}
+
+struct Coordinate coordinate_origin(void) { return COORDINATE_DELTA_XX; }
+uint32_t coordinate_m(struct Coordinate c) { return c.m; }
+int32_t coordinate_p(struct Coordinate c) { return c.p; }
+int32_t coordinate_q(struct Coordinate c) { return c.q; }
+int32_t coordinate_r(struct Coordinate c) { return c.r; }
+
 
 struct Coordinate coordinate_delta(enum DIRECTION d)
 {
@@ -41,7 +44,7 @@ struct Coordinate coordinate_delta(enum DIRECTION d)
         default:
             break;
     }
-    return COORDINATE_ORIGIN;
+    return COORDINATE_DELTA_XX;
 }
 
 
@@ -51,7 +54,7 @@ enum CHILDREN coordinate_index(struct Coordinate c)
 }
 
 
-struct Coordinate coordinate_lift_to(struct Coordinate c, unsigned int m)
+struct Coordinate coordinate_lift_to(struct Coordinate c, uint32_t m)
 {
     struct Coordinate lift = c;
     while (lift.m < m) {
@@ -63,10 +66,12 @@ struct Coordinate coordinate_lift_to(struct Coordinate c, unsigned int m)
     return lift;
 }
 
-struct Coordinate coordinate_lift_by(struct Coordinate c, unsigned int m)
+
+struct Coordinate coordinate_lift_by(struct Coordinate c, uint32_t m)
 {
     return coordinate_lift_to(c, c.m + m);
 }
+
 
 struct Coordinate coordinate_drop(struct Coordinate c, enum CHILDREN i)
 {
@@ -78,10 +83,12 @@ struct Coordinate coordinate_drop(struct Coordinate c, enum CHILDREN i)
     return drop;
 }
 
+
 bool coordinate_equals(struct Coordinate c1, struct Coordinate c2)
 {
     return ((c1.p == c2.p) && (c1.q == c2.q) && (c1.r == c2.r) && (c1.m == c2.m));
 }
+
 
 bool coordinate_related(struct Coordinate c1, struct Coordinate c2)
 {
@@ -90,6 +97,7 @@ bool coordinate_related(struct Coordinate c1, struct Coordinate c2)
     lower = coordinate_lift_to(lower, upper.m);
     return coordinate_equals(lower, upper);
 }
+
 
 struct Coordinate coordinate_common_ancestor(struct Coordinate c1, struct Coordinate c2)
 {
@@ -104,6 +112,7 @@ struct Coordinate coordinate_common_ancestor(struct Coordinate c1, struct Coordi
     return c1;
 }
 
+
 struct Coordinate coordinate_add(struct Coordinate c1, struct Coordinate c2)
 {
     struct Coordinate sum = { 0 };
@@ -116,37 +125,20 @@ struct Coordinate coordinate_add(struct Coordinate c1, struct Coordinate c2)
     return sum;
 }
 
+
 struct Coordinate coordinate_scale(struct Coordinate c, int s)
 {
     return (struct Coordinate) { s*c.p, s*c.q, s*c.r, c.m };
 }
+
 
 struct Coordinate coordinate_shift(struct Coordinate c, enum DIRECTION d)
 {
     return coordinate_add(c, coordinate_delta(d));
 }
 
+
 struct Coordinate coordinate_nshift(struct Coordinate c, enum DIRECTION d, int n)
 {
     return coordinate_add(c, coordinate_scale(coordinate_delta(d), n));
-}
-
-unsigned int coordinate_m(struct Coordinate c)
-{
-    return c.m;
-}
-
-int coordinate_p(struct Coordinate c)
-{
-    return c.p;
-}
-
-int coordinate_q(struct Coordinate c)
-{
-    return c.q;
-}
-
-int coordinate_r(struct Coordinate c)
-{
-    return c.r;
 }
