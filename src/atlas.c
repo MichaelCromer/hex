@@ -8,7 +8,6 @@
 #include "hdr/tile.h"
 
 
-
 typedef struct Chart *ChartChildren[NUM_CHILDREN];
 
 
@@ -176,16 +175,8 @@ struct Directory *atlas_directory(const struct Atlas *atlas)
 }
 
 
-struct Chart *atlas_root(const struct Atlas *atlas)
-{
-    return atlas->root;
-}
-
-
-struct Chart *atlas_curr(const struct Atlas *atlas)
-{
-    return atlas->curr;
-}
+struct Chart *atlas_root(const struct Atlas *atlas) { return atlas->root; }
+struct Chart *atlas_curr(const struct Atlas *atlas) { return atlas->curr; }
 
 
 struct Coordinate atlas_coordinate(const struct Atlas *atlas)
