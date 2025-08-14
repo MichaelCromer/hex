@@ -45,9 +45,7 @@ void write_coordinate(FILE *file, struct Coordinate c)
 
 void write_location(FILE *file, const struct Location *location)
 {
-    if (!file || !location) {
-        return;
-    }
+    if (!file || !location) return;
 
     write_coordinate(file, location_coordinate(location));
     fputc(FILE_SEP_MAJ, file);
@@ -74,24 +72,17 @@ void write_tile(FILE *file, const struct Tile *tile)
 
 void write_chart(FILE *file, const struct Chart *chart)
 {
-    if (!file || !chart) {
-        return;
-    }
-
+    if (!file || !chart) return;
     write_coordinate(file, chart_coordinate(chart));
+
     if (chart_tile(chart)) {
         fputc(FILE_SEP_MAJ, file);
         write_tile(file, chart_tile(chart));
     }
     fputc('\n', file);
 
-    if (!chart_has_children(chart)) {
-        return;
-    }
-
-    for (int i = 0; i < NUM_CHILDREN; i++) {
-        write_chart(file, chart_child(chart, i));
-    }
+    if (!chart_has_children(chart)) return;
+    for (int i = 0; i < NUM_CHILDREN; i++) write_chart(file, chart_child(chart, i));
 }
 
 void write_directory(FILE *file, struct Directory *directory)
@@ -107,9 +98,7 @@ void write_directory(FILE *file, struct Directory *directory)
 
 void write_atlas(FILE *file, const struct Atlas *atlas)
 {
-    if (!file || !atlas) {
-        return;
-    }
+    if (!file || !atlas) return;
 
     fprintf(file, FILE_MARKER_ROOT "\n");
     write_chart(file, atlas_root(atlas));
@@ -122,13 +111,9 @@ void write_atlas(FILE *file, const struct Atlas *atlas)
 
 void write_state(FILE *file)
 {
-    if (!file) {
-        return;
-    }
+    if (!file) return;
 
     write_atlas(file, state_atlas());
-
-    return;
 }
 
 /*==========================================================
@@ -236,17 +221,13 @@ struct Atlas *read_atlas(FILE *file)
 
     /* set the current coordinate */
     while (fgets(buf, LINE_MAX, file)) {
-        if (strcmp(buf, FILE_MARKER_LOCN "\n") == 0) {
-            break;
-        }
+        if (strcmp(buf, FILE_MARKER_LOCN "\n") == 0) break;
         atlas_goto(atlas, read_coordinate(buf));
     }
 
     /* read in locations */
     while (fgets(buf, LINE_MAX, file)) {
-        if (strcmp(buf, FILE_MARKER_NULL "\n") == 0) {
-            break;
-        }
+        if (strcmp(buf, FILE_MARKER_NULL "\n") == 0) break;
         atlas_add_location(atlas, read_location(buf));
     }
 
@@ -258,18 +239,14 @@ struct Atlas *read_atlas(FILE *file)
 
 void read_state(FILE *file)
 {
-    if (!file) {
-        return;
-    }
+    if (!file) return;
 
     char *buf = malloc(LINE_MAX);
     memset(buf, 0, LINE_MAX);
 
     /* advance to 'chart' marker */
     while (fgets(buf, LINE_MAX, file)) {
-        if (strcmp(buf, FILE_MARKER_ROOT "\n") == 0) {
-            break;
-        }
+        if (strcmp(buf, FILE_MARKER_ROOT "\n") == 0) break;
     }
     struct Atlas *atlas = read_atlas(file);
 
