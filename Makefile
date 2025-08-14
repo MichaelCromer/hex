@@ -2,36 +2,36 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Wpedantic
 CLIBS = -lncurses -lm
 
-SRC_DIR = ./src
-HDR_DIR = $(SRC_DIR)/hdr
-BLD_DIR = ./bld
-OBJ_DIR = $(BLD_DIR)/obj
+DIR_SRC = ./src
+DIR_HDR = $(DIR_SRC)/hdr
+DIR_BLD = ./bld
+DIR_OBJ = $(DIR_BLD)/obj
 TARGET = hex
 
-SRC = $(wildcard $(SRC_DIR)/*.c)
-HDR = $(wildcard $(HDR_DIR)/*.h)
-OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+SRC = $(wildcard $(DIR_SRC)/*.c)
+HDR = $(wildcard $(DIR_HDR)/*.h)
+OBJ = $(SRC:$(DIR_SRC)/%.c=$(DIR_OBJ)/%.o)
 
 
-$(BLD_DIR)/$(TARGET): $(OBJ) | $(BLD_DIR)
+$(DIR_BLD)/$(TARGET): $(OBJ) | $(DIR_BLD)
 	$(CC) $(CFLAGS) $(OBJ) -o $@ $(CLIBS)
 
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+$(DIR_OBJ)/%.o: $(DIR_SRC)/%.c | $(DIR_OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
-$(OBJ_DIR) $(BLD_DIR): ; mkdir -p $@
+$(DIR_OBJ) $(DIR_BLD): ; mkdir -p $@
 
 
 .PHONY: dev
 dev : CFLAGS += -g -fsanitize=address,leak,undefined
-dev : clean $(BLD_DIR)/$(TARGET)
+dev : clean $(DIR_BLD)/$(TARGET)
 
 
-clean: ; rm -rf $(OBJ_DIR)
 .PHONY: clean
+clean: ; rm -rf $(DIR_OBJ)
 
 
-tags: ; ctags $(SRC) $(HDR)
 .PHONY: tags
+tags: ; ctags $(SRC) $(HDR)
