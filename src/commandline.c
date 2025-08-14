@@ -5,9 +5,11 @@
 #include "hdr/commandline.h"
 
 #define COMMANDLINE_BUFFER_SIZE 1024
-#define COMMAND_WORD_QUIT   "quit"
-#define COMMAND_WORD_WRITE  "write"
-#define COMMAND_WORD_EDIT   "edit"
+
+const char *COMMAND_WORD_QUIT = "quit";
+const char *COMMAND_WORD_WRITE = "write";
+const char *COMMAND_WORD_EDIT = "edit";
+const char *COMMAND_WORD_NONE = "";
 
 
 char buffer[COMMANDLINE_BUFFER_SIZE] = { 0 };
@@ -15,6 +17,23 @@ size_t len = 0;
 size_t curr = 0;
 enum COMMAND command = COMMAND_NONE;
 char *data = NULL;
+
+
+const char *command_str(enum COMMAND c)
+{
+    switch (c) {
+        case COMMAND_QUIT:
+            return COMMAND_WORD_QUIT;
+        case COMMAND_WRITE:
+            return COMMAND_WORD_WRITE;
+        case COMMAND_EDIT:
+            return COMMAND_WORD_EDIT;
+        default:
+            break;
+    }
+
+    return COMMAND_WORD_NONE;
+}
 
 
 size_t commandline_len(void) { return len; }
@@ -37,7 +56,10 @@ void commandline_reset(void)
 void commandline_putch(char ch)
 {
     /* -1 offset so has null terminator */
-    if (len >= COMMANDLINE_BUFFER_SIZE - 1) return;
+    if (
+        (len >= COMMANDLINE_BUFFER_SIZE - 1)
+        || (curr >= COMMANDLINE_BUFFER_SIZE - 1)
+    ) return;
     for (size_t i = len; i > curr; i--) {
         buffer[i] = buffer[i - 1];
     }
@@ -48,8 +70,7 @@ void commandline_putch(char ch)
 
 char commandline_popch(void)
 {
-    if (len <= 0) return 0;
-    if (curr <= 0) return 0;
+    if ((len <= 0) || (curr <= 0)) return 0;
     char tmp = buffer[curr - 1];
     for (size_t i = curr - 1; i < len - 1; i++) {
         buffer[i] = buffer[i + 1];
@@ -85,7 +106,7 @@ char *commandline_find(int (test)(int))
 }
 
 
-bool commandline_match(char *keyword, char *c, size_t L)
+bool commandline_match(const char *keyword, char *c, size_t L)
 {
     return ((L > 0) && (L <= strlen(keyword)) && !strncmp(keyword, c, L));
 }
@@ -101,9 +122,7 @@ void commandline_clearword(void)
 
 void commandline_clearline(void)
 {
-    memset(buffer, 0, COMMANDLINE_BUFFER_SIZE);
-    len = 0;
-    curr = 0;
+    commandline_reset();
 }
 
 
@@ -111,9 +130,12 @@ void commandline_parse(void)
 {
     char *c0 = NULL, *c1 = NULL;
     size_t L = 0;
+    size_t tmp_curr = curr;
 
     curr = 0;
+    command = COMMAND_NONE;
     if (data) free(data);
+    data = NULL;
 
     c0 = commandline_find(isgraph);
     c1 = commandline_find(isspace);
@@ -129,11 +151,48 @@ void commandline_parse(void)
         command = COMMAND_ERROR;
     }
 
-    if ((command == COMMAND_QUIT) || (command == COMMAND_ERROR)) return;
+    if ((command == COMMAND_QUIT) || (command == COMMAND_ERROR)) {
+        curr = tmp_curr;
+        return;
+    }
 
     c0 = commandline_find(isgraph);
     c1 = commandline_find(isspace);
     L = c1 - c0;
 
     if (L) { data = strndup(c0, L); }
+
+    curr = tmp_curr;
+}
+
+
+void commandline_complete_keyword(void)
+{
+    const char *str = command_str(command);
+    size_t tmp_curr = curr;
+
+    curr = 0;
+    (void) commandline_find(isgraph);
+    for (size_t i = 0; i < strlen(str); i++) {
+        if (buffer[curr] == str[i]) {
+            curr++;
+            continue;
+        }
+
+        commandline_putch(str[i]);
+        tmp_curr++;
+    }
+
+    curr = tmp_curr;
+}
+
+
+void commandline_complete(void)
+{
+    commandline_parse();
+
+    if ((COMMAND_NONE != command) && (COMMAND_ERROR != command) && (!data)) {
+        commandline_complete_keyword();
+        return;
+    }
 }

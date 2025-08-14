@@ -19,5 +19,6 @@ size_t commandline_curr(void);
 char *commandline_next(void);
 char *commandline_prev(void);
 void commandline_parse(void);
+void commandline_complete(void);
 
 #endif

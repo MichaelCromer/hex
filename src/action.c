@@ -327,6 +327,7 @@ void action_command(key k)
             return;
 
         case '\t':
+            commandline_complete();
             return;
 
         default:
