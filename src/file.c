@@ -28,10 +28,10 @@ void write_coordinate(FILE *file, struct Coordinate c)
 {
     if (!file) return;
 
-    int p = coordinate_p(c),
-        q = coordinate_q(c),
-        r = coordinate_r(c),
-        m = coordinate_m(c);
+    int32_t p = coordinate_p(c),
+            q = coordinate_q(c),
+            r = coordinate_r(c);
+    uint32_t m = coordinate_m(c);
 
     fprintf(
         file,
@@ -139,34 +139,39 @@ struct Coordinate read_coordinate(char *str)
 {
     if (!str) return (struct Coordinate) { 0 };
 
-    char delim[2] = { FILE_SEP_MIN, '\0' };
-    char *str_p = strtok(str, delim);
-    char *str_q = strtok(NULL, delim);
-    char *str_r = strtok(NULL, delim);
-    char *str_m = strtok(NULL, delim);
+    char *str_p = str;
+    char *str_q = strchrnul(str_p, FILE_SEP_MIN);
+    *(str_q++) = '\0';
+    char *str_r = strchrnul(str_q, FILE_SEP_MIN);
+    *(str_r++) = '\0';
+    char *str_m = strchrnul(str_r, FILE_SEP_MIN);
+    *(str_m++) = '\0';
+    char *str_end = strchrnul(str_m, FILE_SEP_MIN);
+    *str_end = '\0';
 
-    int p = strtol(str_p, NULL, 10),
+    int32_t p = strtol(str_p, NULL, 10),
         q = strtol(str_q, NULL, 10), r = strtol(str_r, NULL, 10);
-    unsigned int m = (unsigned int)strtol(str_m, NULL, 10);
+    uint32_t m = (uint32_t)strtol(str_m, NULL, 10);
 
     return coordinate(p, q, r, m);
 }
 
 /* expected format:
- *  [SEED];[TERRAIN];[ROAD1..ROAD6];[RIVER1..RIVER6]
+ *  [SEED];[TERRAIN];[ROADS];[RIVERS]
  */
 struct Tile *read_tile(char *str)
 {
-    if (!str) {
-        return NULL;
-    }
+    if (!str || strlen(str) == 0) return NULL;
 
-    char delim_med[2] = { FILE_SEP_MED, '\0' };
-
-    char *str_seed = strtok(str, delim_med);
-    char *str_terrain = strtok(NULL, delim_med);
-    char *str_roads = strtok(NULL, delim_med);
-    char *str_rivers = strtok(NULL, delim_med);
+    char *str_seed = str;
+    char *str_terrain = strchrnul(str_seed, FILE_SEP_MED);
+    *(str_terrain++) = '\0';
+    char *str_roads = strchrnul(str_terrain, FILE_SEP_MED);
+    *(str_roads++) = '\0';
+    char *str_rivers = strchrnul(str_roads, FILE_SEP_MED);
+    *(str_rivers++) = '\0';
+    char *str_end = strchrnul(str_rivers, FILE_SEP_MED);
+    *str_end = '\0';
 
     struct Tile *tile = tile_create();
 
@@ -186,10 +191,9 @@ struct Chart *read_chart(char *line)
 {
     if (!line) return NULL;
 
-    char delim[2] = { FILE_SEP_MAJ, '\0' };
-
-    char *str_coordinate = strtok(line, delim);
-    char *str_tile = strtok(NULL, delim);
+    char *str_coordinate = line;
+    char *str_tile = strchrnul(str_coordinate, FILE_SEP_MAJ);
+    *(str_tile++) = '\0';
 
     struct Coordinate c = read_coordinate(str_coordinate);
     struct Chart *chart = chart_create(c);
@@ -201,10 +205,9 @@ struct Chart *read_chart(char *line)
 
 struct Location *read_location(char *line)
 {
-    char delim[2] = { FILE_SEP_MAJ, '\0' };
-
-    char *str_coordinate = strtok(line, delim);
-    char *str_location = strtok(NULL, delim);
+    char *str_coordinate = line;
+    char *str_location = strchrnul(str_coordinate, FILE_SEP_MAJ);
+    *(str_location++) = '\0';
 
     struct Coordinate c = read_coordinate(str_coordinate);
     enum LOCATION t = (enum LOCATION) strtol(str_location, NULL, 10);
@@ -248,6 +251,7 @@ struct Atlas *read_atlas(FILE *file)
     }
 
     free(buf);
+    free(line);
     return atlas;
 }
 
