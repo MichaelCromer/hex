@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Wpedantic
+CFLAGS = -Wall -Wextra -Wpedantic -Werror
 CLIBS = -lncurses -lm
 
 DIR_SRC = ./src
