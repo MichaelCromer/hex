@@ -311,11 +311,11 @@ void action_command(key k)
             return;
 
         case 23:
-            commandline_cursor_clearword();
+            commandline_cursor_cut_word();
             return;
 
         case 21:
-            commandline_cursor_clearline();
+            commandline_cursor_cut_line();
             return;
 
         case KEY_LEFT:

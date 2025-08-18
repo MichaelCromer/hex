@@ -12,8 +12,8 @@ const char *commandline_data(void);
 
 void commandline_cursor_putch(char ch);
 char commandline_cursor_popch(void);
-void commandline_cursor_clearword(void);
-void commandline_cursor_clearline(void);
+void commandline_cursor_cut_word(void);
+void commandline_cursor_cut_line(void);
 size_t commandline_len(void);
 char *commandline_cursor(void);
 size_t commandline_cursor_pos(void);

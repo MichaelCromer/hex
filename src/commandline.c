@@ -169,7 +169,7 @@ bool commandline_match(char *fst, const char *keyword, size_t n)
 }
 
 
-void commandline_cursor_clearword(void)
+void commandline_cursor_cut_word(void)
 {
     if (len == 0) return;
     char *fst = commandline_find_prev(cursor, isspace);
@@ -179,7 +179,7 @@ void commandline_cursor_clearword(void)
 }
 
 
-void commandline_cursor_clearline(void)
+void commandline_cursor_cut_line(void)
 {
     cursor -= commandline_cut(buffer, cursor);
 }
