@@ -406,7 +406,7 @@ void wdraw_statusline(WINDOW *win)
 
         int x, y;
         getyx(win, y, x);
-        wmove(win, y, x - (commandline_len() - commandline_curr()));
+        wmove(win, y, x - (commandline_len() - commandline_cursor_pos()));
     }
 }
 

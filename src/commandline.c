@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -14,7 +15,7 @@ const char *COMMAND_WORD_NONE = "";
 
 char buffer[COMMANDLINE_BUFFER_SIZE] = { 0 };
 size_t len = 0;
-size_t curr = 0;
+char *cursor = buffer;
 enum COMMAND command = COMMAND_NONE;
 char *data = NULL;
 
@@ -36,154 +37,194 @@ const char *command_str(enum COMMAND c)
 }
 
 
+bool commandline_in_buffer(const char *ptr)
+{
+    return ((ptr >= buffer) && (ptr <= buffer + COMMANDLINE_BUFFER_SIZE));
+}
+
+
 size_t commandline_len(void) { return len; }
 const char *commandline_str(void) { return buffer; }
 enum COMMAND commandline_command(void) { return command; }
 const char *commandline_data(void) { return data; }
+char *commandline_cursor(void) { return cursor; }
 
 
 void commandline_reset(void)
 {
     memset(buffer, 0, COMMANDLINE_BUFFER_SIZE);
     len = 0;
-    curr = 0;
+    cursor = buffer;
     command = COMMAND_NONE;
     if (data) free(data);
     data = NULL;
 }
 
 
-void commandline_putch(char ch)
+size_t commandline_cursor_pos(void)
 {
-    /* -1 offset so has null terminator */
-    if (
-        (len >= COMMANDLINE_BUFFER_SIZE - 1)
-        || (curr >= COMMANDLINE_BUFFER_SIZE - 1)
-    ) return;
-    for (size_t i = len; i > curr; i--) {
-        buffer[i] = buffer[i - 1];
-    }
-    buffer[curr++] = ch;
-    len++;
+    ptrdiff_t dp = cursor - buffer;
+    size_t pos = (0 <= dp) ? (size_t)dp : 0;
+    return (pos <= len) ? pos : len;
 }
 
 
-char commandline_popch(void)
+size_t commandline_cut(char *fst, char *snd)
 {
-    if ((len <= 0) || (curr <= 0)) return 0;
-    char tmp = buffer[curr - 1];
-    for (size_t i = curr - 1; i < len - 1; i++) {
-        buffer[i] = buffer[i + 1];
+    if (!commandline_in_buffer(fst) || !commandline_in_buffer(snd) || (snd < fst)) {
+        return 0;
     }
-    buffer[--len] = '\0';
-    curr--;
+
+    if (fst > buffer + len) return 0;
+    if (snd > buffer + len) snd = buffer + len;
+
+    size_t len_cut = (snd - fst);
+    size_t len_tail = COMMANDLINE_BUFFER_SIZE - (snd - buffer);
+
+    memmove(fst, snd, len_tail);
+    memset(fst + len_tail, 0, len_cut);
+
+    len -= len_cut;
+    return len_cut;
+}
+
+
+size_t commandline_paste(char *fst, const char *str)
+{
+    if (!commandline_in_buffer(fst) || commandline_in_buffer(str)) return 0;
+
+    size_t len_paste_max = COMMANDLINE_BUFFER_SIZE - (fst - buffer) - 1;
+    size_t len_paste = (strlen(str) > len_paste_max) ? len_paste_max : strlen(str);
+    size_t len_tail = len_paste_max - len_paste;
+
+    memmove(fst + len_paste, fst, len_tail);
+    memcpy(fst, str, len_paste);
+
+    len += len_paste;
+    return len_paste;
+}
+
+
+void commandline_cursor_putch(char ch)
+{
+    if (commandline_cursor_pos() == COMMANDLINE_BUFFER_SIZE - 1) return;
+    char tmp[2] = { ch, '\0' };
+    cursor += commandline_paste(cursor, tmp);
+}
+
+
+char commandline_cursor_popch(void)
+{
+    if (commandline_cursor_pos() == 0) return 0;
+    char tmp = *(cursor - 1);
+    cursor -= commandline_cut(cursor - 1, cursor);
     return tmp;
 }
 
 
-size_t commandline_curr(void) { return curr; }
-
-
-char *commandline_next(void)
+char *commandline_find(char *fst, int (*test)(int), bool fwd)
 {
-    if (curr >= len) return (buffer + len);
-    return buffer + (++curr);
+    if (!commandline_in_buffer(fst)) return NULL;
+    char *curr = fst;
+
+    while (1) {
+        if (test(*curr) || (curr == buffer + ((fwd) ? len : 0))) break;
+        curr = (fwd) ? curr + 1 : curr - 1;
+    }
+
+    return curr;
 }
 
 
-char *commandline_prev(void)
+char *commandline_find_prev(char *fst, int (*test)(int))
 {
-    if (curr <= 0) return (buffer);
-    return buffer + (--curr);
+    return commandline_find(fst, test, false);
 }
 
 
-char *commandline_find(int (test)(int))
+char *commandline_find_next(char *fst, int (*test)(int))
 {
-    char *c = buffer + curr;
-    while (!test(*c) && (curr < len)) c = commandline_next();
-    return c;
+    return commandline_find(fst, test, true);
 }
 
 
-bool commandline_match(const char *keyword, char *c, size_t L)
+char *commandline_cursor_next(void)
 {
-    return ((L > 0) && (L <= strlen(keyword)) && !strncmp(keyword, c, L));
+    if (commandline_cursor_pos() == len) return cursor;
+    return ++cursor;
 }
 
 
-void commandline_clearword(void)
+char *commandline_cursor_prev(void)
+{
+    if (commandline_cursor_pos() == 0) return cursor;
+    return --cursor;
+}
+
+
+bool commandline_match(char *fst, const char *keyword, size_t n)
+{
+    if (!commandline_in_buffer(fst) || !commandline_in_buffer(fst + n)) return false;
+    return ((n <= strlen(keyword)) && (0 == strncmp(keyword, fst, n)));
+}
+
+
+void commandline_cursor_clearword(void)
 {
     if (len == 0) return;
-    while (isspace(buffer[len - 1])) commandline_popch();
-    while (isgraph(buffer[len - 1])) commandline_popch();
+    char *fst = commandline_find_prev(cursor, isspace);
+    fst = commandline_find_prev(fst, isgraph);
+    while (commandline_in_buffer(fst - 1) && isgraph(*(fst - 1))) fst--;
+    cursor -= commandline_cut(fst, cursor);
 }
 
 
-void commandline_clearline(void)
+void commandline_cursor_clearline(void)
 {
-    commandline_reset();
+    cursor -= commandline_cut(buffer, cursor);
 }
 
 
 void commandline_parse(void)
 {
-    char *c0 = NULL, *c1 = NULL;
-    size_t L = 0;
-    size_t tmp_curr = curr;
+    char *cmd_fst = NULL, *cmd_snd = NULL;
+    char *data_fst = NULL;
+    ptrdiff_t len_cmd = 0, len_data = 0;
 
-    curr = 0;
     command = COMMAND_NONE;
     if (data) free(data);
     data = NULL;
 
-    c0 = commandline_find(isgraph);
-    c1 = commandline_find(isspace);
-    L = c1 - c0;
+    cmd_fst = commandline_find_next(buffer, isgraph);
+    cmd_snd = commandline_find_next(cmd_fst, isspace);
+    len_cmd = cmd_snd - cmd_fst;
 
-    if (commandline_match(COMMAND_WORD_QUIT, c0, L))  {
+    if (commandline_match(cmd_fst, COMMAND_WORD_QUIT, len_cmd))  {
         command = COMMAND_QUIT;
-    } else if (commandline_match(COMMAND_WORD_WRITE, c0, L))  {
+    } else if (commandline_match(cmd_fst, COMMAND_WORD_WRITE, len_cmd))  {
         command = COMMAND_WRITE;
-    } else if (commandline_match(COMMAND_WORD_EDIT, c0, L))  {
+    } else if (commandline_match(cmd_fst, COMMAND_WORD_EDIT, len_cmd))  {
         command = COMMAND_EDIT;
     } else {
         command = COMMAND_ERROR;
     }
 
-    if ((command == COMMAND_QUIT) || (command == COMMAND_ERROR)) {
-        curr = tmp_curr;
-        return;
-    }
+    if ((command == COMMAND_QUIT) || (command == COMMAND_ERROR)) return;
 
-    c0 = commandline_find(isgraph);
-    c1 = commandline_find(isspace);
-    L = c1 - c0;
-
-    if (L) { data = strndup(c0, L); }
-
-    curr = tmp_curr;
+    data_fst = commandline_find_next(cmd_snd, isgraph);
+    len_data = (buffer + COMMANDLINE_BUFFER_SIZE) - data_fst;
+    if (len_data) data = strndup(data_fst, len_data);
 }
 
 
 void commandline_complete_keyword(void)
 {
     const char *str = command_str(command);
-    size_t tmp_curr = curr;
+    char *fst = buffer;
 
-    curr = 0;
-    (void) commandline_find(isgraph);
-    for (size_t i = 0; i < strlen(str); i++) {
-        if (buffer[curr] == str[i]) {
-            curr++;
-            continue;
-        }
-
-        commandline_putch(str[i]);
-        tmp_curr++;
-    }
-
-    curr = tmp_curr;
+    while (!isgraph(*fst)) fst++;
+    while ((*fst == *str) && (*str)) fst++, str++;
+    commandline_paste(fst, str);
 }
 
 

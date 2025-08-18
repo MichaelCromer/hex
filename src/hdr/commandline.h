@@ -10,14 +10,15 @@ enum COMMAND commandline_command(void);
 const char *commandline_str(void);
 const char *commandline_data(void);
 
-void commandline_putch(char ch);
-char commandline_popch(void);
-void commandline_clearword(void);
-void commandline_clearline(void);
+void commandline_cursor_putch(char ch);
+char commandline_cursor_popch(void);
+void commandline_cursor_clearword(void);
+void commandline_cursor_clearline(void);
 size_t commandline_len(void);
-size_t commandline_curr(void);
-char *commandline_next(void);
-char *commandline_prev(void);
+char *commandline_cursor(void);
+size_t commandline_cursor_pos(void);
+char *commandline_cursor_next(void);
+char *commandline_cursor_prev(void);
 void commandline_parse(void);
 void commandline_complete(void);
 

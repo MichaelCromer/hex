@@ -307,23 +307,23 @@ void action_command(key k)
                 break;
             }
 
-            commandline_popch();
+            commandline_cursor_popch();
             return;
 
         case 23:
-            commandline_clearword();
+            commandline_cursor_clearword();
             return;
 
         case 21:
-            commandline_clearline();
+            commandline_cursor_clearline();
             return;
 
         case KEY_LEFT:
-            commandline_prev();
+            commandline_cursor_prev();
             return;
 
         case KEY_RIGHT:
-            commandline_next();
+            commandline_cursor_next();
             return;
 
         case '\t':
@@ -331,7 +331,7 @@ void action_command(key k)
             return;
 
         default:
-            commandline_putch(state_key_curr());
+            commandline_cursor_putch(state_key_curr());
             return;
     }
     curs_set(0);
