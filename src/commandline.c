@@ -128,11 +128,10 @@ char *commandline_find(char *fst, int (*test)(int), bool fwd)
     char *curr = fst;
 
     while (1) {
-        if (test(*curr) || (curr == buffer + ((fwd) ? len : 0))) break;
+        if (test(*curr)) return curr;
+        if (curr == buffer + ((fwd) ? len : 0)) return NULL;
         curr = (fwd) ? curr + 1 : curr - 1;
     }
-
-    return curr;
 }
 
 
@@ -173,6 +172,7 @@ void commandline_cursor_cut_word(void)
 {
     if (len == 0) return;
     char *fst = commandline_find_prev(cursor, isspace);
+    if (!fst) fst = cursor;
     fst = commandline_find_prev(fst, isgraph);
     while (commandline_in_buffer(fst - 1) && isgraph(*(fst - 1))) fst--;
     cursor -= commandline_cut(fst, cursor);
@@ -183,6 +183,9 @@ void commandline_cursor_cut_line(void)
 {
     cursor -= commandline_cut(buffer, cursor);
 }
+
+
+int isnull(int ch) { return (0 == ch) ? 1 : 0; }
 
 
 void commandline_parse(void)
@@ -196,8 +199,13 @@ void commandline_parse(void)
     data = NULL;
 
     cmd_fst = commandline_find_next(buffer, isgraph);
+    if (!cmd_fst) return;
+
     cmd_snd = commandline_find_next(cmd_fst, isspace);
+    if (!cmd_snd) cmd_snd = commandline_find_next(cmd_fst, isnull);
+
     len_cmd = cmd_snd - cmd_fst;
+    if (!len_cmd) return;
 
     if (commandline_match(cmd_fst, COMMAND_WORD_QUIT, len_cmd))  {
         command = COMMAND_QUIT;
@@ -212,6 +220,8 @@ void commandline_parse(void)
     if ((command == COMMAND_QUIT) || (command == COMMAND_ERROR)) return;
 
     data_fst = commandline_find_next(cmd_snd, isgraph);
+    if (!data_fst) return;
+
     len_data = (buffer + COMMANDLINE_BUFFER_SIZE) - data_fst;
     if (len_data) data = strndup(data_fst, len_data);
 }
@@ -224,7 +234,7 @@ void commandline_complete_keyword(void)
 
     while (!isgraph(*fst)) fst++;
     while ((*fst == *str) && (*str)) fst++, str++;
-    commandline_paste(fst, str);
+    cursor += commandline_paste(fst, str);
 }
 
 
