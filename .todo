@@ -1,3 +1,6 @@
+[X] chart_tile candidate for deprecation, expose only atlas
+[X] chart p q r candidates for deprecation
+[X] unknown terrain only drawn in terrain painting mode
 [X] consider collapsing terrain unknown and terrain none
 [X] do I really need seed to be an unsigned int
 [X] action_move inside action_navigate should not have magic number parameters
@@ -31,11 +34,8 @@
 [ ] UX remember last placed terrain
 [ ] UX drag-paint doesn't update last placed terrain?
 [ ] update splash (should only load when no filename passed as cmdline option)
-[ ] unknown terrain only drawn in terrain painting mode
 [ ] map zoom with plus minus keys
 [ ] is there a better way to check if I need to create neighbours than to see if the current terrain is TERRAIN_UNKNOWN
-[ ] chart p q r candidates for deprecation
-[ ] chart_tile candidate for deprecation, expose only atlas
 [ ] proper colour defines for roads, rivers, and features in wdraw_tile
 [ ] refactor state_update it is getting unwieldy
 [ ] make a plan for :set command for reticule, brush size, zoom, aspect, jump size, hints shown in statusbar, etc
