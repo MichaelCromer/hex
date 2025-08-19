@@ -310,7 +310,7 @@ enum UI_PANEL mode_panel(enum MODE m)
 const char *statusstr_success_write = "Wrote file ";
 const char *statusstr_success_edit_new = "New file ";
 const char *statusstr_success_edit_old = "Opened file ";
-const char *statusstr_fail_write = "ERROR: failed to write to file ";
+const char *statusstr_fail_write = "ERROR: failed to write file ";
 const char *statusstr_fail_edit = "ERROR: failed to read file ";
 
 

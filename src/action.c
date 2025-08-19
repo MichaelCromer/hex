@@ -23,18 +23,21 @@ void action_write(const char *filename)
     if (filename) {
         file = fopen(filename, "w");
     } else {
-        if (!state_filename()) return;
+        if (!state_filename()) {
+            action_message(STATUS_ERROR_WRITE, "<unnamed>");
+            return;
+        }
         file = fopen(state_filename(), "w");
     }
 
     if (!file) {
-        state_set_status(STATUS_ERROR_WRITE);
+        action_message(STATUS_ERROR_WRITE, filename);
         return;
     }
 
     write_state(file);
     fclose(file);
-    state_set_status(STATUS_SUCCESS_WRITE);
+    action_message(STATUS_SUCCESS_WRITE, filename);
 }
 
 
@@ -46,7 +49,7 @@ void action_edit(const char *filename)
         fclose(file);
         action_message(STATUS_SUCCESS_EDIT_OLD, filename);
     } else {
-        state_set_status(STATUS_SUCCESS_EDIT_NEW);
+        action_message(STATUS_SUCCESS_EDIT_NEW, "<unnamed>");
     }
 }
 

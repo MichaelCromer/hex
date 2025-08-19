@@ -8,13 +8,13 @@ Download the repo and run
 
     make
 
-from the git root. Will create a `./build/` subdirectory with build objects. The
-executable is `./build/hex` for you to use as you see fit.
+from the git root. Will create a `./bdl/` subdirectory with build objects. The
+executable is `./bdl/hex` for you to use as you see fit.
 
 ## Use
 
-Run `hex` from the command line with or without a filename argument. If pass a file
-name, `hex` will try to read it as a hex save file and load it for editing. Otherwise,
+Run `hex` from the command line with or without a filename argument. If passed a file
+name, `hex` will try to read it as hex save data and load it for editing. Otherwise,
 you'll be opened up in a new empty world.
 
 ### Modes
@@ -54,16 +54,16 @@ taken back to terrain mode.
 ### Keygroups
 
 If you have a standard qwerty keyboard, you will find that commands in `hex` are grouped
-up so that different regions of the keyboard consistently have different use cases: the
+up so that different regions of the keyboard have different, consistent use cases: the
 keys under the left hand are for mode-specific commands (such as `q` for painting a
-water tile in terrain mode), and the keys under the right hand are for navigating around
-the map. The keys in the middle of the keyboard are for changing input modes (except `:`
-for entering command mode; `vim` users will recognise the inspiration).
+water tile in terrain mode), while the keys under the right hand are for navigating
+around the map. The keys in the middle of the keyboard are for changing input modes
+(except `:` for entering command mode; `vim` users will recognise the inspiration).
 
 #### Moving the cursor
 
 Most modes allow you to navigate through the hex grid one tile at a time with `u`, `i`,
-`h`, `l`, `n`, and `m` as directional keys (on a standard keyboard, they make a
+`h`, `l`, `n`, and `m` as directional keys (on a standard keyboard, they form a
 hexagon):
 ```
        u   i
