@@ -68,14 +68,11 @@ void action_mode(enum MODE m)
         return;
     }
 
-    if ((state_mode() == m) || (MODE_NONE == m)) {
-        state_push_mode(MODE_NAVIGATE);
-    } else {
-        state_push_mode(m);
-    }
+    if ((state_mode() == m) || (MODE_NONE == m)) state_push_mode(MODE_NAVIGATE);
+    else state_push_mode(m);
 
-    if (MODE_COMMAND == m) { curs_set(1); }
-    else { curs_set(0); }
+    if (MODE_COMMAND == m) curs_set(1);
+    else curs_set(0);
 }
 
 

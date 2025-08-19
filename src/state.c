@@ -75,8 +75,7 @@ void state_update(void)
     key k = wgetch(state_window());
     key_curr = k;
 
-    /* TODO remove magic value '?' */
-    if ((MODE_COMMAND != state_mode()) && (k == '?')) {
+    if ((MODE_COMMAND != state_mode()) && (KEY_TOGGLE_HELP == k)) {
         action_hint();
         return;
     }

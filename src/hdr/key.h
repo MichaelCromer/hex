@@ -16,6 +16,7 @@
 #define KEY_MODE_AWAIT_LOCATION 'f'
 #define        KEY_MODE_COMMAND ':'
 
+#define         KEY_TOGGLE_HELP '?'
 #define       KEY_TOGGLE_DETAIL 'j'
 #define     KEY_TOGGLE_RETICULE 'x'
 
