@@ -20,6 +20,6 @@ size_t commandline_cursor_pos(void);
 char *commandline_cursor_next(void);
 char *commandline_cursor_prev(void);
 void commandline_parse(void);
-void commandline_complete(void);
+void commandline_complete(const char *str_basename);
 
 #endif

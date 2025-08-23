@@ -4,6 +4,7 @@
 #include <ctype.h>
 
 #include "hdr/commandline.h"
+#include "hdr/stringarray.h"
 
 #define COMMANDLINE_BUFFER_SIZE 1024
 
@@ -84,7 +85,7 @@ size_t commandline_cut(char *fst, char *snd)
     memmove(fst, snd, len_tail);
     memset(fst + len_tail, 0, len_cut);
 
-    len -= len_cut;
+    len = strlen(buffer);
     return len_cut;
 }
 
@@ -100,8 +101,22 @@ size_t commandline_paste(char *fst, const char *str)
     memmove(fst + len_paste, fst, len_tail);
     memcpy(fst, str, len_paste);
 
-    len += len_paste;
+    len = strlen(buffer);
     return len_paste;
+}
+
+
+size_t commandline_insert(char *fst, const char *str)
+{
+    if (!commandline_in_buffer(fst) || commandline_in_buffer(str)) return 0;
+
+    size_t len_insert_max = COMMANDLINE_BUFFER_SIZE - (fst - buffer) - 1;
+    size_t len_insert = (strlen(str) > len_insert_max) ? len_insert_max : strlen(str);
+
+    strncpy(fst, str, len_insert);
+
+    len = strlen(buffer);
+    return len_insert;
 }
 
 
@@ -233,17 +248,47 @@ void commandline_complete_keyword(void)
     char *fst = buffer;
 
     while (!isgraph(*fst)) fst++;
-    while ((*fst == *str) && (*str)) fst++, str++;
-    cursor += commandline_paste(fst, str);
+    cursor = fst + commandline_insert(fst, str);
 }
 
 
-void commandline_complete(void)
+void commandline_complete_path(const char *str_basename)
+{
+    if (!str_basename || !data) return;
+
+    char *str_fullpath = NULL, *str_filename = NULL, *common = NULL;
+    struct StringArray *dirent = NULL;
+
+    str_fullpath = malloc(strlen(str_basename) + strlen(data) + 1);
+    strcpy(str_fullpath, str_basename);
+    strcat(str_fullpath, data);
+    char *tmp = strrchr(str_fullpath, '/');
+    if (tmp) *tmp = '\0';
+
+    str_filename = strrchr(data, '/');
+    if (!str_filename) str_filename = data;
+
+    dirent = strarr_dir_filenames(str_fullpath);
+    common = strarr_common_prefix(dirent, str_filename);
+
+    cursor = data + commandline_insert(data, common);
+
+    strarr_destroy(dirent);
+    free(common);
+    free(str_fullpath);
+}
+
+
+void commandline_complete(const char *str_basename)
 {
     commandline_parse();
 
-    if ((COMMAND_NONE != command) && (COMMAND_ERROR != command) && (!data)) {
+    if ((!data) && (COMMAND_NONE != command) && (COMMAND_ERROR != command)) {
         commandline_complete_keyword();
         return;
+    }
+
+    if (data && ((COMMAND_WRITE == command) || (COMMAND_EDIT == command))) {
+        commandline_complete_path(str_basename);
     }
 }
