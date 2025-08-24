@@ -208,11 +208,9 @@ int isnull(int ch) { return (0 == ch) ? 1 : 0; }
 void commandline_parse(void)
 {
     char *cmd_fst = NULL, *cmd_snd = NULL;
-    char *data_fst = NULL;
-    ptrdiff_t len_cmd = 0, len_data = 0;
+    ptrdiff_t len_cmd = -1;
 
     command = COMMAND_NONE;
-    if (data) free(data);
     data = NULL;
 
     cmd_fst = commandline_find_next(buffer, isgraph);
@@ -236,11 +234,7 @@ void commandline_parse(void)
 
     if ((command == COMMAND_QUIT) || (command == COMMAND_ERROR)) return;
 
-    data_fst = commandline_find_next(cmd_snd, isgraph);
-    if (!data_fst) return;
-
-    len_data = (buffer + COMMANDLINE_BUFFER_SIZE) - data_fst;
-    if (len_data) data = strndup(data_fst, len_data);
+    data = commandline_find_next(cmd_snd, isgraph);
 }
 
 
@@ -257,23 +251,26 @@ void commandline_complete_keyword(void)
 void commandline_complete_path(const char *str_basename)
 {
     if (!str_basename || !data) return;
+    if (!commandline_in_buffer(data)) return;
 
     char *str_fullpath = NULL, *str_filename = NULL, *common = NULL;
     struct StringArray *dirent = NULL;
 
-    str_fullpath = malloc(strlen(str_basename) + strlen(data) + 1);
+    str_fullpath = malloc(strlen(str_basename) + strlen(data) + 2);
     strcpy(str_fullpath, str_basename);
+    strcat(str_fullpath, "/");
     strcat(str_fullpath, data);
     char *tmp = strrchr(str_fullpath, '/');
     if (tmp) *tmp = '\0';
 
     str_filename = strrchr(data, '/');
     if (!str_filename) str_filename = data;
+    if ('/' == *str_filename) str_filename += 1;
 
     dirent = strarr_dir_filenames(str_fullpath);
     common = strarr_common_prefix(dirent, str_filename);
 
-    cursor = data + commandline_insert(data, common);
+    cursor = str_filename + commandline_insert(str_filename, common);
 
     strarr_destroy(dirent);
     free(common);
