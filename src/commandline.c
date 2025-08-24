@@ -186,9 +186,11 @@ bool commandline_match(char *fst, const char *keyword, size_t n)
 void commandline_cursor_cut_word(void)
 {
     if (len == 0) return;
-    char *fst = commandline_find_prev(cursor, isspace);
-    if (!fst) fst = cursor;
-    fst = commandline_find_prev(fst, isgraph);
+    char *fst = commandline_find_prev(cursor, isgraph);
+    if (!fst) {
+        commandline_cursor_cut_line();
+        return;
+    }
     while (commandline_in_buffer(fst - 1) && isgraph(*(fst - 1))) fst--;
     cursor -= commandline_cut(fst, cursor);
 }
