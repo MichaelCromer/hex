@@ -89,11 +89,11 @@ than one tile).
  - [X] simple colours and ui
  - [X] commandline (`q[uit]`, `w[rite]`, `e[dit]`)
  - [X] contextual help/hint ui panels
+ - [X] improved commandline usefulness (<C-h>, <C-w>, <C-u>, tab complete, etc)
 
 ### IN PROGRESS
 
  - [ ] full/adaptive colour
- - [ ] improved commandline usefulness (<C-h>, <C-w>, <C-u>, tab complete, etc)
 
 ### Roadmap to 1.0
 
