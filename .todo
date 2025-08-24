@@ -40,3 +40,4 @@
 [ ] refactor state_update it is getting unwieldy
 [ ] make a plan for :set command for reticule, brush size, zoom, aspect, jump size, hints shown in statusbar, etc
 [ ] refactor state_initialise to make more sense with reading arbitrary saved files
+[ ] commandline_parse needs rework/splitting to better fit api
