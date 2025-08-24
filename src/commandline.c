@@ -8,12 +8,6 @@
 
 #define COMMANDLINE_BUFFER_SIZE 1024
 
-const char *COMMAND_WORD_QUIT = "quit";
-const char *COMMAND_WORD_WRITE = "write";
-const char *COMMAND_WORD_EDIT = "edit";
-const char *COMMAND_WORD_NONE = "";
-
-
 char buffer[COMMANDLINE_BUFFER_SIZE] = { 0 };
 size_t len = 0;
 char *cursor = buffer;
@@ -21,34 +15,17 @@ enum COMMAND command = COMMAND_NONE;
 char *data = NULL;
 
 
-const char *command_str(enum COMMAND c)
-{
-    switch (c) {
-        case COMMAND_QUIT:
-            return COMMAND_WORD_QUIT;
-        case COMMAND_WRITE:
-            return COMMAND_WORD_WRITE;
-        case COMMAND_EDIT:
-            return COMMAND_WORD_EDIT;
-        default:
-            break;
-    }
-
-    return COMMAND_WORD_NONE;
-}
+size_t commandline_len(void) { return len; }
+const char *commandline_str(void) { return buffer; }
+enum COMMAND commandline_command(void) { return command; }
+const char *commandline_data(void) { return data; }
+char *commandline_cursor(void) { return cursor; }
 
 
 bool commandline_in_buffer(const char *ptr)
 {
     return ((ptr >= buffer) && (ptr <= buffer + COMMANDLINE_BUFFER_SIZE));
 }
-
-
-size_t commandline_len(void) { return len; }
-const char *commandline_str(void) { return buffer; }
-enum COMMAND commandline_command(void) { return command; }
-const char *commandline_data(void) { return data; }
-char *commandline_cursor(void) { return cursor; }
 
 
 void commandline_reset(void)
@@ -222,11 +199,11 @@ void commandline_parse(void)
     len_cmd = cmd_snd - cmd_fst;
     if (!len_cmd) return;
 
-    if (commandline_match(cmd_fst, COMMAND_WORD_QUIT, len_cmd))  {
+    if (commandline_match(cmd_fst, command_str(COMMAND_QUIT), len_cmd))  {
         command = COMMAND_QUIT;
-    } else if (commandline_match(cmd_fst, COMMAND_WORD_WRITE, len_cmd))  {
+    } else if (commandline_match(cmd_fst, command_str(COMMAND_WRITE), len_cmd))  {
         command = COMMAND_WRITE;
-    } else if (commandline_match(cmd_fst, COMMAND_WORD_EDIT, len_cmd))  {
+    } else if (commandline_match(cmd_fst, command_str(COMMAND_EDIT), len_cmd))  {
         command = COMMAND_EDIT;
     } else {
         command = COMMAND_ERROR;

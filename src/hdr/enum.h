@@ -133,6 +133,8 @@ enum COMMAND
     COMMAND_EDIT,
 };
 
+const char *command_str(enum COMMAND c);
+
 
 enum STATUS
 {

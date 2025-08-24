@@ -314,6 +314,8 @@ const char *statusstr_fail_write = "ERROR: failed to write file ";
 const char *statusstr_fail_edit = "ERROR: failed to read file ";
 
 
+/*  STATUS : Functions */
+
 const char *status_string(enum STATUS s)
 {
     switch (s) {
@@ -331,4 +333,35 @@ const char *status_string(enum STATUS s)
         default:
             return NULL;
     }
+}
+
+
+/*======================================================================================
+ *  COMMAND
+ */
+
+/*  COMMAND : Constants */
+
+const char *COMMAND_WORD_QUIT = "quit";
+const char *COMMAND_WORD_WRITE = "write";
+const char *COMMAND_WORD_EDIT = "edit";
+const char *COMMAND_WORD_NONE = "";
+
+
+/*  COMMAND : Functions */
+
+const char *command_str(enum COMMAND c)
+{
+    switch (c) {
+        case COMMAND_QUIT:
+            return COMMAND_WORD_QUIT;
+        case COMMAND_WRITE:
+            return COMMAND_WORD_WRITE;
+        case COMMAND_EDIT:
+            return COMMAND_WORD_EDIT;
+        default:
+            break;
+    }
+
+    return COMMAND_WORD_NONE;
 }
