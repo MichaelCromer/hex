@@ -34,7 +34,6 @@ void commandline_reset(void)
     len = 0;
     cursor = buffer;
     command = COMMAND_NONE;
-    if (data) free(data);
     data = NULL;
 }
 
