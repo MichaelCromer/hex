@@ -11,7 +11,8 @@
 #define ROOT3       1.732050807f
 #define ROOT3_INV   0.57735026919f
 
-void geometry_initialise(float scale, float aspect, WINDOW * win);
+void geometry_initialise(WINDOW *win);
+void geometry_zoom(bool in);
 void geometry_calculate_viewpoint(struct Coordinate o);
 float geometry_slope(void);
 int geometry_cmid(void);

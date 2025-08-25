@@ -48,7 +48,7 @@ void state_initialise(WINDOW *win, const char *str_filename)
 {
     window = win;
 
-    geometry_initialise(GEOMETRY_DEFAULT_SCALE, GEOMETRY_DEFAULT_ASPECT, win);
+    geometry_initialise(win);
     ui_initialise();
 
     atlas = atlas_create();
@@ -78,42 +78,42 @@ void state_update(void)
     if ((MODE_COMMAND != state_mode()) && (KEY_TOGGLE_HELP == k)) {
         action_hint();
         return;
-    }
-
-    if (STATUS_OK != status) {
+    } else if ((KEY_ZOOM_OUT == k) || (KEY_ZOOM_IN == k)) {
+        geometry_zoom((KEY_ZOOM_OUT == k));
+    } else if (STATUS_OK != status) {
         action_capture(k);
         return;
-    }
-
-    switch (state_mode()) {
-        case MODE_CAPTURE:
-            action_capture(k);
-            break;
-        case MODE_NAVIGATE:
-            action_navigate(k);
-            break;
-        case MODE_TERRAIN:
-        case MODE_AWAIT_TERRAIN:
-            action_terrain(k);
-            break;
-        case MODE_COMMAND:
-            action_command(k);
-            break;
-        case MODE_ROAD:
-        case MODE_AWAIT_ROAD:
-            action_road(k);
-            break;
-        case MODE_AWAIT_RIVER:
-        case MODE_RIVER:
-            action_river(k);
-            break;
-        case MODE_AWAIT_LOCATION:
-        case MODE_LOCATION:
-            action_location(k);
-            break;
-        case MODE_NONE:
-        default:
-            break;
+    } else {
+        switch (state_mode()) {
+            case MODE_CAPTURE:
+                action_capture(k);
+                break;
+            case MODE_NAVIGATE:
+                action_navigate(k);
+                break;
+            case MODE_TERRAIN:
+            case MODE_AWAIT_TERRAIN:
+                action_terrain(k);
+                break;
+            case MODE_COMMAND:
+                action_command(k);
+                break;
+            case MODE_ROAD:
+            case MODE_AWAIT_ROAD:
+                action_road(k);
+                break;
+            case MODE_AWAIT_RIVER:
+            case MODE_RIVER:
+                action_river(k);
+                break;
+            case MODE_AWAIT_LOCATION:
+            case MODE_LOCATION:
+                action_location(k);
+                break;
+            case MODE_NONE:
+            default:
+                break;
+        }
     }
 
     ui_update();

@@ -20,6 +20,9 @@
 #define       KEY_TOGGLE_DETAIL 'j'
 #define     KEY_TOGGLE_RETICULE 'x'
 
+#define             KEY_ZOOM_IN '+'
+#define            KEY_ZOOM_OUT '_'
+
 #define                  KEY_EE 'k'
 #define                  KEY_NE 'i'
 #define                  KEY_NW 'u'

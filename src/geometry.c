@@ -17,20 +17,33 @@ struct Coordinate screen_T = { 0 };
 struct Coordinate screen_B = { 0 };
 struct Coordinate viewpoint = { 0 };
 
-void geometry_initialise(float scale, float aspect, WINDOW *win)
-{
-    scale = scale;
-    aspect = aspect;
-    getmaxyx(win, rows, cols);
 
+void geometry_rescale(float scale_new)
+{
+    scale = scale_new;
     tile_dw = round(scale * ROOT3 / 2);
     tile_dh = round(scale * aspect / 2);
     tile_nw = round(cols/(2.00f*tile_dw)) + 1;
     tile_nh = round(rows/(1.50f*tile_dh)) + 1;
 
+    geometry_calculate_viewpoint(coordinate_origin());
+}
+
+
+void geometry_initialise(WINDOW *win)
+{
+    aspect = GEOMETRY_DEFAULT_ASPECT;
+    scale = GEOMETRY_DEFAULT_SCALE;
+    getmaxyx(win, rows, cols);
+
     slope = ROOT3_INV * aspect;
     rmid = rows / 2;
     cmid = cols / 2;
+
+    tile_dw = round(scale * ROOT3 / 2);
+    tile_dh = round(scale * aspect / 2);
+    tile_nw = round(cols/(2.00f*tile_dw)) + 1;
+    tile_nh = round(rows/(1.50f*tile_dh)) + 1;
 
     geometry_calculate_viewpoint(coordinate_origin());
 }
@@ -49,6 +62,18 @@ void geometry_calculate_viewpoint(struct Coordinate o)
         coordinate_common_ancestor(screen_L, screen_R),
         coordinate_common_ancestor(screen_T, screen_B)
     );
+}
+
+
+void geometry_zoom(bool out)
+{
+    if (out) {
+        if (scale <= 3) return;
+        geometry_rescale(scale - 1);
+    } else {
+        if (scale >= 24) return;
+        geometry_rescale(scale + 1);
+    }
 }
 
 
