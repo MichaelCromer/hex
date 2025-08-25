@@ -94,14 +94,14 @@ than one tile).
 ### IN PROGRESS
 
  - [ ] full/adaptive colour
+ - [~] consistent UI/UX
+     - - [?] 'j' _always_ toggles view of tile detail
+     - - [?] directional keys _always_ move the reticule
 
 ### Roadmap to 1.0
 
 Definite targets
 
- - [ ] consistent UI/UX
-     - - [ ] 'j' _always_ toggles view of tile detail
-     - - [ ] directional keys _always_ move the reticule
  - [ ] expanded commands and options
      - - [ ] repeat/undo last action
 

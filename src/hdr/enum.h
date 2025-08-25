@@ -2,6 +2,7 @@
 #define ENUM_H
 
 #include <stdbool.h>
+#include <ncurses.h>
 
 
 enum COLOUR_PAIR
@@ -23,14 +24,16 @@ enum COLOUR_PAIR
     COLOUR_PAIR_HILLS_BASE,
     COLOUR_PAIR_HILLS_TREE,
     COLOUR_PAIR_FOREST_BASE,
+    COLOUR_PAIR_FOREST_STUMP,
     COLOUR_PAIR_DESERT_BASE,
+    COLOUR_PAIR_DESERT_CACTUS,
     COLOUR_PAIR_JUNGLE_BASE,
     COLOUR_PAIR_SWAMP_BASE,
     COLOUR_PAIR_SWAMP_REED,
     COLOUR_PAIR_SWAMP_FLOWER,
     COLOUR_PAIR_TUNDRA_BASE,
     COLOUR_PAIR_TUNDRA_ROCK,
-    COLOUR_PAIR_TUNDRA_WATER,
+    COLOUR_PAIR_TUNDRA_ICE,
 };
 
 void colour_initialise(void);
@@ -75,7 +78,7 @@ enum UI_PANEL mode_panel(enum MODE m);
 
 
 #define NUM_TERRAIN 9
-#define NUM_TERRAIN_CHOPTS 24
+#define NUM_TERRAIN_CHOPTS 53
 enum TERRAIN
 {
     TERRAIN_NONE,
@@ -90,9 +93,11 @@ enum TERRAIN
     TERRAIN_SWAMP,
     TERRAIN_TUNDRA
 };
+
 const char *terrain_name(enum TERRAIN t);
 const char *terrain_chopts(enum TERRAIN t);
 int terrain_colour(enum TERRAIN t, char c);
+attr_t terrain_font(enum TERRAIN t, char c);
 bool terrain_impassable(enum TERRAIN t);
 const char *terrain_statusline(void);
 

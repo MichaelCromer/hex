@@ -15,65 +15,37 @@ void colour_initialise(void)
 
     start_color();
 
-    if (!full) {
-        init_pair(COLOUR_PAIR_RED, COLOR_RED, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_GREEN, COLOR_GREEN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_YELLOW, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_BLUE, COLOR_BLUE, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_CYAN, COLOR_CYAN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_WHITE, COLOR_WHITE, COLOR_BLACK);
+    (void)full;
 
-        init_pair(COLOUR_PAIR_RIVER, COLOR_BLACK, COLOR_BLUE);
-        init_pair(COLOUR_PAIR_ROAD, COLOR_BLACK, COLOR_YELLOW);
+    init_pair(COLOUR_PAIR_RED, COLOR_RED, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_GREEN, COLOR_GREEN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_YELLOW, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_BLUE, COLOR_BLUE, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_CYAN, COLOR_CYAN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_WHITE, COLOR_WHITE, COLOR_BLACK);
 
-        init_pair(COLOUR_PAIR_WATER_BASE, COLOR_BLUE, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_MOUNTAINS_BASE, COLOR_WHITE, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_PLAINS_BASE, COLOR_GREEN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_PLAINS_TREE, COLOR_BLACK, COLOR_GREEN);
-        init_pair(COLOUR_PAIR_PLAINS_FLOWER, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_HILLS_BASE, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_HILLS_TREE, COLOR_GREEN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_FOREST_BASE, COLOR_BLACK, COLOR_GREEN);
-        init_pair(COLOUR_PAIR_DESERT_BASE, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_JUNGLE_BASE, COLOR_BLACK, COLOR_GREEN);
-        init_pair(COLOUR_PAIR_SWAMP_BASE, COLOR_CYAN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_SWAMP_REED, COLOR_GREEN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_SWAMP_FLOWER, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_TUNDRA_BASE, COLOR_CYAN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_TUNDRA_ROCK, COLOR_WHITE, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_TUNDRA_WATER, COLOR_BLUE, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_RIVER, COLOR_BLACK, COLOR_BLUE);
+    init_pair(COLOUR_PAIR_ROAD, COLOR_BLACK, COLOR_YELLOW);
 
-    } else {
-        init_pair(COLOUR_PAIR_RED, COLOR_RED, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_GREEN, COLOR_GREEN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_YELLOW, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_BLUE, COLOR_BLUE, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_CYAN, COLOR_CYAN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_WHITE, COLOR_WHITE, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_WATER_BASE, COLOR_BLUE, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_MOUNTAINS_BASE, COLOR_WHITE, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_PLAINS_BASE, COLOR_GREEN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_PLAINS_TREE, COLOR_GREEN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_PLAINS_FLOWER, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_HILLS_BASE, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_HILLS_TREE, COLOR_GREEN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_FOREST_BASE, COLOR_GREEN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_FOREST_STUMP, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_DESERT_BASE, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_DESERT_CACTUS, COLOR_GREEN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_JUNGLE_BASE, COLOR_GREEN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_SWAMP_BASE, COLOR_CYAN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_SWAMP_REED, COLOR_GREEN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_SWAMP_FLOWER, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_TUNDRA_BASE, COLOR_WHITE, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_TUNDRA_ICE, COLOR_CYAN, COLOR_BLACK);
 
-        init_pair(COLOUR_PAIR_RIVER, COLOR_BLACK, COLOR_BLUE);
-        init_pair(COLOUR_PAIR_ROAD, COLOR_BLACK, COLOR_YELLOW);
-
-        init_pair(COLOUR_PAIR_WATER_BASE, COLOR_BLUE, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_MOUNTAINS_BASE, COLOR_WHITE, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_PLAINS_BASE, COLOR_GREEN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_PLAINS_TREE, COLOR_BLACK, COLOR_GREEN);
-        init_pair(COLOUR_PAIR_PLAINS_FLOWER, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_HILLS_BASE, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_HILLS_TREE, COLOR_GREEN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_FOREST_BASE, COLOR_BLACK, COLOR_GREEN);
-        init_pair(COLOUR_PAIR_DESERT_BASE, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_JUNGLE_BASE, COLOR_BLACK, COLOR_GREEN);
-        init_pair(COLOUR_PAIR_SWAMP_BASE, COLOR_CYAN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_SWAMP_REED, COLOR_GREEN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_SWAMP_FLOWER, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_TUNDRA_BASE, COLOR_CYAN, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_TUNDRA_ROCK, COLOR_WHITE, COLOR_BLACK);
-        init_pair(COLOUR_PAIR_TUNDRA_WATER, COLOR_BLUE, COLOR_BLACK);
-
-    }
 }
 
 /*======================================================================================
@@ -114,16 +86,16 @@ const char *terrain_jungle = "Jungle";
 const char *terrain_swamp = "Swamp";
 const char *terrain_tundra = "Tundra";
 
-const char *terrain_chopts_unknown = "                     ??*";
-const char *terrain_chopts_water = "         ~~~~~~~~~~~~~~~";
-const char *terrain_chopts_mountains = "                ..^^^AAA";
-const char *terrain_chopts_plains = "            ,,,,,,;;iitt";
-const char *terrain_chopts_hills = "                 tT4nnnn";
-const char *terrain_chopts_forest = "            ttttttTTTT44";
-const char *terrain_chopts_desert = "            ..........nn";
-const char *terrain_chopts_jungle = "       ttttt TTT 444 #%@";
-const char *terrain_chopts_swamp = "                iijj%~%~";
-const char *terrain_chopts_tundra = "                  ..o=-_";
+const char *terrain_chopts_unknown      = "??? ***                                              ";
+const char *terrain_chopts_water        = "~~~~~~~~~~~~~~~~~~~~~~~~~~~                          ";
+const char *terrain_chopts_mountains    = "AAAAAA ^^^^^^^^ ................                     ";
+const char *terrain_chopts_plains       = "'''' ,,,,,,,,,, ;;;; i t                             ";
+const char *terrain_chopts_hills        = "44 TT tttt mmmm nnnnnnnnnn                           ";
+const char *terrain_chopts_forest       = "tttttttttt TTTT 4444 ffff kk hh                      ";
+const char *terrain_chopts_desert       = ".................... nnnnnnnn !                      ";
+const char *terrain_chopts_jungle       = "tttt TTTT 4444 YYYY PPPP FFFF #### $$$$ % % % % '''' ";
+const char *terrain_chopts_swamp        = "iiii jjjj % % % ~~~~~~~~~~~~~~~~                     ";
+const char *terrain_chopts_tundra       = "........ ooo === ______ -----------                  ";
 
 /*  TERRAIN : Functions */
 
@@ -199,8 +171,10 @@ int terrain_colour(enum TERRAIN t, char c)
             if ('4' == c) return COLOUR_PAIR_HILLS_TREE;
             return COLOUR_PAIR_HILLS_BASE;
         case TERRAIN_FOREST:
+            if ('h' == c) return COLOUR_PAIR_FOREST_STUMP;
             return COLOUR_PAIR_FOREST_BASE;
         case TERRAIN_DESERT:
+            if ('!' == c) return COLOUR_PAIR_DESERT_CACTUS;
             return COLOUR_PAIR_DESERT_BASE;
         case TERRAIN_JUNGLE:
             return COLOUR_PAIR_JUNGLE_BASE;
@@ -210,27 +184,52 @@ int terrain_colour(enum TERRAIN t, char c)
             if ('%' == c) return COLOUR_PAIR_SWAMP_FLOWER;
             return COLOUR_PAIR_SWAMP_BASE;
         case TERRAIN_TUNDRA:
-            if ('o' == c) return COLOUR_PAIR_TUNDRA_ROCK;
-            if ('=' == c) return COLOUR_PAIR_TUNDRA_WATER;
+            if ('=' == c) return COLOUR_PAIR_TUNDRA_ICE;
+            if ('_' == c) return COLOUR_PAIR_TUNDRA_ICE;
             return COLOUR_PAIR_TUNDRA_BASE;
         default:
             break;
     }
-    return COLOR_WHITE;
+    return COLOUR_PAIR_WHITE;
 }
 
-        /*
-     *terrain_chopts_unknown = "                     ??*";
-     *terrain_chopts_water = "         ~~~~~~~~~~~~~~~";
-     *terrain_chopts_mountains = "                ..^^^AAA";
-     *terrain_chopts_plains = "            ,,,,,,;;;;it";
-     *terrain_chopts_hills = "                 tT4nnnn";
-     *terrain_chopts_forest = "            ttttttTTTT44";
-     *terrain_chopts_desert = "            ..........nn";
-     *terrain_chopts_jungle = "       ttttt TTT 444 #%@";
-     *terrain_chopts_swamp = "                iijj%~%~";
-     *terrain_chopts_tundra = "                  ..o=-_";
-    */
+
+attr_t terrain_font(enum TERRAIN t, char c)
+{
+    switch (t) {
+        case TERRAIN_WATER:
+        case TERRAIN_MOUNTAINS:
+            if ('A' == c) return A_BOLD;
+            return A_NORMAL;
+        case TERRAIN_PLAINS:
+            if ('t' == c) return A_BOLD;
+            if ('i' == c) return A_BOLD;
+            return A_NORMAL;
+        case TERRAIN_HILLS:
+            return A_NORMAL;
+        case TERRAIN_FOREST:
+            if ('t' == c) return A_BOLD;
+            return A_NORMAL;
+        case TERRAIN_DESERT:
+            return A_BOLD;
+        case TERRAIN_JUNGLE:
+            if ('t' == c) return A_NORMAL;
+            if ('T' == c) return A_NORMAL;
+            if ('4' == c) return A_NORMAL;
+            return A_BOLD;
+        case TERRAIN_SWAMP:
+            if ('i' == c) return A_NORMAL;
+            if ('j' == c) return A_NORMAL;
+            if ('%' == c) return A_BOLD;
+            return A_NORMAL;
+        case TERRAIN_TUNDRA:
+            if ('.' == c) return A_BOLD;
+            return A_NORMAL;
+        default:
+            break;
+    }
+    return A_NORMAL;
+}
 
 
 bool terrain_impassable(enum TERRAIN t)

@@ -268,6 +268,7 @@ void wdraw_tile_terrain(WINDOW *win, struct Tile *tile, int r0, int c0)
     enum TERRAIN t = tile_terrain(tile);
     char t_char = 0;
     enum COLOUR_PAIR t_colour = 0;
+    attr_t t_font = 0;
 
     if ((MODE_TERRAIN != state_mode()) && (TERRAIN_UNKNOWN == t)) return;
 
@@ -278,27 +279,30 @@ void wdraw_tile_terrain(WINDOW *win, struct Tile *tile, int r0, int c0)
         for (int r = -(h + dh); r <= (h + dh); r++) {
             t_char = tile_getch(tile, c, r);
             t_colour = terrain_colour(t, t_char);
-            attron(COLOR_PAIR(t_colour));
+            t_font = terrain_font(t, t_char);
+            wattron(win, COLOR_PAIR(t_colour));
+            wattron(win, t_font);
             mvwaddch(win, r0 + r, c0 + c, tile_getch(tile, c, r));
-            attroff(COLOR_PAIR(t_colour));
+            wattron(win, COLOR_PAIR(t_colour));
+            wattroff(win, t_font);
         }
     }
 
-    attron(COLOR_PAIR(COLOUR_PAIR_ROAD));
+    wattron(win, COLOR_PAIR(COLOUR_PAIR_ROAD));
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         if (tile_road(tile, i)) {
             wdraw_road(win, r0, c0, i);
         }
     }
-    attroff(COLOR_PAIR(COLOUR_PAIR_ROAD));
+    wattroff(win, COLOR_PAIR(COLOUR_PAIR_ROAD));
 
-    attron(COLOR_PAIR(COLOUR_PAIR_RIVER));
+    wattron(win, COLOR_PAIR(COLOUR_PAIR_RIVER));
     for (int i = 0; i < NUM_DIRECTIONS; i++) {
         if (tile_river(tile, i)) {
             wdraw_river(win, r0, c0, i);
         }
     }
-    attroff(COLOR_PAIR(COLOUR_PAIR_RIVER));
+    wattroff(win, COLOR_PAIR(COLOUR_PAIR_RIVER));
 }
 
 
@@ -349,7 +353,7 @@ void wdraw_reticule(WINDOW *win)
     int w = geometry_tile_dw(), h = geometry_tile_dh();
     int r = geometry_rmid(), c = geometry_cmid();
 
-    attron(COLOR_PAIR(COLOR_RED));
+    wattron(win, COLOR_PAIR(COLOR_RED));
 
     mvwaddch(win, r + h, c + w, x);
     mvwaddch(win, r - h, c + w, x);
@@ -358,7 +362,7 @@ void wdraw_reticule(WINDOW *win)
     mvwaddch(win, r + 2*h, c, x);
     mvwaddch(win, r - 2*h, c, x);
 
-    attroff(COLOR_PAIR(COLOR_RED));
+    wattroff(win, COLOR_PAIR(COLOR_RED));
     return;
 }
 
@@ -382,22 +386,22 @@ void wdraw_statusline(WINDOW *win)
     wmove(win, r0, c0 + 1);
 
     if (STATUS_OK != state_status()) {
-        attron(COLOR_PAIR(COLOUR_PAIR_RED));
+        wattron(win, COLOR_PAIR(COLOUR_PAIR_RED));
         waddstr(win, state_message());
-        attron(COLOR_PAIR(COLOUR_PAIR_RED));
+        wattron(win, COLOR_PAIR(COLOUR_PAIR_RED));
         return;
     }
 
     if (state_await()) {
-        attron(COLOR_PAIR(mode_colour(state_lastmode())));
+        wattron(win, COLOR_PAIR(mode_colour(state_lastmode())));
         waddstr(win, mode_name(state_lastmode()));
-        attroff(COLOR_PAIR(mode_colour(state_lastmode())));
+        wattroff(win, COLOR_PAIR(mode_colour(state_lastmode())));
         addch(' ');
     }
 
-    attron(COLOR_PAIR(mode_colour(state_mode())));
+    wattron(win, COLOR_PAIR(mode_colour(state_mode())));
     waddstr(win, mode_name(state_mode()));
-    attroff(COLOR_PAIR(mode_colour(state_mode())));
+    wattroff(win, COLOR_PAIR(mode_colour(state_mode())));
 
     if (MODE_COMMAND == state_mode()) {
         addch(' ');
