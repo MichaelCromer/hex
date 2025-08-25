@@ -1,3 +1,4 @@
+[X] map zoom with plus minus keys
 [X] chart_tile candidate for deprecation, expose only atlas
 [X] chart p q r candidates for deprecation
 [X] unknown terrain only drawn in terrain painting mode
@@ -34,7 +35,6 @@
 [ ] UX remember last placed terrain
 [ ] UX drag-paint doesn't update last placed terrain?
 [ ] update splash (should only load when no filename passed as cmdline option)
-[ ] map zoom with plus minus keys
 [ ] is there a better way to check if I need to create neighbours than to see if the current terrain is TERRAIN_UNKNOWN
 [ ] proper colour defines for roads, rivers, and features in wdraw_tile
 [ ] refactor state_update it is getting unwieldy
