@@ -93,8 +93,8 @@ than one tile).
 
 ### IN PROGRESS
 
- - [ ] full/adaptive colour
- - [~] consistent UI/UX
+ - [~] full/adaptive colour
+ - [?] consistent UI/UX
      - - [?] 'j' _always_ toggles view of tile detail
      - - [?] directional keys _always_ move the reticule
 
