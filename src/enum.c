@@ -32,7 +32,6 @@ void colour_initialise(void)
     init_pair(COLOUR_PAIR_MOUNTAINS_BASE, COLOR_WHITE, COLOR_BLACK);
     init_pair(COLOUR_PAIR_PLAINS_BASE, COLOR_GREEN, COLOR_BLACK);
     init_pair(COLOUR_PAIR_PLAINS_TREE, COLOR_GREEN, COLOR_BLACK);
-    init_pair(COLOUR_PAIR_PLAINS_FLOWER, COLOR_YELLOW, COLOR_BLACK);
     init_pair(COLOUR_PAIR_HILLS_BASE, COLOR_YELLOW, COLOR_BLACK);
     init_pair(COLOUR_PAIR_HILLS_TREE, COLOR_GREEN, COLOR_BLACK);
     init_pair(COLOUR_PAIR_FOREST_BASE, COLOR_GREEN, COLOR_BLACK);
@@ -40,6 +39,10 @@ void colour_initialise(void)
     init_pair(COLOUR_PAIR_DESERT_BASE, COLOR_YELLOW, COLOR_BLACK);
     init_pair(COLOUR_PAIR_DESERT_CACTUS, COLOR_GREEN, COLOR_BLACK);
     init_pair(COLOUR_PAIR_JUNGLE_BASE, COLOR_GREEN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_JUNGLE_WATER, COLOR_CYAN, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_JUNGLE_FLOWER_1, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_JUNGLE_FLOWER_2, COLOR_RED, COLOR_BLACK);
+    init_pair(COLOUR_PAIR_JUNGLE_FLOWER_3, COLOR_YELLOW, COLOR_BLACK);
     init_pair(COLOUR_PAIR_SWAMP_BASE, COLOR_CYAN, COLOR_BLACK);
     init_pair(COLOUR_PAIR_SWAMP_REED, COLOR_GREEN, COLOR_BLACK);
     init_pair(COLOUR_PAIR_SWAMP_FLOWER, COLOR_MAGENTA, COLOR_BLACK);
@@ -89,11 +92,11 @@ const char *terrain_tundra = "Tundra";
 const char *terrain_chopts_unknown      = "??? ***                                              ";
 const char *terrain_chopts_water        = "~~~~~~~~~~~~~~~~~~~~~~~~~~~                          ";
 const char *terrain_chopts_mountains    = "AAAAAA ^^^^^^^^ ................                     ";
-const char *terrain_chopts_plains       = "'''' ,,,,,,,,,, ;;;; i t                             ";
+const char *terrain_chopts_plains       = "'''' ,,,,,,,,,, ;;;; . t                             ";
 const char *terrain_chopts_hills        = "44 TT tttt mmmm nnnnnnnnnn                           ";
 const char *terrain_chopts_forest       = "tttttttttt TTTT 4444 ffff kk hh                      ";
 const char *terrain_chopts_desert       = ".................... nnnnnnnn !                      ";
-const char *terrain_chopts_jungle       = "tttt TTTT 4444 YYYY PPPP FFFF #### $$$$ % % % % '''' ";
+const char *terrain_chopts_jungle       = "tttt TTTT 4444 YYYY PPPP FFFF #### $$$$ % @ i ~ ;;;; ";
 const char *terrain_chopts_swamp        = "iiii jjjj % % % ~~~~~~~~~~~~~~~~                     ";
 const char *terrain_chopts_tundra       = "........ ooo === ______ -----------                  ";
 
@@ -163,7 +166,6 @@ int terrain_colour(enum TERRAIN t, char c)
             return COLOUR_PAIR_MOUNTAINS_BASE;
         case TERRAIN_PLAINS:
             if ('t' == c) return COLOUR_PAIR_PLAINS_TREE;
-            if ('i' == c) return COLOUR_PAIR_PLAINS_FLOWER;
             return COLOUR_PAIR_PLAINS_BASE;
         case TERRAIN_HILLS:
             if ('t' == c) return COLOUR_PAIR_HILLS_TREE;
@@ -177,6 +179,10 @@ int terrain_colour(enum TERRAIN t, char c)
             if ('!' == c) return COLOUR_PAIR_DESERT_CACTUS;
             return COLOUR_PAIR_DESERT_BASE;
         case TERRAIN_JUNGLE:
+            if ('~' == c) return COLOUR_PAIR_JUNGLE_WATER;
+            if ('%' == c) return COLOUR_PAIR_JUNGLE_FLOWER_1;
+            if ('@' == c) return COLOUR_PAIR_JUNGLE_FLOWER_2;
+            if ('i' == c) return COLOUR_PAIR_JUNGLE_FLOWER_3;
             return COLOUR_PAIR_JUNGLE_BASE;
         case TERRAIN_SWAMP:
             if ('i' == c) return COLOUR_PAIR_SWAMP_REED;
@@ -203,7 +209,6 @@ attr_t terrain_font(enum TERRAIN t, char c)
             return A_NORMAL;
         case TERRAIN_PLAINS:
             if ('t' == c) return A_BOLD;
-            if ('i' == c) return A_BOLD;
             return A_NORMAL;
         case TERRAIN_HILLS:
             return A_NORMAL;
@@ -216,6 +221,9 @@ attr_t terrain_font(enum TERRAIN t, char c)
             if ('t' == c) return A_NORMAL;
             if ('T' == c) return A_NORMAL;
             if ('4' == c) return A_NORMAL;
+            if ('F' == c) return A_NORMAL;
+            if ('Y' == c) return A_NORMAL;
+            if ('P' == c) return A_NORMAL;
             return A_BOLD;
         case TERRAIN_SWAMP:
             if ('i' == c) return A_NORMAL;
