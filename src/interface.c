@@ -235,7 +235,7 @@ void ui_initialise(void)
     );
 
     /* TODO this is super fragile */
-    for (enum UI_PANEL p = PANEL_NAVIGATE; p <= PANEL_LOCATION; p++) {
+    for (enum UI_PANEL p = PANEL_NAVIGATE; p < PANEL_NONE; p++) {
         panel_set_rc(
             panel[p],
             panel_height(panel[PANEL_HINT]),
