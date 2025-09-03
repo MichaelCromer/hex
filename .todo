@@ -44,3 +44,5 @@
 [ ] add unstaved changes warning for write/edit/quit
 [ ] add road and river jitter
 [ ] bugfix terrain display on file load
+[ ] tab complete with command + whitespace will delete whitespace?
+[ ] errmsg for non-recognised commands
