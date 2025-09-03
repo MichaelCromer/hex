@@ -1,37 +1,67 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -Wpedantic -Werror
-CLIBS = -lncurses -lm
+########################################################################################
+#
+#	hex Makefeile
+#
+########################################################################################
+
+
+#=======================================================================================
+#	Setup
 
 DIR_SRC = ./src
 DIR_HDR = $(DIR_SRC)/hdr
 DIR_BLD = ./bld
 DIR_OBJ = $(DIR_BLD)/obj
-TARGET = hex
+DIR_DEP = $(DIR_BLD)/dep
+
+TARGET = $(DIR_BLD)/hex
 
 SRC = $(wildcard $(DIR_SRC)/*.c)
 HDR = $(wildcard $(DIR_HDR)/*.h)
 OBJ = $(SRC:$(DIR_SRC)/%.c=$(DIR_OBJ)/%.o)
+DEP = $(SRC:$(DIR_SRC)/%.c=$(DIR_DEP)/%.d)
+
+CC = gcc
+FLAG_C = -Wall -Wextra -Wpedantic -Werror
+FLAG_D = -MT $@ -MMD -MP -MF $(DIR_DEP)/$*.d
+LIB_C = -lncurses -lm
 
 
-$(DIR_BLD)/$(TARGET): $(OBJ) | $(DIR_BLD)
-	$(CC) $(CFLAGS) $(OBJ) -o $@ $(CLIBS)
+#=======================================================================================
+#	Build (compile/link)
+
+$(TARGET): $(OBJ) | $(DIR_BLD)
+	$(CC) $(FLAG_C) $(OBJ) -o $@ $(LIB_C)
 
 
-$(DIR_OBJ)/%.o: $(DIR_SRC)/%.c | $(DIR_OBJ)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(DIR_OBJ)/%.o: $(DIR_SRC)/%.c $(DIR_DEP)/%.d | $(DIR_OBJ) $(DIR_DEP)
+	$(CC) $(FLAG_C) $(FLAG_D) -c $< -o $@
 
 
-$(DIR_OBJ) $(DIR_BLD): ; mkdir -p $@
+#=======================================================================================
+#	Structural
+
+include $(wildcard $(DEP))
+
+$(DEP) : ;
 
 
-.PHONY: dev
-dev : CFLAGS += -g -fsanitize=address,leak,undefined
-dev : clean $(DIR_BLD)/$(TARGET)
+#=======================================================================================
+#	Directories
+
+$(DIR_OBJ) $(DIR_BLD) $(DIR_DEP): ; mkdir -p $@
 
 
 .PHONY: clean
-clean: ; rm -rf $(DIR_OBJ)
+clean: ; rm -f $(TARGET) $(OBJ) $(DEP)
 
+
+#=======================================================================================
+#	Utility
+
+.PHONY: dev
+dev : FLAG_C += -g -fsanitize=address,leak,undefined
+dev : clean $(TARGET)
 
 .PHONY: tags
 tags: ; ctags $(SRC) $(HDR)
